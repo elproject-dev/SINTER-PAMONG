@@ -27,7 +27,7 @@ function App() {
   useEffect(() => {
     // Initialize mock data in local storage
     initializeDB();
-    
+
     // Check if user is logged in
     const storedUser = localStorage.getItem('hr_current_user');
     if (storedUser) {
@@ -39,6 +39,11 @@ function App() {
   const handleLogin = (loggedInUser: User) => {
     setUser(loggedInUser);
     localStorage.setItem('hr_current_user', JSON.stringify(loggedInUser));
+  };
+
+  const handleUpdateUser = (updatedUser: User) => {
+    setUser(updatedUser);
+    localStorage.setItem('hr_current_user', JSON.stringify(updatedUser));
   };
 
   const handleLogout = async () => {
@@ -58,12 +63,12 @@ function App() {
   return (
     <HashRouter>
       <Routes>
-        <Route 
-          path="/" 
-          element={user ? <Navigate to={user.role === 'admin' ? '/admin' : '/staff'} replace /> : <Login onLogin={handleLogin} />} 
+        <Route
+          path="/"
+          element={user ? <Navigate to={user.role === 'admin' ? '/admin' : '/staff'} replace /> : <Login onLogin={handleLogin} />}
         />
         <Route path="/login" element={<Login onLogin={handleLogin} />} />
-        
+
         <Route path="/register" element={<Register />} />
 
         {/* Admin Routes */}
@@ -75,7 +80,7 @@ function App() {
           <Route path="kpi" element={<AdminKPIEvaluation currentUser={user!} />} />
           <Route path="laporan-tugas" element={<AdminReviewLaporanTugas />} />
           <Route path="tugas-staff" element={<AdminTugasStaff />} />
-          <Route path="settings" element={<AdminSettings user={user!} />} />
+          <Route path="settings" element={<AdminSettings user={user!} onUserUpdate={handleUpdateUser} />} />
         </Route>
 
         {/* Staff Routes */}
@@ -84,9 +89,9 @@ function App() {
           <Route path="absensi" element={<Absensi user={user!} />} />
           <Route path="kpi" element={<BukuSaku user={user!} />} />
           <Route path="nilai-kpi" element={<KPI user={user!} />} />
-          <Route path="settings" element={<Settings user={user!} />} />
+          <Route path="settings" element={<Settings user={user!} onUserUpdate={handleUpdateUser} />} />
         </Route>
-        
+
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </HashRouter>

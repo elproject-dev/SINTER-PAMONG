@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { User, TaskReport, StaffTask } from '../../lib/types';
 import { getUserTaskReports, saveTaskReport, getStaffTasks, updateTaskReport } from '../../lib/db';
 import { KPIDictionary } from '../../lib/kpiDictionary';
-import { ImagePlus, XCircle, ChevronDown, Check, Plus, Search, Eye, ClipboardList, Edit } from 'lucide-react';
+import { ImagePlus, Search, Eye, ClipboardList, Edit, Star, Paperclip, MessageSquare } from 'lucide-react';
 import { format } from 'date-fns';
 import { id } from 'date-fns/locale';
 import { supabase } from '../../lib/supabase';
@@ -19,10 +19,8 @@ export const BukuSaku: React.FC<BukuSakuProps> = ({ user }) => {
   const [reportLink, setReportLink] = useState('');
   const [isUploading, setIsUploading] = useState(false);
   const [showReportSuccess, setShowReportSuccess] = useState(false);
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
-  const [isFormModalOpen, setIsFormModalOpen] = useState(false);
-  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
+  const [showForm, setShowForm] = useState(false);
   const [selectedReport, setSelectedReport] = useState<TaskReport | null>(null);
   const [editingReportId, setEditingReportId] = useState<string | null>(null);
 
@@ -31,11 +29,10 @@ export const BukuSaku: React.FC<BukuSakuProps> = ({ user }) => {
     setReportTaskName('');
     setReportDescription('');
     setReportLink('');
-    setIsFormModalOpen(false);
+    setShowForm(false);
   };
 
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const dropdownRef = useRef<HTMLDivElement>(null);
   const [adminTasks, setAdminTasks] = useState<StaffTask[]>([]);
 
   const fetchReports = async () => {
@@ -59,15 +56,6 @@ export const BukuSaku: React.FC<BukuSakuProps> = ({ user }) => {
     fetchAdminTasks();
   });
 
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-        setIsDropdownOpen(false);
-      }
-    };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
 
   const handleTaskReportSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -102,7 +90,7 @@ export const BukuSaku: React.FC<BukuSakuProps> = ({ user }) => {
     setReportTaskName('');
     setReportDescription('');
     setReportLink('');
-    setIsFormModalOpen(false);
+    setShowForm(false);
     fetchReports();
 
     // Show success message briefly
@@ -159,18 +147,22 @@ export const BukuSaku: React.FC<BukuSakuProps> = ({ user }) => {
     availableTasks.push(...Array.from(new Set(Object.values(KPIDictionary).flat())));
   }
 
-  const filteredReports = taskReports.filter(report => {
-    const todayLocal = new Date().toLocaleDateString('en-CA');
-    const todayUtc = new Date().toISOString().split('T')[0];
-    const isToday = report.date === todayLocal || report.date === todayUtc;
-    const matchesSearch = report.taskName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (report.description || '').toLowerCase().includes(searchTerm.toLowerCase());
-    return isToday && matchesSearch;
-  });
+  const todayLocal = new Date().toLocaleDateString('en-CA');
+  const todayUtc = new Date().toISOString().split('T')[0];
 
-  const openDetailModal = (report: TaskReport) => {
+  const combinedTasks = [
+    ...taskReports.map(r => ({ taskName: r.taskName, report: r, date: r.date })),
+    ...availableTasks
+      .filter(taskName => !taskReports.some(r => r.taskName === taskName && (r.date === todayLocal || r.date === todayUtc)))
+      .map(taskName => ({ taskName, report: null, date: todayLocal }))
+  ]
+    .filter(t => t.taskName.toLowerCase().includes(searchTerm.toLowerCase()))
+    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+
+  const handleDetailClick = (report: TaskReport) => {
     setSelectedReport(report);
-    setIsDetailModalOpen(true);
+    setShowForm(false);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   return (
@@ -191,22 +183,10 @@ export const BukuSaku: React.FC<BukuSakuProps> = ({ user }) => {
               placeholder="Cari tugas..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full bg-white border border-slate-200 rounded-xl py-2 pr-4 pl-9 text-slate-700 text-sm focus:ring-4 focus:ring-school-blue/10 focus:border-school-blue outline-none transition-all shadow-sm font-medium"
+              className="w-full bg-white border border-slate-200 rounded-xl py-2 pr-4 pl-10 text-slate-700 text-sm focus:ring-4 focus:ring-school-blue/10 focus:border-school-blue outline-none transition-all shadow-sm font-medium"
             />
           </div>
 
-          <button
-            onClick={() => {
-              setReportTaskName('');
-              setReportDescription('');
-              setReportLink('');
-              setIsFormModalOpen(true);
-            }}
-            className="flex items-center justify-center gap-2 px-4 py-2 bg-school-blue text-white rounded-xl text-sm font-bold hover:bg-blue-700 hover:shadow-lg transition-all"
-          >
-            <Plus size={16} />
-            Tulis Laporan
-          </button>
         </div>
       </div>
 
@@ -214,6 +194,277 @@ export const BukuSaku: React.FC<BukuSakuProps> = ({ user }) => {
         <div className="bg-emerald-50 border border-emerald-200 text-emerald-700 px-6 py-4 rounded-2xl flex items-center shadow-sm font-medium animate-in fade-in slide-in-from-top-4">
           <div className="mr-3 bg-emerald-100 p-1.5 rounded-full">✅</div>
           Laporan kegiatan berhasil dikirim!
+        </div>
+      )}
+
+      {/* Form Inline Laporan Baru */}
+      {showForm && (
+        <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden mb-6 animate-in fade-in slide-in-from-top-4">
+          <div className="p-4 border-b border-slate-200 bg-slate-50 flex items-center gap-2">
+            <Edit size={18} className="text-school-blue" />
+            <h3 className="font-extrabold text-slate-800 text-lg tracking-tight">
+              {editingReportId ? 'Revisi Laporan Kegiatan' : 'Input Laporan Baru'}
+            </h3>
+          </div>
+
+          <form onSubmit={handleTaskReportSubmit} className="p-5">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5">
+              <div className="space-y-4 flex flex-col h-full">
+                <div>
+                  <label className="block text-sm font-bold text-slate-700 mb-1.5">Jenis Tugas</label>
+                  <input
+                    type="text"
+                    value={reportTaskName}
+                    readOnly
+                    className="w-full bg-slate-100 border border-slate-200 rounded-xl px-4 py-2.5 text-slate-500 font-bold text-sm outline-none cursor-not-allowed shadow-sm"
+                  />
+                </div>
+
+                {(() => {
+                  const matchingAdminTask = adminTasks.find(t => t.namaTugas === reportTaskName);
+                  const label = <label className="block text-sm font-bold text-slate-700 mb-1.5">Instruksi & Lampiran Tugas</label>;
+
+                  if (!matchingAdminTask || (!matchingAdminTask.deskripsi && !matchingAdminTask.lampiranUrl)) {
+                    return (
+                      <div className="flex flex-col">
+                        {label}
+                        <div className="bg-slate-50 border border-slate-200 rounded-xl p-3 flex flex-col justify-center items-center h-24 text-slate-400 text-sm font-medium">
+                          <p className="text-xs text-slate-400 font-medium">Tidak ada instruksi khusus dari Admin</p>
+                        </div>
+                      </div>
+                    );
+                  }
+                  return (
+                    <div className="flex flex-col">
+                      {label}
+                      <div className={`bg-slate-50 border border-slate-200 rounded-xl p-3 h-24 overflow-y-auto custom-scrollbar text-sm text-slate-700 ${!matchingAdminTask.deskripsi ? 'flex items-center justify-start' : 'space-y-1.5'
+                        }`}>
+                        {matchingAdminTask.deskripsi && (
+                          <p className="text-xs leading-relaxed whitespace-pre-wrap">{matchingAdminTask.deskripsi}</p>
+                        )}
+                        {matchingAdminTask.lampiranUrl && (
+                          <div className={!matchingAdminTask.deskripsi ? 'shrink-0' : 'pt-1 shrink-0'}>
+                            <a
+                              href={matchingAdminTask.lampiranUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center gap-1.5 text-xs text-school-blue font-bold hover:underline"
+                            >
+                              <Paperclip size={14} /> Lihat File Lampiran Tugas
+                            </a>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })()}
+              </div>
+
+              <div className="space-y-4 flex flex-col h-full">
+                <div>
+                  <div className="flex justify-between items-center mb-1.5">
+                    <label className="block text-sm font-bold text-slate-700">Tautan / Bukti Dokumen <span className="text-slate-400 font-medium">(Opsional)</span></label>
+                    {reportLink && (
+                      <a
+                        href={reportLink}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-school-blue hover:text-blue-700 transition-colors p-1 rounded-full hover:bg-blue-50 flex items-center justify-center"
+                        title="Periksa Bukti"
+                      >
+                        <Eye size={16} />
+                      </a>
+                    )}
+                  </div>
+                  <div className="relative group flex items-center">
+                    <button
+                      type="button"
+                      onClick={() => fileInputRef.current?.click()}
+                      className="absolute left-3 text-slate-400 hover:text-school-blue transition-colors cursor-pointer disabled:opacity-50"
+                      title="Upload Foto"
+                      disabled={isUploading}
+                    >
+                      {isUploading ? (
+                        <div className="w-5 h-5 border-2 border-school-blue border-t-transparent rounded-full animate-spin"></div>
+                      ) : (
+                        <ImagePlus size={18} />
+                      )}
+                    </button>
+                    <input
+                      type="file"
+                      ref={fileInputRef}
+                      className="hidden"
+                      accept="image/*,video/*,application/pdf"
+                      onChange={handleFileUpload}
+                    />
+                    <input
+                      type="url"
+                      value={reportLink}
+                      onChange={(e) => setReportLink(e.target.value)}
+                      placeholder="Link Drive, Dokumen, dll"
+                      className="w-full bg-slate-50 border border-slate-200 rounded-xl py-2.5 pr-4 pl-10 text-slate-700 focus:ring-4 focus:ring-school-blue/10 focus:border-school-blue outline-none transition-all shadow-sm text-sm"
+                    />
+                  </div>
+
+                </div>
+
+                <div className="flex flex-col">
+                  <label className="block text-sm font-bold text-slate-700 mb-1.5">Deskripsi Kegiatan <span className="text-rose-500">*</span></label>
+                  <textarea
+                    value={reportDescription}
+                    onChange={(e) => setReportDescription(e.target.value)}
+                    placeholder="Ceritakan detail kegiatan yang dilakukan..."
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 h-24 resize-none focus:ring-4 focus:ring-school-blue/10 focus:border-school-blue outline-none transition-all shadow-sm text-sm"
+                    required
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-3 pt-4 border-t border-slate-100">
+              <button
+                type="button"
+                onClick={closeFormModal}
+                className="px-6 py-2 rounded-xl border border-slate-200 text-slate-600 font-bold hover:bg-slate-50 transition-colors text-sm"
+              >
+                Batal
+              </button>
+              <button
+                type="submit"
+                disabled={isUploading}
+                className={`px-8 py-2 text-white font-bold rounded-xl transition-all shadow-md hover:shadow-lg text-sm flex items-center justify-center gap-2 ${isUploading ? 'opacity-70 cursor-not-allowed bg-slate-400' :
+                  editingReportId
+                    ? 'bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700'
+                    : 'bg-gradient-to-r from-school-blue to-indigo-600 hover:from-blue-700 hover:to-indigo-700'
+                  }`}
+              >
+                {isUploading ? 'Mengunggah...' : (editingReportId ? 'Simpan Revisi' : 'Kirim Laporan')}
+              </button>
+            </div>
+          </form>
+        </div>
+      )}
+
+      {/* Tampilan Detail Laporan (Inline Top-Level) */}
+      {selectedReport && !showForm && (
+        <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 mb-6 animate-in slide-in-from-top-4 fade-in duration-300">
+          <div className="flex justify-between items-center mb-5 border-b border-slate-100 pb-3">
+            <h2 className="font-bold text-slate-800 text-lg flex items-center">
+              Detail Laporan Kegiatan
+            </h2>
+            <button
+              onClick={() => setSelectedReport(null)}
+              className="text-sm font-bold text-slate-500 hover:text-slate-700 transition-colors bg-slate-100 hover:bg-slate-200 px-3 py-1.5 rounded-lg"
+            >
+              Tutup Detail
+            </button>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            {/* Kolom Kiri: Detail Laporan */}
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-xs text-slate-400 font-bold uppercase tracking-wider">Status Laporan</p>
+                  <span className={`inline-flex items-center px-3 py-1 mt-1 rounded-full text-xs font-bold ${selectedReport.status === 'reviewed' ? 'bg-emerald-500 text-white shadow-sm' :
+                    selectedReport.status === 'rejected' ? 'bg-rose-500 text-white shadow-sm' :
+                      'bg-orange-500 text-white shadow-sm'
+                    }`}>
+                    {selectedReport.status === 'reviewed' ? 'Disetujui' : selectedReport.status === 'rejected' ? 'Ditolak' : 'Menunggu'}
+                  </span>
+                </div>
+                <div className="text-right">
+                  <p className="text-xs text-slate-400 font-bold uppercase tracking-wider">Tanggal Kegiatan</p>
+                  <p className="font-bold text-slate-700">{format(new Date(selectedReport.date), 'dd MMMM yyyy', { locale: id })}</p>
+                </div>
+              </div>
+
+              <div>
+                <p className="text-xs text-slate-400 font-bold uppercase tracking-wider mb-1">Nama Laporan</p>
+                <p className="font-bold text-slate-800 text-base">{selectedReport.taskName}</p>
+              </div>
+
+              <div>
+                <p className="text-xs text-slate-400 font-bold uppercase tracking-wider mb-1">Deskripsi Kegiatan</p>
+                <div className="bg-slate-50 p-3 rounded-xl border border-slate-200 text-sm text-slate-700 h-24 overflow-y-auto custom-scrollbar">
+                  {selectedReport.description}
+                </div>
+              </div>
+
+            </div>
+
+            {/* Kolom Kanan: Tanggapan & Penilaian */}
+            <div className="flex flex-col h-full">
+              <div className="flex flex-col gap-4">
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <label className="block text-sm font-bold text-slate-700 flex items-center gap-1.5">
+                      <MessageSquare size={16} className="text-slate-400" /> Tanggapan Admin
+                    </label>
+                  </div>
+                  <div className={`w-full h-[96px] text-sm bg-slate-50 border border-slate-200 rounded-xl p-4 overflow-y-auto custom-scrollbar ${selectedReport.status === 'reviewed' ? 'text-emerald-700 font-medium' : selectedReport.status === 'rejected' ? 'text-rose-700 font-medium' : 'text-slate-500 italic'}`}>
+                    {selectedReport.adminFeedback || 'Belum ada tanggapan dari admin.'}
+                  </div>
+
+                  {(selectedReport.link || (selectedReport.status === 'reviewed' && selectedReport.score)) && (
+                    <div className="flex items-center justify-between pt-4 border-t border-slate-100 mt-4">
+                      <div className="flex flex-col">
+                        <span className="text-xs text-slate-400 font-bold uppercase tracking-wider mb-0.5">Lampiran Bukti</span>
+                        {selectedReport.link ? (
+                          <div className="flex items-center gap-2 mt-1">
+                            <a
+                              href={selectedReport.link}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center gap-1.5 text-xs text-school-blue font-bold hover:bg-blue-100 bg-blue-50 px-3 py-1.5 rounded-lg transition-colors border border-blue-100"
+                            >
+                              <Eye size={13} /> Periksa
+                            </a>
+                          </div>
+                        ) : (
+                          <span className="text-xs text-slate-400 italic mt-1">Tidak ada lampiran</span>
+                        )}
+                      </div>
+
+                      {selectedReport.status === 'reviewed' && selectedReport.score && (
+                        <div className="flex flex-col items-end">
+                          <p className="text-xs text-slate-400 font-bold uppercase tracking-wider mb-1.5">Penilaian Diberikan</p>
+                          <div className="flex items-center gap-1 bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5 w-fit shadow-sm">
+                            {[1, 2, 3, 4, 5].map((star) => (
+                              <Star
+                                key={`mod-${star}`}
+                                size={16}
+                                className={`${star <= selectedReport.score! ? 'fill-amber-400 text-amber-400' : 'fill-transparent text-slate-300'}`}
+                              />
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {selectedReport.status === 'rejected' && (
+                <div className="flex gap-3 pt-4 border-t border-slate-100 mt-auto">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setEditingReportId(selectedReport.id);
+                      setReportTaskName(selectedReport.taskName);
+                      setReportDescription(selectedReport.description);
+                      setReportLink(selectedReport.link || '');
+                      setSelectedReport(null);
+                      setShowForm(true);
+                    }}
+                    className="flex-1 bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white py-2.5 rounded-xl font-bold transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2 text-sm"
+                  >
+                    <Edit size={16} /> Revisi Laporan
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
         </div>
       )}
 
@@ -233,50 +484,85 @@ export const BukuSaku: React.FC<BukuSakuProps> = ({ user }) => {
                 <th className="px-4 py-3 font-bold border border-slate-200 text-center w-36">TANGGAL</th>
                 <th className="px-4 py-3 font-bold border border-slate-200">NAMA TUGAS</th>
                 <th className="px-4 py-3 font-bold border border-slate-200 text-center w-44">STATUS</th>
+                <th className="px-4 py-3 font-bold border border-slate-200 text-center w-28">NILAI</th>
                 <th className="px-4 py-3 font-bold border border-slate-200 text-center w-28">AKSI</th>
               </tr>
             </thead>
             <tbody>
-              {filteredReports.length > 0 ? (
-                filteredReports.map((report, index) => (
-                  <tr key={report.id} className="hover:bg-slate-50 transition-colors">
-                    <td className="px-4 py-3 border border-slate-200 text-center text-sm font-medium text-slate-500">
-                      {index + 1}
-                    </td>
-                    <td className="px-4 py-3 border border-slate-200 text-center text-sm text-slate-700">
-                      {format(new Date(report.date), 'dd MMM yyyy', { locale: id })}
-                    </td>
-                    <td className="px-4 py-3 border border-slate-200 text-sm font-bold text-slate-800">
-                      {report.taskName}
-                    </td>
-                    <td className="px-4 py-3 border border-slate-200 text-center">
-                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold ${report.status === 'pending' ? 'bg-orange-500 text-white shadow-sm' :
-                          report.status === 'reviewed' ? 'bg-emerald-500 text-white shadow-sm' :
-                            'bg-rose-500 text-white shadow-sm'
-                        }`}>
-                        {report.status === 'pending' ? 'Menunggu' :
-                          report.status === 'reviewed' ? 'Disetujui' :
-                            'Ditolak'}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3 border border-slate-200 text-center">
-                      <button
-                        onClick={() => openDetailModal(report)}
-                        title="Lihat Detail"
-                        className="p-2 rounded-full text-school-blue hover:bg-blue-50 hover:text-blue-700 transition-colors"
-                      >
-                        <Eye size={18} />
-                      </button>
-                    </td>
-                  </tr>
-                ))
+              {combinedTasks.length > 0 ? (
+                combinedTasks.map((item, index) => {
+                  const report = item.report;
+                  const status = report ? report.status : 'not_done';
+
+                  return (
+                    <tr key={index} className={`transition-colors ${!report ? 'bg-white' : 'bg-slate-50/50'} hover:bg-slate-50`}>
+                      <td className="px-4 py-3 border border-slate-200 text-center text-sm font-medium text-slate-500">
+                        {index + 1}
+                      </td>
+                      <td className="px-4 py-3 border border-slate-200 text-center text-sm text-slate-700">
+                        {format(new Date(item.date), 'dd MMM yyyy', { locale: id })}
+                      </td>
+                      <td className="px-4 py-3 border border-slate-200 text-sm font-bold text-slate-800">
+                        {item.taskName}
+                      </td>
+                      <td className="px-4 py-3 border border-slate-200 text-center">
+                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold whitespace-nowrap ${status === 'pending' ? 'bg-orange-500 text-white shadow-sm' :
+                          status === 'reviewed' ? 'bg-emerald-500 text-white shadow-sm' :
+                            status === 'rejected' ? 'bg-rose-500 text-white shadow-sm' :
+                              'bg-slate-200 text-slate-600 shadow-sm'
+                          }`}>
+                          {status === 'pending' ? 'Menunggu' :
+                            status === 'reviewed' ? 'Disetujui' :
+                              status === 'rejected' ? 'Ditolak' :
+                                'Belum Dikerjakan'}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3 border border-slate-200 text-center">
+                        <div className="flex items-center justify-center gap-0.5 text-slate-300" title={report?.score ? `Nilai: ${report.score} Bintang` : 'Belum Dinilai'}>
+                          {[1, 2, 3, 4, 5].map((star) => (
+                            <Star
+                              key={star}
+                              size={16}
+                              className={`${report?.score && star <= report.score ? 'fill-amber-400 text-amber-400' : 'fill-transparent text-slate-300'}`}
+                            />
+                          ))}
+                        </div>
+                      </td>
+                      <td className="px-4 py-3 border border-slate-200 text-center">
+                        {report ? (
+                          <button
+                            onClick={() => handleDetailClick(report)}
+                            title="Lihat Detail"
+                            className="p-2 rounded-full text-school-blue hover:bg-blue-50 hover:text-blue-700 transition-colors inline-flex"
+                          >
+                            <Eye size={18} />
+                          </button>
+                        ) : (
+                          <button
+                            onClick={() => {
+                              setReportTaskName(item.taskName);
+                              setReportDescription('');
+                              setReportLink('');
+                              setShowForm(true);
+                              window.scrollTo({ top: 0, behavior: 'smooth' });
+                            }}
+                            title="Kerjakan Tugas"
+                            className="p-2 rounded-full text-emerald-600 hover:bg-emerald-50 hover:text-emerald-700 transition-colors inline-flex"
+                          >
+                            <Edit size={18} />
+                          </button>
+                        )}
+                      </td>
+                    </tr>
+                  )
+                })
               ) : (
                 <tr>
-                  <td colSpan={5} className="p-8 text-center text-slate-500 border border-slate-200">
+                  <td colSpan={6} className="p-8 text-center text-slate-500 border border-slate-200">
                     <div className="flex justify-center mb-2 text-slate-300">
                       <ClipboardList size={32} />
                     </div>
-                    Belum ada riwayat laporan yang dikirim.
+                    Belum ada tugas yang tersedia.
                   </td>
                 </tr>
               )}
@@ -285,306 +571,79 @@ export const BukuSaku: React.FC<BukuSakuProps> = ({ user }) => {
 
           {/* Mobile Card View */}
           <div className="md:hidden flex flex-col divide-y divide-slate-100">
-            {filteredReports.length > 0 ? (
-              filteredReports.map(report => (
-                <div key={report.id} className="p-4 hover:bg-slate-50 transition-colors flex flex-col gap-3">
-                  <div className="flex justify-between items-start">
-                    <div className="flex flex-col">
-                      <h3 className="font-extrabold text-slate-800 text-base">{report.taskName}</h3>
-                      <p className="text-xs font-bold text-slate-400 mt-1">
-                        {format(new Date(report.date), 'dd MMM yyyy', { locale: id })}
-                      </p>
+            {combinedTasks.length > 0 ? (
+              combinedTasks.map((item, index) => {
+                const report = item.report;
+                const status = report ? report.status : 'not_done';
+                return (
+                  <div key={index} className="p-4 hover:bg-slate-50 transition-colors flex flex-col gap-3">
+                    <div className="flex justify-between items-start">
+                      <div className="flex flex-col">
+                        <h3 className="font-extrabold text-slate-800 text-base">{item.taskName}</h3>
+                        <p className="text-xs font-bold text-slate-400 mt-1">
+                          {format(new Date(item.date), 'dd MMM yyyy', { locale: id })}
+                        </p>
+                      </div>
+                      <div className="flex flex-col items-end gap-2">
+                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold ${status === 'pending' ? 'bg-orange-500 text-white shadow-sm' :
+                          status === 'reviewed' ? 'bg-emerald-500 text-white shadow-sm' :
+                            status === 'rejected' ? 'bg-rose-500 text-white shadow-sm' :
+                              'bg-slate-200 text-slate-600 shadow-sm'
+                          }`}>
+                          {status === 'pending' ? 'Menunggu' :
+                            status === 'reviewed' ? 'Disetujui' :
+                              status === 'rejected' ? 'Ditolak' :
+                                'Belum Dikerjakan'}
+                        </span>
+                        <div className="flex items-center gap-0.5 text-slate-300 bg-slate-50 px-2 py-1 rounded-lg border border-slate-200">
+                          {[1, 2, 3, 4, 5].map((star) => (
+                            <Star
+                              key={`mob-${star}`}
+                              size={12}
+                              className={`${report?.score && star <= report.score ? 'fill-amber-400 text-amber-400' : 'fill-transparent text-slate-300'}`}
+                            />
+                          ))}
+                        </div>
+                      </div>
                     </div>
-                    <div>
-                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold ${report.status === 'pending' ? 'bg-orange-500 text-white shadow-sm' :
-                          report.status === 'reviewed' ? 'bg-emerald-500 text-white shadow-sm' :
-                            'bg-rose-500 text-white shadow-sm'
-                        }`}>
-                        {report.status === 'pending' ? 'Menunggu' :
-                          report.status === 'reviewed' ? 'Disetujui' :
-                            'Ditolak'}
-                      </span>
-                    </div>
-                  </div>
 
-                  <div className="pt-2 flex justify-end gap-2 mt-1">
-                    <button
-                      onClick={() => openDetailModal(report)}
-                      className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl text-sm font-bold bg-blue-50 text-school-blue hover:bg-blue-100 transition-all"
-                    >
-                      <Eye size={16} /> Lihat Detail
-                    </button>
+                    <div className="pt-2 flex justify-end gap-2 mt-1">
+                      {report ? (
+                        <button
+                          onClick={() => handleDetailClick(report)}
+                          className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl text-sm font-bold bg-blue-50 text-school-blue hover:bg-blue-100 transition-all"
+                        >
+                          <Eye size={16} /> Lihat Detail
+                        </button>
+                      ) : (
+                        <button
+                          onClick={() => {
+                            setReportTaskName(item.taskName);
+                            setReportDescription('');
+                            setReportLink('');
+                            setShowForm(true);
+                            window.scrollTo({ top: 0, behavior: 'smooth' });
+                          }}
+                          className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl text-sm font-bold bg-emerald-50 text-emerald-600 hover:bg-emerald-100 transition-all"
+                        >
+                          <Edit size={16} /> Kerjakan
+                        </button>
+                      )}
+                    </div>
                   </div>
-                </div>
-              ))
+                )
+              })
             ) : (
               <div className="p-8 text-center text-slate-500">
                 <div className="flex justify-center mb-2 text-slate-300">
                   <ClipboardList size={32} />
                 </div>
-                Belum ada riwayat laporan yang dikirim.
+                Belum ada tugas yang tersedia.
               </div>
             )}
           </div>
         </div>
       </div>
-
-      {/* Modal Input Laporan Baru */}
-      {isFormModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm animate-in fade-in">
-          <div className="bg-white rounded-3xl shadow-xl border border-slate-100 w-full max-w-md flex flex-col max-h-[90vh]">
-            <div className="p-6 border-b border-slate-100 flex items-center justify-between bg-slate-50 rounded-t-3xl shrink-0">
-              <h3 className="font-extrabold text-slate-800 text-xl tracking-tight">
-                {editingReportId ? '📝 Revisi Laporan Kegiatan' : '📝 Input Laporan Baru'}
-              </h3>
-              <button
-                onClick={closeFormModal}
-                className="text-slate-400 hover:text-slate-600 transition-colors p-2 rounded-full hover:bg-slate-200"
-              >
-                ✕
-              </button>
-            </div>
-
-            <form onSubmit={handleTaskReportSubmit} className="p-6 space-y-5 overflow-y-auto">
-              <div>
-                <label className="block text-sm font-bold text-slate-700 mb-2">Pilih Jenis Tugas <span className="text-rose-500">*</span></label>
-                <div className="relative" ref={dropdownRef}>
-                  <select
-                    value={reportTaskName}
-                    onChange={(e) => setReportTaskName(e.target.value)}
-                    className="absolute opacity-0 w-0 h-0 pointer-events-none"
-                    required
-                    tabIndex={-1}
-                  >
-                    <option value="" disabled></option>
-                    {availableTasks.map((task, idx) => (
-                      <option key={idx} value={task}>{task}</option>
-                    ))}
-                  </select>
-
-                  <div
-                    className={`w-full bg-white border ${isDropdownOpen ? 'border-school-blue ring-4 ring-school-blue/10' : 'border-slate-200 hover:border-slate-300'} rounded-2xl p-4 text-slate-700 flex justify-between items-center cursor-pointer transition-all shadow-sm font-medium`}
-                    onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                  >
-                    <span className={reportTaskName ? 'text-slate-800 text-sm' : 'text-slate-400 text-sm'}>
-                      {reportTaskName || 'Pilih tugas yang dikerjakan...'}
-                    </span>
-                    <ChevronDown size={18} className={`text-slate-400 transition-transform duration-300 ${isDropdownOpen ? 'rotate-180' : ''}`} />
-                  </div>
-
-                  {isDropdownOpen && (
-                    <div className="absolute z-20 w-full mt-2 bg-white border border-slate-100 rounded-2xl shadow-xl overflow-hidden animate-in fade-in slide-in-from-top-2">
-                      <div className="max-h-56 overflow-y-auto py-2 custom-scrollbar">
-                        {availableTasks.map((task, idx) => (
-                          <div
-                            key={idx}
-                            className={`px-4 py-3 cursor-pointer flex items-center justify-between hover:bg-slate-50 transition-colors ${reportTaskName === task ? 'bg-blue-50/50' : ''}`}
-                            onClick={() => {
-                              setReportTaskName(task);
-                              setIsDropdownOpen(false);
-                            }}
-                          >
-                            <span className={`text-sm ${reportTaskName === task ? 'font-bold text-school-blue' : 'text-slate-700 font-medium'}`}>{task}</span>
-                            {reportTaskName === task && <Check size={16} className="text-school-blue" />}
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-sm font-bold text-slate-700 mb-2">Deskripsi Kegiatan <span className="text-rose-500">*</span></label>
-                <textarea
-                  value={reportDescription}
-                  onChange={(e) => setReportDescription(e.target.value)}
-                  placeholder="Ceritakan detail kegiatan yang dilakukan..."
-                  className="w-full bg-white border border-slate-200 rounded-2xl p-4 h-28 resize-none focus:ring-4 focus:ring-school-blue/10 focus:border-school-blue outline-none transition-all shadow-sm text-sm"
-                  required
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-bold text-slate-700 mb-2">Tautan / Bukti Dokumen <span className="text-slate-400 font-medium">(Opsional)</span></label>
-                <div className="relative group flex items-center">
-                  <button
-                    type="button"
-                    onClick={() => fileInputRef.current?.click()}
-                    className="absolute left-4 text-slate-400 hover:text-school-blue transition-colors cursor-pointer disabled:opacity-50"
-                    title="Upload Foto"
-                    disabled={isUploading}
-                  >
-                    {isUploading ? (
-                      <div className="w-5 h-5 border-2 border-school-blue border-t-transparent rounded-full animate-spin"></div>
-                    ) : (
-                      <ImagePlus size={20} />
-                    )}
-                  </button>
-                  <input
-                    type="file"
-                    ref={fileInputRef}
-                    className="hidden"
-                    accept="image/*,video/*"
-                    onChange={handleFileUpload}
-                  />
-                  <input
-                    type="url"
-                    value={reportLink}
-                    onChange={(e) => setReportLink(e.target.value)}
-                    placeholder="Link Drive, Dokumen, dll"
-                    className="w-full bg-white border border-slate-200 rounded-2xl py-3 pr-4 pl-12 text-slate-700 focus:ring-4 focus:ring-school-blue/10 focus:border-school-blue outline-none transition-all shadow-sm text-sm"
-                  />
-                </div>
-                {reportLink && (
-                  <div className="mt-4 relative inline-block group/img">
-                    {reportLink.match(/\.(jpeg|jpg|gif|png)$/i) || reportLink.startsWith('https://') ? (
-                      <img src={reportLink} alt="Preview Lampiran" className="h-28 w-28 object-cover rounded-2xl border-2 border-slate-100 shadow-sm" />
-                    ) : (
-                      <div className="h-28 w-28 bg-slate-100 rounded-2xl border-2 border-slate-200 flex items-center justify-center shadow-sm">
-                        <span className="text-xs font-medium text-slate-500">Tautan Dokumen</span>
-                      </div>
-                    )}
-                    <button
-                      type="button"
-                      onClick={() => setReportLink('')}
-                      className="absolute -top-2.5 -right-2.5 bg-white text-rose-500 rounded-full p-1.5 shadow-lg border border-slate-100 hover:bg-rose-500 hover:text-white transition-all"
-                      title="Hapus foto"
-                    >
-                      <XCircle size={18} />
-                    </button>
-                  </div>
-                )}
-              </div>
-
-              <div className="flex gap-3 pt-4 border-t border-slate-100">
-                <button
-                  type="button"
-                  onClick={closeFormModal}
-                  className="flex-1 px-4 py-3 rounded-xl border border-slate-200 text-slate-600 font-bold hover:bg-slate-50 transition-colors"
-                >
-                  Batal
-                </button>
-                <button
-                  type="submit"
-                  className="flex-1 bg-school-blue text-white py-3 rounded-xl font-bold transition-all hover:bg-blue-700 hover:shadow-lg"
-                >
-                  {editingReportId ? 'Simpan Revisi' : 'Kirim Laporan'}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {/* Modal Detail Laporan */}
-      {isDetailModalOpen && selectedReport && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm animate-in fade-in">
-          <div className="bg-white rounded-3xl shadow-xl border border-slate-100 w-full max-w-lg flex flex-col max-h-[90vh]">
-            <div className="p-6 border-b border-slate-100 flex items-center justify-between bg-slate-50 rounded-t-3xl shrink-0">
-              <div>
-                <h3 className="font-extrabold text-slate-800 text-xl tracking-tight">Detail Laporan Kegiatan</h3>
-                <p className="text-xs text-slate-500 mt-1 font-semibold">Dikirim pada {format(new Date(selectedReport.createdAt), 'dd MMMM yyyy HH:mm', { locale: id })}</p>
-              </div>
-              <button
-                onClick={() => setIsDetailModalOpen(false)}
-                className="text-slate-400 hover:text-slate-600 transition-colors p-2 rounded-full hover:bg-slate-200"
-              >
-                ✕
-              </button>
-            </div>
-
-            <div className="p-6 overflow-y-auto space-y-5 scrollbar-none">
-              <div className="flex justify-between items-center pb-4 border-b border-slate-100">
-                <div>
-                  <p className="text-xs text-slate-400 font-bold uppercase tracking-wider">Tanggal Kegiatan</p>
-                  <p className="font-bold text-slate-700 mt-0.5">
-                    {format(new Date(selectedReport.date), 'EEEE, dd MMMM yyyy', { locale: id })}
-                  </p>
-                </div>
-                <div>
-                  <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-bold ${selectedReport.status === 'reviewed' ? 'bg-emerald-500 text-white shadow-sm' :
-                      selectedReport.status === 'rejected' ? 'bg-rose-500 text-white shadow-sm' :
-                        'bg-orange-500 text-white shadow-sm'
-                    }`}>
-                    {selectedReport.status === 'reviewed' ? 'Disetujui' : selectedReport.status === 'rejected' ? 'Ditolak' : 'Menunggu'}
-                  </span>
-                </div>
-              </div>
-
-              <div>
-                <p className="text-xs text-slate-400 font-bold uppercase tracking-wider mb-1">Nama Tugas / Laporan</p>
-                <p className="font-bold text-slate-800 text-base">{selectedReport.taskName}</p>
-              </div>
-
-              <div>
-                <p className="text-xs text-slate-400 font-bold uppercase tracking-wider mb-1.5">Deskripsi Kegiatan</p>
-                <p className="text-slate-700 text-sm leading-relaxed whitespace-pre-wrap">
-                  {selectedReport.description}
-                </p>
-              </div>
-
-              {selectedReport.link && (
-                <div>
-                  <p className="text-xs text-slate-400 font-bold uppercase tracking-wider mb-2">Lampiran Bukti</p>
-                  {selectedReport.link.match(/\.(jpeg|jpg|gif|png)$/i) || selectedReport.link.includes('supabase.co') ? (
-                    <img
-                      src={selectedReport.link}
-                      alt="Bukti Lampiran"
-                      className="max-h-56 rounded-xl border border-slate-200 shadow-sm cursor-pointer hover:opacity-90 transition-opacity"
-                      onClick={() => window.open(selectedReport.link, '_blank')}
-                    />
-                  ) : (
-                    <a
-                      href={selectedReport.link}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-2 text-sm text-school-blue font-bold hover:underline"
-                    >
-                      Lihat Dokumen Terlampir
-                    </a>
-                  )}
-                </div>
-              )}
-
-              {selectedReport.adminFeedback && (
-                <div>
-                  <p className="text-xs text-slate-400 font-bold uppercase tracking-wider mb-1.5">Komentar / Tanggapan Admin</p>
-                  <p className={`text-sm leading-relaxed font-semibold ${selectedReport.status === 'reviewed' ? 'text-emerald-600' : 'text-rose-600'}`}>
-                    {selectedReport.adminFeedback}
-                  </p>
-                </div>
-              )}
-            </div>
-
-            <div className="p-6 border-t border-slate-100 flex justify-end gap-3 bg-slate-50 rounded-b-3xl shrink-0">
-              {selectedReport.status === 'rejected' && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    setEditingReportId(selectedReport.id);
-                    setReportTaskName(selectedReport.taskName);
-                    setReportDescription(selectedReport.description);
-                    setReportLink(selectedReport.link || '');
-                    setIsDetailModalOpen(false);
-                    setIsFormModalOpen(true);
-                  }}
-                  className="px-5 py-2.5 bg-emerald-500 hover:bg-emerald-600 text-white font-bold rounded-xl transition-all shadow-md flex items-center gap-1.5 text-sm"
-                >
-                  <Edit size={16} /> Revisi Laporan
-                </button>
-              )}
-              <button
-                type="button"
-                onClick={() => setIsDetailModalOpen(false)}
-                className="px-6 py-2.5 bg-white border border-slate-200 text-slate-700 font-bold rounded-xl hover:bg-slate-50 transition-colors"
-              >
-                Tutup
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };

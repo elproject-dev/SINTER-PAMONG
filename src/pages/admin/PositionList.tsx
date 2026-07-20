@@ -34,10 +34,10 @@ export const PositionList: React.FC = () => {
   const handleAdd = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newPosition.trim()) return;
-    
+
     setIsLoading(true);
     setError('');
-    
+
     try {
       if (editingPosition) {
         await updatePosition(editingPosition.id, newPosition.trim());
@@ -74,7 +74,7 @@ export const PositionList: React.FC = () => {
     <div className="w-full space-y-8 animate-in fade-in duration-300">
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div>
-          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-slate-800 mb-1 sm:mb-2 tracking-tight">Data Jabatan</h1>
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-slate-800 mb-1 sm:mb-2 tracking-tight">Daftar Jabatan/Staff</h1>
           <p className="text-slate-500 text-sm sm:text-base lg:text-lg">Kelola daftar penugasan dan jabatan utama staf</p>
         </div>
 
@@ -88,7 +88,7 @@ export const PositionList: React.FC = () => {
               placeholder="Cari jabatan..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full bg-white border border-slate-200 rounded-xl py-3 pr-4 pl-10 text-slate-700 focus:ring-4 focus:ring-school-blue/10 focus:border-school-blue outline-none transition-all shadow-sm font-medium"
+              className="w-full bg-white border border-slate-200 rounded-xl py-2 pr-4 pl-10 text-slate-700 focus:ring-4 focus:ring-school-blue/10 focus:border-school-blue outline-none transition-all shadow-sm font-medium text-sm"
             />
           </div>
 
@@ -99,7 +99,7 @@ export const PositionList: React.FC = () => {
               setEditingPosition(null);
               setIsModalOpen(true);
             }}
-            className="flex items-center justify-center gap-2 px-5 py-3 bg-school-blue text-white rounded-xl font-bold hover:bg-blue-700 hover:shadow-lg transition-all"
+            className="flex items-center justify-center gap-2 px-8 py-2 border border-transparent bg-gradient-to-r from-school-blue to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-xl text-sm font-bold shadow-md hover:shadow-lg transition-all whitespace-nowrap"
           >
             <Plus size={18} />
             Tambah Jabatan
@@ -137,7 +137,7 @@ export const PositionList: React.FC = () => {
                         <button
                           onClick={() => {
                             setEditingPosition(pos);
-                            setNewPosition(pos.nama_jabatan);
+                            setNewPosition(pos.nama_jabatan || '');
                             setError('');
                             setIsModalOpen(true);
                           }}
@@ -182,7 +182,7 @@ export const PositionList: React.FC = () => {
                     <button
                       onClick={() => {
                         setEditingPosition(pos);
-                        setNewPosition(pos.nama_jabatan);
+                        setNewPosition(pos.nama_jabatan || '');
                         setError('');
                         setIsModalOpen(true);
                       }}

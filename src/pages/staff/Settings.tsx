@@ -1,12 +1,65 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { User } from '../../lib/types';
-import { Shield, Bell, Smartphone } from 'lucide-react';
+import { Shield, Bell, Smartphone, Save } from 'lucide-react';
+import { updateUserProfileName, updateUserPassword } from '../../lib/db';
 
 interface SettingsProps {
   user: User;
+  onUserUpdate?: (updatedUser: User) => void;
 }
 
-export const Settings: React.FC<SettingsProps> = ({ user }) => {
+export const Settings: React.FC<SettingsProps> = ({ user, onUserUpdate }) => {
+  const [nameInput, setNameInput] = useState(user.name);
+  const [passwordInput, setPasswordInput] = useState('');
+  const [confirmPasswordInput, setConfirmPasswordInput] = useState('');
+  const [isSavingProfile, setIsSavingProfile] = useState(false);
+
+  useEffect(() => {
+    setNameInput(user.name);
+  }, [user.name]);
+
+  const handleSaveProfile = async () => {
+    if (!nameInput.trim()) {
+      alert('Nama lengkap tidak boleh kosong');
+      return;
+    }
+    
+    if (passwordInput) {
+      if (passwordInput.length < 6) {
+        alert('Kata sandi minimal harus 6 karakter');
+        return;
+      }
+      if (passwordInput !== confirmPasswordInput) {
+        alert('Konfirmasi kata sandi tidak cocok');
+        return;
+      }
+    }
+
+    setIsSavingProfile(true);
+    try {
+      // 1. Update Name if changed
+      if (nameInput !== user.name) {
+        await updateUserProfileName(user.id, nameInput);
+        if (onUserUpdate) {
+          onUserUpdate({ ...user, name: nameInput });
+        }
+      }
+
+      // 2. Update Password if entered
+      if (passwordInput) {
+        await updateUserPassword(passwordInput);
+        setPasswordInput('');
+        setConfirmPasswordInput('');
+      }
+
+      alert('Profil dan keamanan berhasil diperbarui!');
+    } catch (err: any) {
+      alert('Gagal memperbarui: ' + err.message);
+    } finally {
+      setIsSavingProfile(false);
+    }
+  };
+
   return (
     <div className="w-full space-y-6 sm:space-y-8">
       <div className="mb-8">
@@ -26,25 +79,50 @@ export const Settings: React.FC<SettingsProps> = ({ user }) => {
               <label className="block text-sm font-bold text-slate-700 mb-2">Nama Lengkap</label>
               <input 
                 type="text" 
-                value={user.name} 
-                disabled 
-                className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-slate-500 font-medium cursor-not-allowed"
+                value={nameInput} 
+                onChange={e => setNameInput(e.target.value)}
+                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-slate-700 text-sm focus:ring-4 focus:ring-school-blue/10 focus:border-school-blue outline-none transition-all shadow-sm"
               />
             </div>
             <div>
               <label className="block text-sm font-bold text-slate-700 mb-2">ID Karyawan</label>
               <input 
                 type="text" 
-                value={user.id} 
+                value={user.id ? (user.id.includes('-') ? user.id.split('-')[0] : user.id.slice(0, 8)) : ''} 
                 disabled 
-                className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-slate-500 font-medium cursor-not-allowed"
+                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-slate-500 text-sm font-medium cursor-not-allowed shadow-sm"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-bold text-slate-700 mb-2">Kata Sandi Baru</label>
+              <input 
+                type="password" 
+                value={passwordInput} 
+                onChange={e => setPasswordInput(e.target.value)}
+                placeholder="Kosongkan jika tidak ingin diubah"
+                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-slate-700 text-sm focus:ring-4 focus:ring-school-blue/10 focus:border-school-blue outline-none transition-all shadow-sm"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-bold text-slate-700 mb-2">Konfirmasi Kata Sandi Baru</label>
+              <input 
+                type="password" 
+                value={confirmPasswordInput} 
+                onChange={e => setConfirmPasswordInput(e.target.value)}
+                placeholder="Kosongkan jika tidak ingin diubah"
+                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-slate-700 text-sm focus:ring-4 focus:ring-school-blue/10 focus:border-school-blue outline-none transition-all shadow-sm"
               />
             </div>
           </div>
           
-          <div className="pt-4 border-t border-slate-100">
-            <button className="bg-white border-2 border-slate-200 hover:border-school-blue hover:text-school-blue text-slate-700 py-3 px-6 rounded-xl font-bold transition-all shadow-sm">
-              Ubah Kata Sandi
+          <div className="pt-4 border-t border-slate-100 flex flex-wrap gap-4">
+            <button 
+              onClick={handleSaveProfile}
+              disabled={isSavingProfile}
+              className="px-8 py-2 border border-transparent bg-gradient-to-r from-school-blue to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-xl text-sm font-bold shadow-md hover:shadow-lg transition-all flex items-center justify-center disabled:opacity-50 whitespace-nowrap"
+            >
+              <Save size={18} className="mr-2" />
+              {isSavingProfile ? 'Menyimpan...' : 'Simpan Profil & Keamanan'}
             </button>
           </div>
         </div>

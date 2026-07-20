@@ -79,6 +79,18 @@ export const updateStaffAssignment = async (userId: string, updates: Partial<Use
   }
 };
 
+export const updateUserProfileName = async (userId: string, name: string) => {
+  const { error } = await supabase
+    .from('profil_pengguna')
+    .update({ name })
+    .eq('id', userId);
+    
+  if (error) {
+    console.error('Error updating user profile name:', error);
+    throw error;
+  }
+};
+
 export const deleteUser = async (userId: string) => {
   const { error } = await supabase
     .from('profil_pengguna')
@@ -265,7 +277,8 @@ export const getUserTaskReports = async (userId: string): Promise<TaskReport[]> 
     link: d.link,
     createdAt: d.created_at,
     status: d.status,
-    adminFeedback: d.admin_feedback
+    adminFeedback: d.admin_feedback,
+    score: d.score
   }));
 };
 
@@ -286,7 +299,8 @@ export const getAllTaskReports = async (): Promise<TaskReport[]> => {
     link: d.link,
     createdAt: d.created_at,
     status: d.status,
-    adminFeedback: d.admin_feedback
+    adminFeedback: d.admin_feedback,
+    score: d.score
   }));
 };
 
@@ -303,10 +317,10 @@ export const saveTaskReport = async (report: TaskReport) => {
   if (error) console.error('Error saving task report:', error);
 };
 
-export const updateTaskReportStatus = async (id: string, status: string, feedback: string = '') => {
+export const updateTaskReportStatus = async (id: string, status: string, feedback: string = '', score: number | null = null) => {
   const { error } = await supabase
     .from('laporan_tugas')
-    .update({ status, admin_feedback: feedback })
+    .update({ status, admin_feedback: feedback, score })
     .eq('id', id);
     
   if (error) {
@@ -383,6 +397,27 @@ export const updatePosition = async (id: string, namaJabatan: string) => {
 
 // ================= TUGAS STAFF =================
 
+export const uploadTaskAttachment = async (file: File): Promise<string> => {
+  const fileExt = file.name.split('.').pop();
+  const fileName = `${Math.random().toString(36).substring(2, 15)}_${Date.now()}.${fileExt}`;
+  const filePath = `${fileName}`;
+
+  const { error: uploadError } = await supabase.storage
+    .from('tugas_staff_attachments')
+    .upload(filePath, file);
+
+  if (uploadError) {
+    console.error('Error uploading file:', uploadError);
+    throw uploadError;
+  }
+
+  const { data } = supabase.storage
+    .from('tugas_staff_attachments')
+    .getPublicUrl(filePath);
+
+  return data.publicUrl;
+};
+
 export const getStaffTasks = async (userId?: string): Promise<StaffTask[]> => {
   let query = supabase.from('tugas_staff').select('*').order('created_at', { ascending: true });
   if (userId) {
@@ -398,6 +433,7 @@ export const getStaffTasks = async (userId?: string): Promise<StaffTask[]> => {
     userId: d.user_id,
     namaTugas: d.nama_tugas,
     deskripsi: d.deskripsi,
+    lampiranUrl: d.lampiran_url,
     createdAt: d.created_at
   }));
 };
@@ -406,7 +442,8 @@ export const addStaffTask = async (task: Omit<StaffTask, 'id' | 'createdAt'>) =>
   const { error } = await supabase.from('tugas_staff').insert({
     user_id: task.userId,
     nama_tugas: task.namaTugas,
-    deskripsi: task.deskripsi || null
+    deskripsi: task.deskripsi || null,
+    lampiran_url: task.lampiranUrl || null
   });
   if (error) throw error;
 };
@@ -416,13 +453,32 @@ export const deleteStaffTask = async (id: string) => {
   if (error) throw error;
 };
 
-export const updateStaffTask = async (id: string, task: { namaTugas: string; deskripsi?: string }) => {
+export const updateStaffTask = async (id: string, task: { namaTugas: string; deskripsi?: string; lampiranUrl?: string }) => {
   const { error } = await supabase
     .from('tugas_staff')
     .update({
       nama_tugas: task.namaTugas,
-      deskripsi: task.deskripsi || null
+      deskripsi: task.deskripsi || null,
+      lampiran_url: task.lampiranUrl || null
     })
     .eq('id', id);
   if (error) throw error;
+};
+
+export const updateUserPassword = async (password: string) => {
+  const { data, error: sessionError } = await supabase.auth.getSession();
+  if (sessionError) {
+    console.error('Error retrieving auth session:', sessionError);
+    throw sessionError;
+  }
+  const session = data.session;
+  if (!session) {
+    console.error('No auth session. User must be logged in to change password.');
+    throw new Error('Auth session missing. Please log in again.');
+  }
+  const { error } = await supabase.auth.updateUser({ password });
+  if (error) {
+    console.error('Error updating password:', error);
+    throw error;
+  }
 };

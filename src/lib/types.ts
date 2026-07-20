@@ -58,6 +58,7 @@ export interface TaskReport {
   createdAt: string; // ISO string
   status?: ReportStatus; // Review status
   adminFeedback?: string; // Feedback from admin
+  score?: number | null; // 0-100 Score from admin
 }
 
 export interface SchoolSettings {
@@ -71,5 +72,6 @@ export interface StaffTask {
   userId: string;
   namaTugas: string;
   deskripsi?: string;
+  lampiranUrl?: string;
   createdAt?: string;
 }

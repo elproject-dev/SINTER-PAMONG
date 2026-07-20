@@ -1,16 +1,25 @@
 import React, { useState, useEffect } from 'react';
 import { User, SchoolSettings } from '../../lib/types';
-import { getSchoolSettings, saveSchoolSettings } from '../../lib/db';
+import { getSchoolSettings, saveSchoolSettings, updateUserProfileName, updateUserPassword } from '../../lib/db';
 import { Shield, Bell, Smartphone, MapPin, Save, Map } from 'lucide-react';
 
 interface AdminSettingsProps {
   user: User;
+  onUserUpdate?: (updatedUser: User) => void;
 }
 
-export const AdminSettings: React.FC<AdminSettingsProps> = ({ user }) => {
+export const AdminSettings: React.FC<AdminSettingsProps> = ({ user, onUserUpdate }) => {
   const [gpsSettings, setGpsSettings] = useState<SchoolSettings>({ latitude: 0, longitude: 0, maxRadius: 100 });
   const [coordsInput, setCoordsInput] = useState('');
   const [isLocating, setIsLocating] = useState(false);
+  const [nameInput, setNameInput] = useState(user.name);
+  const [passwordInput, setPasswordInput] = useState('');
+  const [confirmPasswordInput, setConfirmPasswordInput] = useState('');
+  const [isSavingProfile, setIsSavingProfile] = useState(false);
+
+  useEffect(() => {
+    setNameInput(user.name);
+  }, [user.name]);
 
   useEffect(() => {
     const fetchSettings = async () => {
@@ -20,6 +29,48 @@ export const AdminSettings: React.FC<AdminSettingsProps> = ({ user }) => {
     };
     fetchSettings();
   }, []);
+
+  const handleSaveProfile = async () => {
+    if (!nameInput.trim()) {
+      alert('Nama lengkap tidak boleh kosong');
+      return;
+    }
+    
+    if (passwordInput) {
+      if (passwordInput.length < 6) {
+        alert('Kata sandi minimal harus 6 karakter');
+        return;
+      }
+      if (passwordInput !== confirmPasswordInput) {
+        alert('Konfirmasi kata sandi tidak cocok');
+        return;
+      }
+    }
+
+    setIsSavingProfile(true);
+    try {
+      // 1. Update Name if changed
+      if (nameInput !== user.name) {
+        await updateUserProfileName(user.id, nameInput);
+        if (onUserUpdate) {
+          onUserUpdate({ ...user, name: nameInput });
+        }
+      }
+
+      // 2. Update Password if entered
+      if (passwordInput) {
+        await updateUserPassword(passwordInput);
+        setPasswordInput('');
+        setConfirmPasswordInput('');
+      }
+
+      alert('Profil dan keamanan berhasil diperbarui!');
+    } catch (err: any) {
+      alert('Gagal memperbarui: ' + err.message);
+    } finally {
+      setIsSavingProfile(false);
+    }
+  };
 
   const handleCoordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value;
@@ -82,25 +133,50 @@ export const AdminSettings: React.FC<AdminSettingsProps> = ({ user }) => {
               <label className="block text-sm font-bold text-slate-700 mb-2">Nama Lengkap</label>
               <input 
                 type="text" 
-                value={user.name} 
-                disabled 
-                className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-slate-500 font-medium cursor-not-allowed"
+                value={nameInput} 
+                onChange={e => setNameInput(e.target.value)}
+                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-slate-700 text-sm focus:ring-4 focus:ring-school-blue/10 focus:border-school-blue outline-none transition-all shadow-sm"
               />
             </div>
             <div>
               <label className="block text-sm font-bold text-slate-700 mb-2">ID Admin</label>
               <input 
                 type="text" 
-                value={user.id} 
-                disabled 
-                className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-slate-500 font-medium cursor-not-allowed"
+                value={user.id ? (user.id.includes('-') ? user.id.split('-')[0] : user.id.slice(0, 8)) : ''} 
+                disabled
+                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-slate-500 text-sm font-medium cursor-not-allowed shadow-sm"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-bold text-slate-700 mb-2">Kata Sandi Baru</label>
+              <input 
+                type="password" 
+                value={passwordInput} 
+                onChange={e => setPasswordInput(e.target.value)}
+                placeholder="Kosongkan jika tidak ingin diubah"
+                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-slate-700 text-sm focus:ring-4 focus:ring-school-blue/10 focus:border-school-blue outline-none transition-all shadow-sm"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-bold text-slate-700 mb-2">Konfirmasi Kata Sandi Baru</label>
+              <input 
+                type="password" 
+                value={confirmPasswordInput} 
+                onChange={e => setConfirmPasswordInput(e.target.value)}
+                placeholder="Kosongkan jika tidak ingin diubah"
+                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-slate-700 text-sm focus:ring-4 focus:ring-school-blue/10 focus:border-school-blue outline-none transition-all shadow-sm"
               />
             </div>
           </div>
           
-          <div className="pt-4 border-t border-slate-100">
-            <button className="bg-white border-2 border-slate-200 hover:border-school-blue hover:text-school-blue text-slate-700 py-3 px-6 rounded-xl font-bold transition-all shadow-sm">
-              Ubah Kata Sandi
+          <div className="pt-4 border-t border-slate-100 flex flex-wrap gap-4">
+            <button 
+              onClick={handleSaveProfile}
+              disabled={isSavingProfile}
+              className="px-8 py-2 border border-transparent bg-gradient-to-r from-school-blue to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-xl text-sm font-bold shadow-md hover:shadow-lg transition-all flex items-center justify-center disabled:opacity-50 whitespace-nowrap"
+            >
+              <Save size={18} className="mr-2" />
+              {isSavingProfile ? 'Menyimpan...' : 'Simpan Profil & Keamanan'}
             </button>
           </div>
         </div>
@@ -121,7 +197,7 @@ export const AdminSettings: React.FC<AdminSettingsProps> = ({ user }) => {
                 value={coordsInput}
                 onChange={handleCoordChange}
                 placeholder="Contoh: -6.1751, 106.8271"
-                className="w-full bg-white border border-slate-300 rounded-xl p-3 text-slate-700 focus:ring-2 focus:ring-school-blue focus:border-school-blue outline-none transition-all"
+                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-slate-700 text-sm focus:ring-4 focus:ring-school-blue/10 focus:border-school-blue outline-none transition-all shadow-sm"
               />
             </div>
             <div>
@@ -130,7 +206,7 @@ export const AdminSettings: React.FC<AdminSettingsProps> = ({ user }) => {
                 type="number"
                 value={gpsSettings.maxRadius}
                 onChange={e => setGpsSettings({...gpsSettings, maxRadius: parseInt(e.target.value) || 100})}
-                className="w-full bg-white border border-slate-300 rounded-xl p-3 text-slate-700 focus:ring-2 focus:ring-school-blue focus:border-school-blue outline-none transition-all"
+                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-slate-700 text-sm focus:ring-4 focus:ring-school-blue/10 focus:border-school-blue outline-none transition-all shadow-sm"
               />
             </div>
           </div>
@@ -139,14 +215,14 @@ export const AdminSettings: React.FC<AdminSettingsProps> = ({ user }) => {
             <button 
               onClick={handleGetCurrentLocation}
               disabled={isLocating}
-              className="bg-indigo-50 text-indigo-700 hover:bg-indigo-100 py-3 px-6 rounded-xl font-bold transition-all flex items-center shadow-sm disabled:opacity-50"
+              className="px-6 py-2 border border-slate-200 bg-white text-school-blue hover:bg-slate-50 rounded-xl text-sm font-bold transition-all flex items-center justify-center disabled:opacity-50 whitespace-nowrap"
             >
               <MapPin size={18} className="mr-2" />
               {isLocating ? 'Mencari...' : 'Ambil Lokasi Saya Saat Ini'}
             </button>
             <button 
               onClick={handleSaveGps}
-              className="bg-school-blue text-white hover:bg-blue-800 py-3 px-6 rounded-xl font-bold transition-all flex items-center shadow-sm"
+              className="px-8 py-2 border border-transparent bg-gradient-to-r from-school-blue to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-xl text-sm font-bold shadow-md hover:shadow-lg transition-all flex items-center justify-center whitespace-nowrap"
             >
               <Save size={18} className="mr-2" />
               Simpan Pengaturan GPS

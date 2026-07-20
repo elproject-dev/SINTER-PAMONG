@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import { getStaff, saveKPI, getKPIs } from '../../lib/db';
-import { User, KPIEvaluation, KPITaskScore } from '../../lib/types';
+import { getStaff, saveKPI, getKPIs, getStaffTasks } from '../../lib/db';
+import { User, KPIEvaluation, KPITaskScore, StaffTask } from '../../lib/types';
 import { KPIDictionary } from '../../lib/kpiDictionary';
 import { format } from 'date-fns';
 import { id } from 'date-fns/locale';
@@ -25,6 +25,7 @@ interface KPIEvaluationProps {
 export const AdminKPIEvaluation: React.FC<KPIEvaluationProps> = ({ currentUser }) => {
   const [staff, setStaff] = useState<User[]>([]);
   const [allKPIs, setAllKPIs] = useState<KPIEvaluation[]>([]);
+  const [allStaffTasks, setAllStaffTasks] = useState<StaffTask[]>([]);
   const [selectedStaff, setSelectedStaff] = useState('');
   const [selectedMonth, setSelectedMonth] = useState(format(new Date(), 'yyyy-MM'));
   const [taskScores, setTaskScores] = useState<Record<string, number>>({});
@@ -38,18 +39,20 @@ export const AdminKPIEvaluation: React.FC<KPIEvaluationProps> = ({ currentUser }
     setStaff(data);
     const kpis = await getKPIs();
     setAllKPIs(kpis);
+    const staffTasks = await getStaffTasks();
+    setAllStaffTasks(staffTasks);
   }, []);
 
   useEffect(() => {
     fetchData();
   }, [fetchData]);
 
-  useRealtimeSubscription(['penilaian_kpi', 'nilai_kpi', 'profil_pengguna'], fetchData);
+  useRealtimeSubscription(['penilaian_kpi', 'nilai_kpi', 'profil_pengguna', 'tugas_staff'], fetchData);
 
   const selectedUser = staff.find(s => s.id === selectedStaff);
   
-  // Ambil gabungan semua tugas berdasarkan jobRoles dari staf terpilih
-  const getCombinedTasks = useCallback((user?: User): string[] => {
+  // Ambil gabungan semua tugas berdasarkan jobRoles dari staf terpilih dan tugas spesifik staf
+  const getCombinedTasks = useCallback((user?: User, userTasks?: StaffTask[]): string[] => {
     if (!user) return [];
     
     const tasks = new Set<string>();
@@ -59,6 +62,10 @@ export const AdminKPIEvaluation: React.FC<KPIEvaluationProps> = ({ currentUser }
         const roleTasks = KPIDictionary[role] || [];
         roleTasks.forEach(t => tasks.add(t));
       });
+    }
+
+    if (userTasks && userTasks.length > 0) {
+      userTasks.forEach(t => tasks.add(t.namaTugas));
     }
     
     if (tasks.size === 0) {
@@ -74,7 +81,10 @@ export const AdminKPIEvaluation: React.FC<KPIEvaluationProps> = ({ currentUser }
     return Array.from(tasks);
   }, []);
 
-  const tasks = useMemo(() => getCombinedTasks(selectedUser), [selectedUser, getCombinedTasks]);
+  const tasks = useMemo(() => {
+    const userTasks = allStaffTasks.filter(t => t.userId === selectedStaff);
+    return getCombinedTasks(selectedUser, userTasks);
+  }, [selectedUser, selectedStaff, allStaffTasks, getCombinedTasks]);
 
   // Initialize scores when selected staff or month changes
   useEffect(() => {
@@ -92,7 +102,7 @@ export const AdminKPIEvaluation: React.FC<KPIEvaluationProps> = ({ currentUser }
     } else {
       const initialScores: Record<string, number> = {};
       tasks.forEach(task => {
-        initialScores[task] = 5; // Default score 5
+        initialScores[task] = 0; // Default score 0
       });
       setTaskScores(initialScores);
       setNotes('');
@@ -108,7 +118,7 @@ export const AdminKPIEvaluation: React.FC<KPIEvaluationProps> = ({ currentUser }
 
   const averageScore = useMemo(() => {
     if (tasks.length === 0) return 0;
-    const total = tasks.reduce((sum, task) => sum + (taskScores[task] || 5), 0);
+    const total = tasks.reduce((sum, task) => sum + (taskScores[task] ?? 0), 0);
     return (total / tasks.length).toFixed(1);
   }, [tasks, taskScores]);
 
@@ -118,7 +128,7 @@ export const AdminKPIEvaluation: React.FC<KPIEvaluationProps> = ({ currentUser }
 
     const finalTaskScores: KPITaskScore[] = tasks.map(task => ({
       task,
-      score: taskScores[task] || 1
+      score: taskScores[task] ?? 0
     }));
 
     const kpi: KPIEvaluation = {
@@ -202,7 +212,7 @@ export const AdminKPIEvaluation: React.FC<KPIEvaluationProps> = ({ currentUser }
               placeholder="Cari nama staf..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full bg-white border border-slate-200 rounded-xl py-3 pr-4 pl-10 text-slate-700 focus:ring-4 focus:ring-school-blue/10 focus:border-school-blue outline-none transition-all shadow-sm font-medium"
+              className="w-full bg-white border border-slate-200 rounded-xl py-2 pr-4 pl-10 text-slate-700 focus:ring-4 focus:ring-school-blue/10 focus:border-school-blue outline-none transition-all shadow-sm font-medium text-sm"
             />
           </div>
 
@@ -211,7 +221,7 @@ export const AdminKPIEvaluation: React.FC<KPIEvaluationProps> = ({ currentUser }
               type="month"
               value={selectedMonth}
               onChange={(e) => setSelectedMonth(e.target.value)}
-              className="w-full bg-white border border-slate-200 rounded-xl py-3 px-4 text-slate-700 focus:ring-4 focus:ring-school-blue/10 focus:border-school-blue outline-none transition-all shadow-sm font-bold cursor-pointer"
+              className="w-full bg-white border border-slate-200 rounded-xl py-2 px-4 text-slate-700 focus:ring-4 focus:ring-school-blue/10 focus:border-school-blue outline-none transition-all shadow-sm font-bold cursor-pointer text-sm"
             />
           </div>
         </div>
@@ -364,7 +374,7 @@ export const AdminKPIEvaluation: React.FC<KPIEvaluationProps> = ({ currentUser }
             </div>
 
             <form onSubmit={handleSubmit} className="flex flex-col flex-1 min-h-0">
-              <div className="p-6 overflow-y-auto space-y-6 flex-1">
+              <div className="p-6 overflow-y-auto space-y-6 flex-1 scrollbar-none">
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center bg-slate-50 p-4 rounded-2xl border border-slate-100 gap-3">
                   <div>
                     <p className="text-xs text-slate-400 font-bold uppercase tracking-wider">Periode Bulan</p>
@@ -383,20 +393,44 @@ export const AdminKPIEvaluation: React.FC<KPIEvaluationProps> = ({ currentUser }
                   </div>
                 )}
 
-                <div className="space-y-1">
-                  <h4 className="font-bold text-slate-800 text-base mb-3">Indikator Kinerja Utama</h4>
-                  {tasks.map((task, idx) => (
-                    <RatingScale 
-                      key={idx} 
-                      label={task} 
-                      value={taskScores[task] || 5} 
-                      onChange={(val) => handleScoreChange(task, val)} 
-                    />
-                  ))}
+                <div className="space-y-4">
+                  {/* General / Role-based Tasks */}
+                  {tasks.filter(t => !allStaffTasks.find(st => st.userId === selectedStaff && st.namaTugas === t)).length > 0 && (
+                    <div className="space-y-1">
+                      <h4 className="font-bold text-slate-800 text-base mb-3 border-b border-slate-100 pb-2">Indikator Kinerja Utama (Umum & Jabatan)</h4>
+                      {tasks.filter(t => !allStaffTasks.find(st => st.userId === selectedStaff && st.namaTugas === t)).map((task, idx) => (
+                        <RatingScale 
+                          key={`general-${idx}`} 
+                          label={task} 
+                          value={taskScores[task] ?? 0} 
+                          onChange={(val) => handleScoreChange(task, val)} 
+                        />
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Specific Staff Tasks */}
+                  {tasks.filter(t => allStaffTasks.find(st => st.userId === selectedStaff && st.namaTugas === t)).length > 0 && (
+                    <div className="space-y-1 mt-6">
+                      <h4 className="font-bold text-slate-800 text-base mb-3 border-b border-slate-100 pb-2 flex items-center gap-2">
+                        <Award size={18} className="text-school-blue" />
+                        Tugas Khusus (dari Daftar Tugas)
+                      </h4>
+                      {tasks.filter(t => allStaffTasks.find(st => st.userId === selectedStaff && st.namaTugas === t)).map((task, idx) => (
+                        <div key={`specific-${idx}`} className="relative">
+                          <RatingScale 
+                            label={task} 
+                            value={taskScores[task] ?? 0} 
+                            onChange={(val) => handleScoreChange(task, val)} 
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
 
                 <div>
-                  <label className="block text-sm font-bold text-slate-700 mb-2">Catatan Evaluasi Umum</label>
+                  <label className="block text-sm font-bold text-slate-700 mb-2 mt-4">Catatan Evaluasi Umum</label>
                   <textarea
                     value={notes}
                     onChange={(e) => setNotes(e.target.value)}

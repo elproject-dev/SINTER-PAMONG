@@ -12,11 +12,11 @@ export const Sidebar: React.FC<SidebarProps> = ({ user, onLogout }) => {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const adminLinks = [
     { to: '/admin', icon: LayoutDashboard, label: 'Dashboard' },
+    { to: '/admin/tugas-staff', icon: FileText, label: 'Tugas Staff' },
     { to: '/admin/staff', icon: Users, label: 'Daftar Staf' },
     { to: '/admin/absensi', icon: UserCheck, label: 'Absensi' },
     { to: '/admin/kpi', icon: FileText, label: 'Penilaian KPI' },
     { to: '/admin/laporan-tugas', icon: ClipboardList, label: 'Laporan Tugas' },
-    { to: '/admin/tugas-staff', icon: FileText, label: 'Tugas Staff' },
     { to: '/admin/jabatan', icon: Briefcase, label: 'Data Jabatan' },
     { to: '/admin/settings', icon: Settings, label: 'Pengaturan' },
   ];
