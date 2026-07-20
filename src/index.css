@@ -1,0 +1,23 @@
+@import "tailwindcss";
+
+@theme {
+  --color-school-blue: #1E3A8A;
+  --color-navy: #0F172A;
+}
+
+html {
+  font-size: 14px;
+}
+
+body {
+  background-color: #f8fafc;
+  color: #0f172a;
+}
+
+@utility scrollbar-none {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
