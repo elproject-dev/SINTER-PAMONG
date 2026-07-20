@@ -42,8 +42,8 @@ jobs:
 
       - name: Build project
         env:
-          VITE_SUPABASE_URL: http://localhost:8000
-          VITE_SUPABASE_ANON_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyAgCiAgICAicm9sZSI6ICJhbm9uIiwKICAgICJpc3MiOiAic3VwYWJhc2UtZGVtbyIsCiAgICAiaWF0IjogMTY0MTc2OTIwMCwKICAgICJleHAiOiAxNzk5NTM1NjAwCn0.dc_X5iR_VP_qT0zsiyj_I_OZ2T9FtRU2BBNWN8Bu4GE
+          VITE_SUPABASE_URL: https://woribewrjwbgfgfzpuhp.supabase.co
+          VITE_SUPABASE_ANON_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndvcmliZXdyandiZ2ZnZnpwdWhwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQzOTY1MDQsImV4cCI6MjA5OTk3MjUwNH0.GnNyZtOjrpV3m__oWuMHqv-jF5OgtGOYHidiwfWlt1Y
         run: npm run build
 
       - name: Setup Pages
