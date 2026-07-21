@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { User, AttendanceRecord, KPIEvaluation, TaskReport } from '../../lib/types';
-import { getUserTodayAttendance, getUserKPIs, getUserTaskReports, uploadTaskAttachment } from '../../lib/db';
+import { getUserTodayAttendance, getUserKPIs, getUserTaskReports, uploadProfilePicture } from '../../lib/db';
 import { Clock, Calendar, CheckCircle, XCircle, Star, ClipboardList, ArrowRight, User as UserIcon, X, Camera, Loader2, LogOut } from 'lucide-react';
 import { format } from 'date-fns';
 import { id } from 'date-fns/locale';
@@ -36,7 +36,7 @@ export const StaffDashboard: React.FC<StaffDashboardProps> = ({ user }) => {
 
     try {
       setIsUploadingPic(true);
-      const url = await uploadTaskAttachment(file);
+      const url = await uploadProfilePicture(file);
       setProfilePic(url);
       localStorage.setItem(`profile_pic_${user.id}`, url);
     } catch (error) {
@@ -275,7 +275,7 @@ export const StaffDashboard: React.FC<StaffDashboardProps> = ({ user }) => {
           <div className="absolute -top-10 -right-10 w-40 h-40 bg-white/20 rounded-full blur-3xl group-hover:bg-white/30 transition-colors duration-500"></div>
           <div className="relative z-10 flex-1 flex flex-col">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="font-bold text-white/90 text-lg tracking-wide">KPI</h3>
+              <h3 className="font-bold text-white/90 text-lg tracking-wide">Daftar Tugas</h3>
               <div className="p-2.5 bg-white/15 backdrop-blur-md text-white rounded-2xl shadow-sm border border-white/20 group-hover:scale-110 transition-transform duration-300">
                 <ClipboardList size={20} />
               </div>
@@ -286,8 +286,8 @@ export const StaffDashboard: React.FC<StaffDashboardProps> = ({ user }) => {
             </div>
           </div>
           
-          <Link to="/staff/kpi" className="flex items-center justify-center w-full py-3 mt-4 bg-white/10 hover:bg-white hover:text-amber-600 text-white rounded-xl font-bold transition-colors duration-300 group/btn relative z-10 backdrop-blur-md border border-white/20 shadow-sm">
-            Tulis Laporan <ArrowRight size={18} className="ml-2 group-hover/btn:translate-x-1 transition-transform" />
+          <Link to="/staff/daftar-tugas" className="flex items-center justify-center w-full py-3 mt-4 bg-white/10 hover:bg-white hover:text-amber-600 text-white rounded-xl font-bold transition-colors duration-300 group/btn relative z-10 backdrop-blur-md border border-white/20 shadow-sm">
+            Lihat Daftar Tugas <ArrowRight size={18} className="ml-2 group-hover/btn:translate-x-1 transition-transform" />
           </Link>
         </div>
 

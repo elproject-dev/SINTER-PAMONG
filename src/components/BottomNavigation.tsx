@@ -30,7 +30,7 @@ export const BottomNavigation: React.FC<BottomNavigationProps> = ({ user, onLogo
     return [
       { href: "/staff", label: "Dashboard", icon: LayoutDashboard },
       { href: "/staff/absensi", label: "Absensi", icon: UserCheck },
-      { href: "/staff/kpi", label: "KPI", icon: ClipboardList },
+      { href: "/staff/daftar-tugas", label: "Tugas", icon: ClipboardList },
       { href: "/staff/nilai-kpi", label: "Nilai KPI", icon: Star },
     ];
   }, [isAdmin]);

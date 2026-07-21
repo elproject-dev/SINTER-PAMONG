@@ -13,7 +13,7 @@ import { AdminReviewLaporanTugas } from './pages/admin/PenilaianTugas';
 import { AdminTugasStaff } from './pages/admin/TugasStaff';
 import { AdminSettings } from './pages/admin/Settings';
 import { StaffDashboard } from './pages/staff/Dashboard';
-import { BukuSaku } from './pages/staff/Laporan-Kpi';
+import { DaftarTugas } from './pages/staff/Daftar-Tugas';
 import { KPI } from './pages/staff/Nilai-Kpi';
 import { Settings } from './pages/staff/Settings';
 import { Absensi } from './pages/staff/Absensi';
@@ -88,7 +88,7 @@ function App() {
         <Route path="/staff" element={<Layout user={user} onLogout={handleLogout} allowedRole="staff" />}>
           <Route index element={<StaffDashboard user={user!} />} />
           <Route path="absensi" element={<Absensi user={user!} />} />
-          <Route path="kpi" element={<BukuSaku user={user!} />} />
+          <Route path="daftar-tugas" element={<DaftarTugas user={user!} />} />
           <Route path="nilai-kpi" element={<KPI user={user!} />} />
           <Route path="settings" element={<Settings user={user!} onUserUpdate={handleUpdateUser} />} />
         </Route>

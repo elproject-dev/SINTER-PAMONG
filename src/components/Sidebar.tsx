@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { NavLink } from 'react-router-dom';
 import { LayoutDashboard, Users, UserCheck, LogOut, FileText, ClipboardList, Star, Settings, GraduationCap, User as UserIcon, X, Camera, Loader2 } from 'lucide-react';
 import { User } from '../lib/types';
-import { uploadTaskAttachment } from '../lib/db';
+import { uploadProfilePicture } from '../lib/db';
 
 interface SidebarProps {
   user: User;
@@ -26,7 +26,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ user, onLogout }) => {
 
     try {
       setIsUploadingPic(true);
-      const url = await uploadTaskAttachment(file);
+      const url = await uploadProfilePicture(file);
       setProfilePic(url);
       localStorage.setItem(`profile_pic_${user.id}`, url);
     } catch (error) {
@@ -50,7 +50,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ user, onLogout }) => {
   const staffLinks = [
     { to: '/staff', icon: LayoutDashboard, label: 'Dashboard' },
     { to: '/staff/absensi', icon: UserCheck, label: 'Absensi' },
-    { to: '/staff/kpi', icon: ClipboardList, label: 'KPI' },
+    { to: '/staff/daftar-tugas', icon: ClipboardList, label: 'Daftar Tugas' },
     { to: '/staff/nilai-kpi', icon: Star, label: 'Penilaian KPI' },
     { to: '/staff/settings', icon: Settings, label: 'Pengaturan' },
   ];

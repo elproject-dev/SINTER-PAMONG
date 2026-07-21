@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { getUsers, getTodayAttendance, getAllTaskReports, uploadTaskAttachment, getStaffTasks } from '../../lib/db';
+import { getUsers, getTodayAttendance, getAllTaskReports, uploadProfilePicture, getStaffTasks } from '../../lib/db';
 import { User, AttendanceRecord } from '../../lib/types';
 import { Users, UserCheck, UserX, ClipboardList, CheckCircle2, LogOut, User as UserIcon, Camera, Loader2, X } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, PieChart, Pie } from 'recharts';
@@ -62,7 +62,7 @@ export const AdminDashboard: React.FC = () => {
 
     try {
       setIsUploadingPic(true);
-      const url = await uploadTaskAttachment(file);
+      const url = await uploadProfilePicture(file);
       setProfilePic(url);
       localStorage.setItem(`profile_pic_${currentUser?.id}`, url);
     } catch (error) {

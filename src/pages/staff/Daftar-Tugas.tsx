@@ -8,11 +8,11 @@ import { id } from 'date-fns/locale';
 import { supabase } from '../../lib/supabase';
 import { useRealtimeSubscription } from '../../lib/useRealtime';
 
-interface BukuSakuProps {
+interface DaftarTugasProps {
   user: User;
 }
 
-export const BukuSaku: React.FC<BukuSakuProps> = ({ user }) => {
+export const DaftarTugas: React.FC<DaftarTugasProps> = ({ user }) => {
   const [taskReports, setTaskReports] = useState<TaskReport[]>([]);
   const [reportTaskName, setReportTaskName] = useState('');
   const [reportDescription, setReportDescription] = useState('');
@@ -61,18 +61,18 @@ export const BukuSaku: React.FC<BukuSakuProps> = ({ user }) => {
       const response = await fetch(url);
       const blob = await response.blob();
       const blobUrl = window.URL.createObjectURL(blob);
-      
+
       const link = document.createElement('a');
       link.href = blobUrl;
-      
+
       const urlParts = url.split('/');
       const filename = urlParts[urlParts.length - 1].split('?')[0] || 'lampiran_tugas';
-      
+
       link.download = filename;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-      
+
       window.URL.revokeObjectURL(blobUrl);
     } catch (error) {
       console.error('Error downloading file:', error);
@@ -249,8 +249,8 @@ export const BukuSaku: React.FC<BukuSakuProps> = ({ user }) => {
     <div className="w-full space-y-8 animate-in fade-in duration-300">
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div>
-          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-slate-800 mb-1 sm:mb-2 tracking-tight">Laporan KPI</h1>
-          <p className="text-slate-500 text-sm sm:text-base lg:text-lg">Kirim dan pantau riwayat pelaporan kinerja harian Anda</p>
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-slate-800 mb-1 sm:mb-2 tracking-tight">Daftar Tugas</h1>
+          <p className="text-slate-500 text-sm sm:text-base lg:text-lg">Kerjakan, kelola, dan pantau riwayat penyelesaian tugas</p>
         </div>
 
         <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto shrink-0">
@@ -564,8 +564,8 @@ export const BukuSaku: React.FC<BukuSakuProps> = ({ user }) => {
             <button
               onClick={() => setShowFilterPopup(!showFilterPopup)}
               className={`flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-bold border transition-all ${showFilterPopup || filterStartDate || filterEndDate || filterStatus !== 'all'
-                  ? 'bg-school-blue/10 border-school-blue text-school-blue shadow-sm'
-                  : 'bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100 shadow-sm'
+                ? 'bg-school-blue/10 border-school-blue text-school-blue shadow-sm'
+                : 'bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100 shadow-sm'
                 }`}
             >
               <SlidersHorizontal size={16} />
@@ -812,7 +812,7 @@ export const BukuSaku: React.FC<BukuSakuProps> = ({ user }) => {
                   <div key={index} className="p-4 hover:bg-slate-50 transition-colors flex flex-col gap-4">
                     <div className="flex flex-col gap-2">
                       <h3 className="font-extrabold text-slate-800 text-sm leading-snug truncate" title={item.taskName}>{item.taskName}</h3>
-                      
+
                       <div className="flex flex-col gap-1.5 mt-2">
                         <div className="flex items-center justify-between w-full">
                           <p className="text-[11px] font-bold text-slate-400">
@@ -820,7 +820,7 @@ export const BukuSaku: React.FC<BukuSakuProps> = ({ user }) => {
                           </p>
                           <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Nilai</span>
                         </div>
-                        
+
                         <div className="flex items-center justify-between w-full mt-1">
                           <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider shadow-sm ${status === 'pending' ? 'bg-orange-500 text-white' :
                             status === 'reviewed' ? 'bg-emerald-500 text-white' :

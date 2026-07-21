@@ -421,6 +421,82 @@ export const uploadTaskAttachment = async (file: File): Promise<string> => {
   return data.publicUrl;
 };
 
+export const uploadProfilePicture = async (file: File): Promise<string> => {
+  // Kompresi ke format WebP
+  const compressedFile = await new Promise<File>((resolve, reject) => {
+    const img = new Image();
+    const reader = new FileReader();
+
+    reader.onload = (e) => {
+      img.src = e.target?.result as string;
+    };
+    reader.onerror = (error) => reject(error);
+
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      const MAX_WIDTH = 800;
+      const MAX_HEIGHT = 800;
+      let width = img.width;
+      let height = img.height;
+
+      if (width > height) {
+        if (width > MAX_WIDTH) {
+          height *= MAX_WIDTH / width;
+          width = MAX_WIDTH;
+        }
+      } else {
+        if (height > MAX_HEIGHT) {
+          width *= MAX_HEIGHT / height;
+          height = MAX_HEIGHT;
+        }
+      }
+
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) {
+        resolve(file); // fallback jika gagal mendapatkan context
+        return;
+      }
+      ctx.drawImage(img, 0, 0, width, height);
+      
+      canvas.toBlob(
+        (blob) => {
+          if (blob) {
+            // Gunakan nama asli tapi ubah ekstensinya jadi .webp
+            const originalName = file.name.substring(0, file.name.lastIndexOf('.')) || file.name;
+            const newFile = new File([blob], `${originalName}.webp`, { type: 'image/webp' });
+            resolve(newFile);
+          } else {
+            resolve(file); // fallback
+          }
+        },
+        'image/webp',
+        0.8 // Kualitas 80%
+      );
+    };
+
+    reader.readAsDataURL(file);
+  });
+
+  const filePath = compressedFile.name;
+
+  const { error: uploadError } = await supabase.storage
+    .from('profile_pictures')
+    .upload(filePath, compressedFile, { upsert: true });
+
+  if (uploadError) {
+    console.error('Error uploading profile picture:', uploadError);
+    throw uploadError;
+  }
+
+  const { data } = supabase.storage
+    .from('profile_pictures')
+    .getPublicUrl(filePath);
+
+  return `${data.publicUrl}?t=${new Date().getTime()}`;
+};
+
 export const getStaffTasks = async (userId?: string): Promise<StaffTask[]> => {
   let query = supabase.from('tugas_staff').select('*').order('created_at', { ascending: true });
   if (userId) {
