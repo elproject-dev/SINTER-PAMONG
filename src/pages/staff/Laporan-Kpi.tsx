@@ -500,7 +500,7 @@ export const BukuSaku: React.FC<BukuSakuProps> = ({ user }) => {
                               <Paperclip size={12} /> Lihat Lampiran
                             </a>
                             <button
-                              onClick={(e) => handleDownload(selectedReport.link, e)}
+                              onClick={(e) => handleDownload(selectedReport.link!, e)}
                               className="inline-flex items-center gap-1 text-[10px] text-school-blue font-bold uppercase underline hover:text-blue-700 transition-colors cursor-pointer"
                             >
                               <Download size={12} /> Unduh
