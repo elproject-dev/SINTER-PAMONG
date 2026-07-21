@@ -261,7 +261,7 @@ export const getUserKPIs = async (userId: string): Promise<KPIEvaluation[]> => {
 
 export const getUserTaskReports = async (userId: string): Promise<TaskReport[]> => {
   const { data, error } = await supabase
-    .from('laporan_tugas')
+    .from('penilaian_tugas')
     .select('*')
     .eq('user_id', userId)
     .order('created_at', { ascending: false });
@@ -284,7 +284,7 @@ export const getUserTaskReports = async (userId: string): Promise<TaskReport[]> 
 
 export const getAllTaskReports = async (): Promise<TaskReport[]> => {
   const { data, error } = await supabase
-    .from('laporan_tugas')
+    .from('penilaian_tugas')
     .select('*')
     .order('created_at', { ascending: false });
     
@@ -305,7 +305,7 @@ export const getAllTaskReports = async (): Promise<TaskReport[]> => {
 };
 
 export const saveTaskReport = async (report: TaskReport) => {
-  const { error } = await supabase.from('laporan_tugas').insert({
+  const { error } = await supabase.from('penilaian_tugas').insert({
     id: report.id,
     user_id: report.userId,
     date: report.date,
@@ -319,7 +319,7 @@ export const saveTaskReport = async (report: TaskReport) => {
 
 export const updateTaskReportStatus = async (id: string, status: string, feedback: string = '', score: number | null = null) => {
   const { error } = await supabase
-    .from('laporan_tugas')
+    .from('penilaian_tugas')
     .update({ status, admin_feedback: feedback, score })
     .eq('id', id);
     
@@ -330,7 +330,7 @@ export const updateTaskReportStatus = async (id: string, status: string, feedbac
 
 export const updateTaskReport = async (id: string, taskName: string, description: string, link: string) => {
   const { error } = await supabase
-    .from('laporan_tugas')
+    .from('penilaian_tugas')
     .update({
       task_name: taskName,
       description: description,
@@ -338,6 +338,11 @@ export const updateTaskReport = async (id: string, taskName: string, description
       status: 'pending' // Reset status to pending for admin re-review
     })
     .eq('id', id);
+  if (error) throw error;
+};
+
+export const deleteTaskReport = async (id: string) => {
+  const { error } = await supabase.from('penilaian_tugas').delete().eq('id', id);
   if (error) throw error;
 };
 
@@ -398,13 +403,11 @@ export const updatePosition = async (id: string, namaJabatan: string) => {
 // ================= TUGAS STAFF =================
 
 export const uploadTaskAttachment = async (file: File): Promise<string> => {
-  const fileExt = file.name.split('.').pop();
-  const fileName = `${Math.random().toString(36).substring(2, 15)}_${Date.now()}.${fileExt}`;
-  const filePath = `${fileName}`;
+  const filePath = file.name;
 
   const { error: uploadError } = await supabase.storage
     .from('tugas_staff_attachments')
-    .upload(filePath, file);
+    .upload(filePath, file, { upsert: true });
 
   if (uploadError) {
     console.error('Error uploading file:', uploadError);

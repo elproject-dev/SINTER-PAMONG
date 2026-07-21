@@ -176,7 +176,7 @@ export const AdminSettings: React.FC<AdminSettingsProps> = ({ user, onUserUpdate
               className="px-8 py-2 border border-transparent bg-gradient-to-r from-school-blue to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-xl text-sm font-bold shadow-md hover:shadow-lg transition-all flex items-center justify-center disabled:opacity-50 whitespace-nowrap"
             >
               <Save size={18} className="mr-2" />
-              {isSavingProfile ? 'Menyimpan...' : 'Simpan Profil & Keamanan'}
+              {isSavingProfile ? 'Menyimpan...' : 'Simpan Perubahan'}
             </button>
           </div>
         </div>

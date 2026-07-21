@@ -2,7 +2,7 @@ import React, { useMemo, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { 
   LayoutDashboard, Users, UserCheck, FileText, 
-  Briefcase, Settings, Menu, LogOut, ClipboardList, Star
+  Settings, Menu, LogOut, ClipboardList, Star
 } from 'lucide-react';
 import { User } from '../lib/types';
 
@@ -22,9 +22,9 @@ export const BottomNavigation: React.FC<BottomNavigationProps> = ({ user, onLogo
     if (isAdmin) {
       return [
         { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
-        { href: "/admin/staff", label: "Staf", icon: Users },
         { href: "/admin/absensi", label: "Absensi", icon: UserCheck },
-        { href: "/admin/kpi", label: "KPI", icon: FileText },
+        { href: "/admin/tugas-staff", label: "Tugas", icon: FileText },
+        { href: "/admin/penilaian-tugas", label: "Penilaian", icon: ClipboardList },
       ];
     }
     return [
@@ -38,7 +38,8 @@ export const BottomNavigation: React.FC<BottomNavigationProps> = ({ user, onLogo
   const moreLinks = useMemo(() => {
     if (isAdmin) {
       return [
-        { href: "/admin/jabatan", label: "Jabatan", icon: Briefcase },
+        { href: "/admin/staff", label: "Daftar Staf", icon: Users },
+        { href: "/admin/kpi", label: "Penilaian KPI", icon: FileText },
         { href: "/admin/settings", label: "Pengaturan", icon: Settings },
         { href: "#logout", label: "Keluar", icon: LogOut, isLogout: true },
       ];

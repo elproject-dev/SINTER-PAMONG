@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { User } from '../lib/types';
-import { LogIn, Mail, Lock, Eye, EyeOff } from 'lucide-react';
+import { LogIn, Mail, Lock, Eye, EyeOff, GraduationCap } from 'lucide-react';
 
 interface LoginProps {
   onLogin: (user: User) => void;
@@ -101,7 +101,11 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
 
       <div className="w-full max-w-[420px] relative z-10">
         <div className="text-center mb-10">
-          <h1 className="text-3xl sm:text-4xl font-extrabold text-white tracking-widest drop-shadow-lg mt-6">SINTER PAMONG</h1>
+          {/* Logo */}
+          <div className="flex justify-center mb-4">
+            <GraduationCap className="w-28 h-28 text-white drop-shadow-md" />
+          </div>
+          <h1 className="text-3xl sm:text-4xl font-extrabold text-white tracking-widest drop-shadow-lg">SINTER PAMONG</h1>
         </div>
 
         <div className="relative group">
@@ -148,6 +152,11 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
                   >
                     {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
+                </div>
+                <div className="flex justify-end mt-1">
+                  <Link to="/forgot-password" className="text-xs font-semibold text-white/70 hover:text-white transition-colors">
+                    Lupa kata sandi?
+                  </Link>
                 </div>
               </div>
 

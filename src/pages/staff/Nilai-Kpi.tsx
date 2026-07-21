@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { User, KPIEvaluation } from '../../lib/types';
 import { getUserKPIs, getUsers } from '../../lib/db';
-import { Star, Award, Eye, Search, ClipboardList } from 'lucide-react';
+import { Star, Award, Eye, Search, ClipboardList, Loader2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { id } from 'date-fns/locale';
 import { useRealtimeSubscription } from '../../lib/useRealtime';
@@ -28,15 +28,22 @@ export const KPI: React.FC<KPIProps> = ({ user }) => {
   const [selectedKPI, setSelectedKPI] = useState<KPIEvaluation | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const fetchKpis = async () => {
-    const data = await getUserKPIs(user.id);
-    const sortedData = data.sort((a, b) => b.month.localeCompare(a.month));
-    setKpis(sortedData);
+  const [isLoading, setIsLoading] = useState(true);
 
-    const allUsers = await getUsers();
-    const map: Record<string, string> = {};
-    allUsers.forEach(u => map[u.id] = u.name);
-    setEvaluatorMap(map);
+  const fetchKpis = async () => {
+    setIsLoading(true);
+    try {
+      const data = await getUserKPIs(user.id);
+      const sortedData = data.sort((a, b) => b.month.localeCompare(a.month));
+      setKpis(sortedData);
+
+      const allUsers = await getUsers();
+      const map: Record<string, string> = {};
+      allUsers.forEach(u => map[u.id] = u.name);
+      setEvaluatorMap(map);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -102,7 +109,16 @@ export const KPI: React.FC<KPIProps> = ({ user }) => {
               </tr>
             </thead>
             <tbody>
-              {filteredKpis.length > 0 ? (
+              {isLoading ? (
+                <tr>
+                  <td colSpan={5} className="p-12 text-center text-slate-500 border border-slate-200">
+                    <div className="flex justify-center mb-3 text-school-blue">
+                      <Loader2 size={32} className="animate-spin" />
+                    </div>
+                    <p className="font-bold text-lg text-slate-600 mb-1">Memuat Data...</p>
+                  </td>
+                </tr>
+              ) : filteredKpis.length > 0 ? (
                 filteredKpis.map((kpi, index) => {
                   const score = getKPIAverage(kpi);
                   return (
@@ -148,7 +164,14 @@ export const KPI: React.FC<KPIProps> = ({ user }) => {
 
           {/* Mobile Card View */}
           <div className="md:hidden flex flex-col divide-y divide-slate-100">
-            {filteredKpis.length > 0 ? (
+            {isLoading ? (
+              <div className="p-12 text-center text-slate-500">
+                <div className="flex justify-center mb-3 text-school-blue">
+                  <Loader2 size={32} className="animate-spin" />
+                </div>
+                <p className="font-bold text-lg text-slate-600 mb-1">Memuat Data...</p>
+              </div>
+            ) : filteredKpis.length > 0 ? (
               filteredKpis.map(kpi => {
                 const score = getKPIAverage(kpi);
                 return (

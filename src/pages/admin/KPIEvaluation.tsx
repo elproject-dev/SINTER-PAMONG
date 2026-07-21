@@ -4,7 +4,7 @@ import { User, KPIEvaluation, KPITaskScore, StaffTask } from '../../lib/types';
 import { KPIDictionary } from '../../lib/kpiDictionary';
 import { format } from 'date-fns';
 import { id } from 'date-fns/locale';
-import { Save, Star, RefreshCcw, Search, Award } from 'lucide-react';
+import { Save, Star, RefreshCcw, Search, Award, Loader2 } from 'lucide-react';
 import { useRealtimeSubscription } from '../../lib/useRealtime';
 
 const formatMonth = (monthStr: string) => {
@@ -34,13 +34,20 @@ export const AdminKPIEvaluation: React.FC<KPIEvaluationProps> = ({ currentUser }
   const [searchTerm, setSearchTerm] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
 
+  const [isLoading, setIsLoading] = useState(true);
+
   const fetchData = useCallback(async () => {
-    const data = await getStaff();
-    setStaff(data);
-    const kpis = await getKPIs();
-    setAllKPIs(kpis);
-    const staffTasks = await getStaffTasks();
-    setAllStaffTasks(staffTasks);
+    setIsLoading(true);
+    try {
+      const data = await getStaff();
+      setStaff(data);
+      const kpis = await getKPIs();
+      setAllKPIs(kpis);
+      const staffTasks = await getStaffTasks();
+      setAllStaffTasks(staffTasks);
+    } finally {
+      setIsLoading(false);
+    }
   }, []);
 
   useEffect(() => {
@@ -253,7 +260,16 @@ export const AdminKPIEvaluation: React.FC<KPIEvaluationProps> = ({ currentUser }
               </tr>
             </thead>
             <tbody>
-              {filteredStaff.length > 0 ? (
+              {isLoading ? (
+                <tr>
+                  <td colSpan={6} className="p-8 text-center text-slate-500 border border-slate-200">
+                    <div className="flex justify-center mb-3 text-school-blue">
+                      <Loader2 size={32} className="animate-spin" />
+                    </div>
+                    <p className="font-bold text-lg text-slate-600 mb-1">Memuat Data...</p>
+                  </td>
+                </tr>
+              ) : filteredStaff.length > 0 ? (
                 filteredStaff.map((user, index) => {
                   const score = getSavedAverage(user.id);
                   return (
@@ -308,7 +324,14 @@ export const AdminKPIEvaluation: React.FC<KPIEvaluationProps> = ({ currentUser }
 
           {/* Mobile Card View */}
           <div className="md:hidden flex flex-col divide-y divide-slate-100">
-            {filteredStaff.length > 0 ? (
+            {isLoading ? (
+              <div className="p-8 text-center text-slate-500">
+                <div className="flex justify-center mb-3 text-school-blue">
+                  <Loader2 size={32} className="animate-spin" />
+                </div>
+                <p className="font-bold text-lg text-slate-600 mb-1">Memuat Data...</p>
+              </div>
+            ) : filteredStaff.length > 0 ? (
               filteredStaff.map(user => {
                 const score = getSavedAverage(user.id);
                 return (

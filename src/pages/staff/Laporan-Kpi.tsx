@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { User, TaskReport, StaffTask } from '../../lib/types';
 import { getUserTaskReports, saveTaskReport, getStaffTasks, updateTaskReport } from '../../lib/db';
 import { KPIDictionary } from '../../lib/kpiDictionary';
-import { ImagePlus, Search, Eye, ClipboardList, Edit, Star, Paperclip, MessageSquare } from 'lucide-react';
+import { ImagePlus, Search, Eye, ClipboardList, Edit, Star, Paperclip, MessageSquare, Loader2, SlidersHorizontal, X, Clock, CheckCircle2, XCircle, Layers, Download } from 'lucide-react';
 import { format } from 'date-fns';
 import { id } from 'date-fns/locale';
 import { supabase } from '../../lib/supabase';
@@ -23,6 +23,62 @@ export const BukuSaku: React.FC<BukuSakuProps> = ({ user }) => {
   const [showForm, setShowForm] = useState(false);
   const [selectedReport, setSelectedReport] = useState<TaskReport | null>(null);
   const [editingReportId, setEditingReportId] = useState<string | null>(null);
+
+  // Filter States
+  const [showFilterPopup, setShowFilterPopup] = useState(false);
+  const [filterStartDate, setFilterStartDate] = useState('');
+  const [filterEndDate, setFilterEndDate] = useState('');
+  const [filterStatus, setFilterStatus] = useState('all');
+  const filterPopupRef = useRef<HTMLDivElement>(null);
+  const [isStatusDropdownOpen, setIsStatusDropdownOpen] = useState(false);
+  const statusDropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (filterPopupRef.current && !filterPopupRef.current.contains(event.target as Node)) {
+        setShowFilterPopup(false);
+      }
+      if (statusDropdownRef.current && !statusDropdownRef.current.contains(event.target as Node)) {
+        setIsStatusDropdownOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const scrollToTop = () => {
+    const container = document.getElementById('main-scroll-container');
+    if (container) {
+      container.scrollTo({ top: 0, behavior: 'smooth' });
+    } else {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  };
+
+  const handleDownload = async (url: string, e: React.MouseEvent) => {
+    e.preventDefault();
+    try {
+      const response = await fetch(url);
+      const blob = await response.blob();
+      const blobUrl = window.URL.createObjectURL(blob);
+      
+      const link = document.createElement('a');
+      link.href = blobUrl;
+      
+      const urlParts = url.split('/');
+      const filename = urlParts[urlParts.length - 1].split('?')[0] || 'lampiran_tugas';
+      
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      window.URL.revokeObjectURL(blobUrl);
+    } catch (error) {
+      console.error('Error downloading file:', error);
+      window.open(url, '_blank');
+    }
+  };
 
   const closeFormModal = () => {
     setEditingReportId(null);
@@ -45,13 +101,23 @@ export const BukuSaku: React.FC<BukuSakuProps> = ({ user }) => {
     setAdminTasks(tasks);
   };
 
+  const [isLoading, setIsLoading] = useState(true);
+
   useEffect(() => {
-    fetchReports();
-    fetchAdminTasks();
+    const loadInitialData = async () => {
+      setIsLoading(true);
+      try {
+        await fetchReports();
+        await fetchAdminTasks();
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    loadInitialData();
   }, [user.id]);
 
   // Realtime: auto-refresh saat ada perubahan laporan atau tugas
-  useRealtimeSubscription(['laporan_tugas', 'tugas_staff'], () => {
+  useRealtimeSubscription(['penilaian_tugas', 'tugas_staff'], () => {
     fetchReports();
     fetchAdminTasks();
   });
@@ -108,13 +174,11 @@ export const BukuSaku: React.FC<BukuSakuProps> = ({ user }) => {
 
       try {
         setIsUploading(true);
-        const fileExt = file.name.split('.').pop();
-        const fileName = `${user.id}-${Date.now()}.${fileExt}`;
-        const filePath = `${fileName}`;
+        const filePath = file.name;
 
         const { error: uploadError } = await supabase.storage
           .from('buku-saku-media')
-          .upload(filePath, file);
+          .upload(filePath, file, { upsert: true });
 
         if (uploadError) {
           throw uploadError;
@@ -156,13 +220,29 @@ export const BukuSaku: React.FC<BukuSakuProps> = ({ user }) => {
       .filter(taskName => !taskReports.some(r => r.taskName === taskName && (r.date === todayLocal || r.date === todayUtc)))
       .map(taskName => ({ taskName, report: null, date: todayLocal }))
   ]
-    .filter(t => t.taskName.toLowerCase().includes(searchTerm.toLowerCase()))
+    .filter(t => {
+      const matchesSearch = t.taskName.toLowerCase().includes(searchTerm.toLowerCase());
+
+      let matchesStatus = true;
+      const statusForFilter = t.report ? (t.report.status || 'pending') : 'unassigned';
+
+      if (filterStatus !== 'all') {
+        matchesStatus = statusForFilter === filterStatus;
+      }
+
+      let matchesDate = true;
+      const taskDate = new Date(t.date).toISOString().split('T')[0];
+      if (filterStartDate && taskDate < filterStartDate) matchesDate = false;
+      if (filterEndDate && taskDate > filterEndDate) matchesDate = false;
+
+      return matchesSearch && matchesStatus && matchesDate;
+    })
     .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
   const handleDetailClick = (report: TaskReport) => {
     setSelectedReport(report);
     setShowForm(false);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    scrollToTop();
   };
 
   return (
@@ -186,7 +266,6 @@ export const BukuSaku: React.FC<BukuSakuProps> = ({ user }) => {
               className="w-full bg-white border border-slate-200 rounded-xl py-2 pr-4 pl-10 text-slate-700 text-sm focus:ring-4 focus:ring-school-blue/10 focus:border-school-blue outline-none transition-all shadow-sm font-medium"
             />
           </div>
-
         </div>
       </div>
 
@@ -407,34 +486,40 @@ export const BukuSaku: React.FC<BukuSakuProps> = ({ user }) => {
                   </div>
 
                   {(selectedReport.link || (selectedReport.status === 'reviewed' && selectedReport.score)) && (
-                    <div className="flex items-center justify-between pt-4 border-t border-slate-100 mt-4">
-                      <div className="flex flex-col">
-                        <span className="text-xs text-slate-400 font-bold uppercase tracking-wider mb-0.5">Lampiran Bukti</span>
+                    <div className="flex flex-col gap-3 pt-4 border-t border-slate-100 mt-4">
+                      <div className="flex items-center justify-between w-full">
+                        <span className="text-xs text-slate-400 font-bold uppercase tracking-wider">Lampiran Bukti</span>
                         {selectedReport.link ? (
-                          <div className="flex items-center gap-2 mt-1">
+                          <div className="flex items-center gap-3 mr-1">
                             <a
                               href={selectedReport.link}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="inline-flex items-center gap-1.5 text-xs text-school-blue font-bold hover:bg-blue-100 bg-blue-50 px-3 py-1.5 rounded-lg transition-colors border border-blue-100"
+                              className="inline-flex items-center gap-1 text-[10px] text-school-blue font-bold uppercase underline hover:text-blue-700 transition-colors"
                             >
-                              <Eye size={13} /> Periksa
+                              <Paperclip size={12} /> Lihat Lampiran
                             </a>
+                            <button
+                              onClick={(e) => handleDownload(selectedReport.link, e)}
+                              className="inline-flex items-center gap-1 text-[10px] text-school-blue font-bold uppercase underline hover:text-blue-700 transition-colors cursor-pointer"
+                            >
+                              <Download size={12} /> Unduh
+                            </button>
                           </div>
                         ) : (
-                          <span className="text-xs text-slate-400 italic mt-1">Tidak ada lampiran</span>
+                          <span className="text-xs text-slate-400 font-bold">-</span>
                         )}
                       </div>
 
                       {selectedReport.status === 'reviewed' && selectedReport.score && (
-                        <div className="flex flex-col items-end">
-                          <p className="text-xs text-slate-400 font-bold uppercase tracking-wider mb-1.5">Penilaian Diberikan</p>
-                          <div className="flex items-center gap-1 bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5 w-fit shadow-sm">
+                        <div className="flex items-center justify-between w-full">
+                          <span className="text-xs text-slate-400 font-bold uppercase tracking-wider">Penilaian Diberikan</span>
+                          <div className="flex items-center gap-0.5 text-slate-300">
                             {[1, 2, 3, 4, 5].map((star) => (
                               <Star
                                 key={`mod-${star}`}
-                                size={16}
-                                className={`${star <= selectedReport.score! ? 'fill-amber-400 text-amber-400' : 'fill-transparent text-slate-300'}`}
+                                size={14}
+                                className={`${star <= selectedReport.score! ? 'fill-amber-400 text-amber-400' : 'fill-transparent text-slate-300 stroke-current'}`}
                               />
                             ))}
                           </div>
@@ -468,11 +553,143 @@ export const BukuSaku: React.FC<BukuSakuProps> = ({ user }) => {
         </div>
       )}
 
-      <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-        <div className="p-4 border-b border-slate-200 flex items-center justify-between bg-white">
-          <div className="flex items-center space-x-2">
-            <ClipboardList size={20} className="text-slate-600" />
+      <div className="bg-white rounded-xl shadow-sm border border-slate-200">
+        <div className="p-4 border-b border-slate-200 flex flex-row items-center justify-between gap-4 bg-white">
+          <div className="flex items-center space-x-2 truncate">
+            <ClipboardList size={20} className="text-slate-600 shrink-0" />
             <h2 className="font-bold text-slate-800 text-lg">Riwayat Pelaporan Hari Ini</h2>
+          </div>
+
+          <div className="flex items-center gap-2 relative" ref={filterPopupRef}>
+            <button
+              onClick={() => setShowFilterPopup(!showFilterPopup)}
+              className={`flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-bold border transition-all ${showFilterPopup || filterStartDate || filterEndDate || filterStatus !== 'all'
+                  ? 'bg-school-blue/10 border-school-blue text-school-blue shadow-sm'
+                  : 'bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100 shadow-sm'
+                }`}
+            >
+              <SlidersHorizontal size={16} />
+              Filter
+            </button>
+
+            {/* Pop-up Filter */}
+            {showFilterPopup && (
+              <div className="absolute right-0 top-full mt-2 w-[calc(100vw-32px)] sm:w-72 bg-white rounded-xl shadow-xl border border-slate-200 p-4 z-50 animate-in fade-in slide-in-from-top-2">
+                <div className="flex justify-between items-center mb-4">
+                  <h3 className="font-bold text-slate-800 text-sm">Filter Data</h3>
+                  <button onClick={() => setShowFilterPopup(false)} className="text-slate-400 hover:text-slate-600 bg-slate-50 hover:bg-slate-100 p-1 rounded-md transition-colors">
+                    <X size={16} />
+                  </button>
+                </div>
+
+                <div className="space-y-3">
+                  <div>
+                    <input
+                      type={filterStartDate ? "date" : "text"}
+                      placeholder="Tanggal Mulai"
+                      onFocus={(e) => {
+                        e.target.type = 'date';
+                        if ('showPicker' in e.target) {
+                          (e.target as HTMLInputElement).showPicker();
+                        }
+                      }}
+                      onBlur={(e) => {
+                        if (!e.target.value) e.target.type = 'text';
+                      }}
+                      value={filterStartDate}
+                      onChange={(e) => setFilterStartDate(e.target.value)}
+                      className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-school-blue/20 outline-none text-slate-700 font-bold text-center cursor-pointer transition-all hover:bg-slate-100"
+                    />
+                  </div>
+                  <div>
+                    <input
+                      type={filterEndDate ? "date" : "text"}
+                      placeholder="Tanggal Akhir"
+                      onFocus={(e) => {
+                        e.target.type = 'date';
+                        if ('showPicker' in e.target) {
+                          (e.target as HTMLInputElement).showPicker();
+                        }
+                      }}
+                      onBlur={(e) => {
+                        if (!e.target.value) e.target.type = 'text';
+                      }}
+                      value={filterEndDate}
+                      onChange={(e) => setFilterEndDate(e.target.value)}
+                      className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-school-blue/20 outline-none text-slate-700 font-bold text-center cursor-pointer transition-all hover:bg-slate-100"
+                    />
+                  </div>
+                  <div className="relative" ref={statusDropdownRef}>
+                    <button
+                      type="button"
+                      onClick={() => setIsStatusDropdownOpen(!isStatusDropdownOpen)}
+                      className="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-2.5 text-sm outline-none text-slate-700 font-bold flex justify-center items-center transition-all hover:bg-slate-100 hover:border-slate-300 focus:ring-2 focus:ring-school-blue/20"
+                    >
+                      <span className="flex items-center gap-2">
+                        {filterStatus === 'all' && 'Semua Status'}
+                        {filterStatus === 'unassigned' && <><Clock size={16} className="text-slate-400" /> Tertunda</>}
+                        {filterStatus === 'pending' && <><Clock size={16} className="text-amber-500" /> Menunggu</>}
+                        {filterStatus === 'reviewed' && <><CheckCircle2 size={16} className="text-emerald-500" /> Disetujui</>}
+                        {filterStatus === 'rejected' && <><XCircle size={16} className="text-rose-500" /> Ditolak</>}
+                      </span>
+                    </button>
+
+                    {isStatusDropdownOpen && (
+                      <div className="absolute z-50 w-full mt-1.5 bg-white border border-slate-200 rounded-xl shadow-lg overflow-hidden animate-in fade-in zoom-in-95 duration-100">
+                        <button
+                          type="button"
+                          onClick={() => { setFilterStatus('all'); setIsStatusDropdownOpen(false); }}
+                          className={`w-full text-left px-4 py-2.5 text-sm font-semibold flex items-center gap-2 transition-colors hover:bg-slate-50 ${filterStatus === 'all' ? 'text-school-blue bg-blue-50/50' : 'text-slate-700'}`}
+                        >
+                          <Layers size={16} className={filterStatus === 'all' ? 'text-school-blue' : 'text-slate-500'} /> Semua Status
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => { setFilterStatus('unassigned'); setIsStatusDropdownOpen(false); }}
+                          className={`w-full text-left px-4 py-2.5 text-sm font-semibold flex items-center gap-2 transition-colors hover:bg-slate-50 ${filterStatus === 'unassigned' ? 'text-slate-700 bg-slate-100' : 'text-slate-700'}`}
+                        >
+                          <Clock size={16} className={filterStatus === 'unassigned' ? 'text-slate-500' : 'text-slate-400'} /> Tertunda
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => { setFilterStatus('pending'); setIsStatusDropdownOpen(false); }}
+                          className={`w-full text-left px-4 py-2.5 text-sm font-semibold flex items-center gap-2 transition-colors hover:bg-slate-50 ${filterStatus === 'pending' ? 'text-amber-600 bg-amber-50/50' : 'text-slate-700'}`}
+                        >
+                          <Clock size={16} className={filterStatus === 'pending' ? 'text-amber-600' : 'text-amber-500'} /> Menunggu
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => { setFilterStatus('reviewed'); setIsStatusDropdownOpen(false); }}
+                          className={`w-full text-left px-4 py-2.5 text-sm font-semibold flex items-center gap-2 transition-colors hover:bg-slate-50 ${filterStatus === 'reviewed' ? 'text-emerald-600 bg-emerald-50/50' : 'text-slate-700'}`}
+                        >
+                          <CheckCircle2 size={16} className={filterStatus === 'reviewed' ? 'text-emerald-600' : 'text-emerald-500'} /> Disetujui
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => { setFilterStatus('rejected'); setIsStatusDropdownOpen(false); }}
+                          className={`w-full text-left px-4 py-2.5 text-sm font-semibold flex items-center gap-2 transition-colors hover:bg-slate-50 ${filterStatus === 'rejected' ? 'text-rose-600 bg-rose-50/50' : 'text-slate-700'}`}
+                        >
+                          <XCircle size={16} className={filterStatus === 'rejected' ? 'text-rose-600' : 'text-rose-500'} /> Ditolak
+                        </button>
+                      </div>
+                    )}
+                  </div>
+
+                  {(filterStartDate || filterEndDate || filterStatus !== 'all') && (
+                    <button
+                      onClick={() => {
+                        setFilterStartDate('');
+                        setFilterEndDate('');
+                        setFilterStatus('all');
+                      }}
+                      className="w-full mt-2 text-xs font-bold text-rose-500 hover:text-rose-600 bg-rose-50 hover:bg-rose-100 py-2 rounded-lg transition-colors"
+                    >
+                      Reset Filter
+                    </button>
+                  )}
+                </div>
+              </div>
+            )}
           </div>
         </div>
         <div className="overflow-x-auto">
@@ -489,7 +706,16 @@ export const BukuSaku: React.FC<BukuSakuProps> = ({ user }) => {
               </tr>
             </thead>
             <tbody>
-              {combinedTasks.length > 0 ? (
+              {isLoading ? (
+                <tr>
+                  <td colSpan={6} className="p-12 text-center text-slate-500 border border-slate-200">
+                    <div className="flex justify-center mb-3 text-school-blue">
+                      <Loader2 size={32} className="animate-spin" />
+                    </div>
+                    <p className="font-bold text-lg text-slate-600 mb-1">Memuat Data...</p>
+                  </td>
+                </tr>
+              ) : combinedTasks.length > 0 ? (
                 combinedTasks.map((item, index) => {
                   const report = item.report;
                   const status = report ? report.status : 'not_done';
@@ -509,12 +735,12 @@ export const BukuSaku: React.FC<BukuSakuProps> = ({ user }) => {
                         <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold whitespace-nowrap ${status === 'pending' ? 'bg-orange-500 text-white shadow-sm' :
                           status === 'reviewed' ? 'bg-emerald-500 text-white shadow-sm' :
                             status === 'rejected' ? 'bg-rose-500 text-white shadow-sm' :
-                              'bg-slate-200 text-slate-600 shadow-sm'
+                              'bg-slate-500 text-white shadow-sm'
                           }`}>
                           {status === 'pending' ? 'Menunggu' :
                             status === 'reviewed' ? 'Disetujui' :
                               status === 'rejected' ? 'Ditolak' :
-                                'Belum Dikerjakan'}
+                                'Tertunda'}
                         </span>
                       </td>
                       <td className="px-4 py-3 border border-slate-200 text-center">
@@ -544,7 +770,7 @@ export const BukuSaku: React.FC<BukuSakuProps> = ({ user }) => {
                               setReportDescription('');
                               setReportLink('');
                               setShowForm(true);
-                              window.scrollTo({ top: 0, behavior: 'smooth' });
+                              setTimeout(scrollToTop, 50);
                             }}
                             title="Kerjakan Tugas"
                             className="p-2 rounded-full text-emerald-600 hover:bg-emerald-50 hover:text-emerald-700 transition-colors inline-flex"
@@ -571,49 +797,65 @@ export const BukuSaku: React.FC<BukuSakuProps> = ({ user }) => {
 
           {/* Mobile Card View */}
           <div className="md:hidden flex flex-col divide-y divide-slate-100">
-            {combinedTasks.length > 0 ? (
+            {isLoading ? (
+              <div className="p-12 text-center text-slate-500">
+                <div className="flex justify-center mb-3 text-school-blue">
+                  <Loader2 size={32} className="animate-spin" />
+                </div>
+                <p className="font-bold text-lg text-slate-600 mb-1">Memuat Data...</p>
+              </div>
+            ) : combinedTasks.length > 0 ? (
               combinedTasks.map((item, index) => {
                 const report = item.report;
                 const status = report ? report.status : 'not_done';
                 return (
-                  <div key={index} className="p-4 hover:bg-slate-50 transition-colors flex flex-col gap-3">
-                    <div className="flex justify-between items-start">
-                      <div className="flex flex-col">
-                        <h3 className="font-extrabold text-slate-800 text-base">{item.taskName}</h3>
-                        <p className="text-xs font-bold text-slate-400 mt-1">
-                          {format(new Date(item.date), 'dd MMM yyyy', { locale: id })}
-                        </p>
-                      </div>
-                      <div className="flex flex-col items-end gap-2">
-                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold ${status === 'pending' ? 'bg-orange-500 text-white shadow-sm' :
-                          status === 'reviewed' ? 'bg-emerald-500 text-white shadow-sm' :
-                            status === 'rejected' ? 'bg-rose-500 text-white shadow-sm' :
-                              'bg-slate-200 text-slate-600 shadow-sm'
-                          }`}>
-                          {status === 'pending' ? 'Menunggu' :
-                            status === 'reviewed' ? 'Disetujui' :
-                              status === 'rejected' ? 'Ditolak' :
-                                'Belum Dikerjakan'}
-                        </span>
-                        <div className="flex items-center gap-0.5 text-slate-300 bg-slate-50 px-2 py-1 rounded-lg border border-slate-200">
-                          {[1, 2, 3, 4, 5].map((star) => (
-                            <Star
-                              key={`mob-${star}`}
-                              size={12}
-                              className={`${report?.score && star <= report.score ? 'fill-amber-400 text-amber-400' : 'fill-transparent text-slate-300'}`}
-                            />
-                          ))}
+                  <div key={index} className="p-4 hover:bg-slate-50 transition-colors flex flex-col gap-4">
+                    <div className="flex flex-col gap-2">
+                      <h3 className="font-extrabold text-slate-800 text-sm leading-snug truncate" title={item.taskName}>{item.taskName}</h3>
+                      
+                      <div className="flex flex-col gap-1.5 mt-2">
+                        <div className="flex items-center justify-between w-full">
+                          <p className="text-[11px] font-bold text-slate-400">
+                            {format(new Date(item.date), 'dd MMM yyyy', { locale: id })}
+                          </p>
+                          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Nilai</span>
+                        </div>
+                        
+                        <div className="flex items-center justify-between w-full mt-1">
+                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider shadow-sm ${status === 'pending' ? 'bg-orange-500 text-white' :
+                            status === 'reviewed' ? 'bg-emerald-500 text-white' :
+                              status === 'rejected' ? 'bg-rose-500 text-white' :
+                                'bg-slate-500 text-white'
+                            }`}>
+                            {status === 'pending' ? 'Menunggu' :
+                              status === 'reviewed' ? 'Disetujui' :
+                                status === 'rejected' ? 'Ditolak' :
+                                  'Tertunda'}
+                          </span>
+
+                          <div className="flex items-center gap-0.5 text-slate-300" title={report?.score ? `Nilai: ${report.score} Bintang` : 'Belum Dinilai'}>
+                            {[1, 2, 3, 4, 5].map((star) => (
+                              <Star
+                                key={`mob-${star}`}
+                                size={12}
+                                className={`${report?.score && star <= report.score ? 'fill-amber-400 text-amber-400' : 'fill-transparent text-slate-300 stroke-current'}`}
+                              />
+                            ))}
+                          </div>
                         </div>
                       </div>
                     </div>
 
-                    <div className="pt-2 flex justify-end gap-2 mt-1">
+                    <div className="flex justify-end w-full">
                       {report ? (
                         <button
-                          onClick={() => handleDetailClick(report)}
-                          className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl text-sm font-bold bg-blue-50 text-school-blue hover:bg-blue-100 transition-all"
+                          onClick={() => {
+                            handleDetailClick(report);
+                            setTimeout(scrollToTop, 50);
+                          }}
+                          className="w-full flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold bg-school-blue text-white shadow-sm hover:bg-blue-700 hover:shadow transition-all"
                         >
-                          <Eye size={16} /> Lihat Detail
+                          <Eye size={14} /> Lihat Detail Laporan
                         </button>
                       ) : (
                         <button
@@ -622,11 +864,11 @@ export const BukuSaku: React.FC<BukuSakuProps> = ({ user }) => {
                             setReportDescription('');
                             setReportLink('');
                             setShowForm(true);
-                            window.scrollTo({ top: 0, behavior: 'smooth' });
+                            setTimeout(scrollToTop, 50);
                           }}
-                          className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl text-sm font-bold bg-emerald-50 text-emerald-600 hover:bg-emerald-100 transition-all"
+                          className="w-full flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold bg-emerald-500 text-white shadow-sm hover:bg-emerald-600 hover:shadow transition-all"
                         >
-                          <Edit size={16} /> Kerjakan
+                          <Edit size={14} /> Kerjakan Sekarang
                         </button>
                       )}
                     </div>

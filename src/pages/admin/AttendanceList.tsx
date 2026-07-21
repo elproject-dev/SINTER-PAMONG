@@ -3,18 +3,31 @@ import { getAttendance, getUsers } from '../../lib/db';
 import { AttendanceRecord, User } from '../../lib/types';
 import { format } from 'date-fns';
 import { id } from 'date-fns/locale';
-import { Download, List, Eye } from 'lucide-react';
+import { Download, List, Eye, Loader2 } from 'lucide-react';
 import { useRealtimeSubscription } from '../../lib/useRealtime';
 
 export const AttendanceList: React.FC = () => {
   const [records, setRecords] = useState<AttendanceRecord[]>([]);
   const [staff, setStaff] = useState<User[]>([]);
 
+  const [isLoading, setIsLoading] = useState(true);
+
   const fetchData = useCallback(async () => {
-    const recordsData = await getAttendance();
-    const staffData = await getUsers();
-    setRecords(recordsData.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()));
-    setStaff(staffData);
+    setIsLoading(true);
+    try {
+      const recordsData = await getAttendance();
+      const staffData = await getUsers();
+      
+      // Filter out admin users
+      const nonAdminStaff = staffData.filter(s => s.role !== 'admin');
+      const nonAdminIds = new Set(nonAdminStaff.map(s => s.id));
+      const filteredRecords = recordsData.filter(r => nonAdminIds.has(r.userId));
+      
+      setRecords(filteredRecords.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()));
+      setStaff(nonAdminStaff);
+    } finally {
+      setIsLoading(false);
+    }
   }, []);
 
   useEffect(() => {
@@ -25,6 +38,10 @@ export const AttendanceList: React.FC = () => {
 
   const getStaffName = (userId: string) => {
     return staff.find(s => s.id === userId)?.name || 'Unknown';
+  };
+
+  const getStaffPosition = (userId: string) => {
+    return staff.find(s => s.id === userId)?.position || null;
   };
 
   const getStatusBadge = (status: string) => {
@@ -78,27 +95,40 @@ export const AttendanceList: React.FC = () => {
             <thead>
               <tr className="bg-slate-50 text-slate-500 text-xs uppercase tracking-wider">
                 <th className="px-4 py-3 font-bold border border-slate-200 w-12 text-center">NO</th>
-                <th className="px-4 py-3 font-bold border border-slate-200">TANGGAL</th>
-                <th className="px-4 py-3 font-bold border border-slate-200">NAMA STAFF</th>
+                <th className="px-4 py-3 font-bold border border-slate-200 w-36 text-center">TANGGAL</th>
+                <th className="px-4 py-3 font-bold border border-slate-200">NAMA LENGKAP</th>
+                <th className="px-4 py-3 font-bold border border-slate-200">PROFESI / JABATAN</th>
                 <th className="px-4 py-3 font-bold border border-slate-200 text-center">STATUS</th>
-                <th className="px-4 py-3 font-bold border border-slate-200 text-center">JAM MASUK</th>
-                <th className="px-4 py-3 font-bold border border-slate-200 text-center">JAM KELUAR</th>
+                <th className="px-4 py-3 font-bold border border-slate-200 text-center w-28">JAM MASUK</th>
+                <th className="px-4 py-3 font-bold border border-slate-200 text-center w-28">JAM KELUAR</th>
+                <th className="px-4 py-3 font-bold border border-slate-200 w-64">CATATAN</th>
                 <th className="px-4 py-3 font-bold border border-slate-200 text-center">LOKASI (GPS)</th>
-                <th className="px-4 py-3 font-bold border border-slate-200">CATATAN</th>
               </tr>
             </thead>
             <tbody>
-              {records.length > 0 ? (
+              {isLoading ? (
+                <tr>
+                  <td colSpan={9} className="p-12 text-center text-slate-500 border border-slate-200">
+                    <div className="flex justify-center mb-3 text-school-blue">
+                      <Loader2 size={32} className="animate-spin" />
+                    </div>
+                    <p className="font-bold text-lg text-slate-600 mb-1">Memuat Data...</p>
+                  </td>
+                </tr>
+              ) : records.length > 0 ? (
                 records.map((record, index) => (
                   <tr key={record.id} className="hover:bg-slate-50 transition-colors">
                     <td className="px-4 py-3 border border-slate-200 text-center text-sm font-medium text-slate-500">
                       {index + 1}
                     </td>
-                    <td className="px-4 py-3 border border-slate-200 text-sm text-slate-700">
+                    <td className="px-4 py-3 border border-slate-200 text-sm text-slate-700 text-center">
                       {format(new Date(record.date), 'dd MMM yyyy', { locale: id })}
                     </td>
-                    <td className="px-4 py-3 border border-slate-200 text-sm font-bold text-slate-800">
-                      {getStaffName(record.userId)}
+                    <td className="px-4 py-3 border border-slate-200 text-sm">
+                      <div className="font-bold text-school-blue">{getStaffName(record.userId)}</div>
+                    </td>
+                    <td className="px-4 py-3 border border-slate-200 text-sm text-slate-600">
+                      {getStaffPosition(record.userId) || <span className="text-slate-300">-</span>}
                     </td>
                     <td className="px-4 py-3 border border-slate-200 text-center">
                       {getStatusBadge(record.status)}
@@ -108,6 +138,9 @@ export const AttendanceList: React.FC = () => {
                     </td>
                     <td className="px-4 py-3 border border-slate-200 text-center text-sm text-slate-600">
                       {record.checkOut ? format(new Date(record.checkOut), 'HH:mm') : '-'}
+                    </td>
+                    <td className="px-4 py-3 border border-slate-200 text-sm text-slate-500" title={record.note}>
+                      {record.note || '-'}
                     </td>
                     <td className="px-4 py-3 border border-slate-200 text-center">
                       {record.latitude && record.longitude ? (
@@ -123,14 +156,11 @@ export const AttendanceList: React.FC = () => {
                         <span className="text-slate-400 text-xs">-</span>
                       )}
                     </td>
-                    <td className="px-4 py-3 border border-slate-200 text-sm text-slate-500 max-w-[200px] truncate" title={record.note}>
-                      {record.note || '-'}
-                    </td>
                   </tr>
                 ))
               ) : (
                 <tr>
-                  <td colSpan={8} className="p-8 text-center text-slate-500 border border-slate-200">
+                  <td colSpan={9} className="p-8 text-center text-slate-500 border border-slate-200">
                     Belum ada data absensi.
                   </td>
                 </tr>
@@ -140,19 +170,29 @@ export const AttendanceList: React.FC = () => {
 
           {/* Mobile Card View */}
           <div className="md:hidden flex flex-col divide-y divide-slate-100">
-            {records.length > 0 ? (
+            {isLoading ? (
+              <div className="p-8 text-center text-slate-500">
+                <div className="flex justify-center mb-3 text-school-blue">
+                  <Loader2 size={32} className="animate-spin" />
+                </div>
+                <p className="font-bold text-lg text-slate-600 mb-1">Memuat Data...</p>
+              </div>
+            ) : records.length > 0 ? (
               records.map(record => (
                 <div key={record.id} className="p-4 hover:bg-slate-50 transition-colors flex flex-col gap-3">
                   <div className="flex justify-between items-start">
                     <div className="flex flex-col">
                       <span className="text-xs font-bold text-slate-400 mb-0.5">{format(new Date(record.date), 'dd MMM yyyy', { locale: id })}</span>
-                      <h3 className="font-extrabold text-slate-800 text-base">{getStaffName(record.userId)}</h3>
+                      <h3 className="font-extrabold text-school-blue text-base">{getStaffName(record.userId)}</h3>
+                      {getStaffPosition(record.userId) && (
+                        <span className="text-xs text-slate-500 font-medium">{getStaffPosition(record.userId)}</span>
+                      )}
                     </div>
                     <div>
                       {getStatusBadge(record.status)}
                     </div>
                   </div>
-                  
+
                   <div className="text-sm flex flex-col gap-1.5 bg-slate-50/50 p-3 rounded-lg border border-slate-100">
                     <div className="flex items-center justify-between">
                       <span className="text-slate-400 text-xs font-bold uppercase tracking-wider">Jam Masuk</span>
@@ -163,7 +203,7 @@ export const AttendanceList: React.FC = () => {
                       <span className="font-semibold text-slate-700">{record.checkOut ? format(new Date(record.checkOut), 'HH:mm') : '-'}</span>
                     </div>
                   </div>
-                  
+
                   <div className="pt-2 flex justify-between items-center mt-1">
                     <div className="text-xs text-slate-500 italic max-w-[50%] truncate">
                       {record.note ? `Catatan: ${record.note}` : 'Tidak ada catatan'}

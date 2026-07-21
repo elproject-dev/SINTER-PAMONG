@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { User, StaffTask, TaskReport } from '../../lib/types';
 import { getStaff, getStaffTasks, addStaffTask, deleteStaffTask, updateStaffTask, uploadTaskAttachment, getAllTaskReports } from '../../lib/db';
-import { Plus, Trash2, Search, ListChecks, User as UserIcon, Edit, Check, ChevronDown, Star, Paperclip } from 'lucide-react';
+import { Plus, Trash2, Search, ListChecks, User as UserIcon, Edit, Check, ChevronDown, Star, Paperclip, X, SlidersHorizontal, Layers, Clock, CheckCircle2, Loader2 } from 'lucide-react';
 import { useRealtimeSubscription } from '../../lib/useRealtime';
 import { format } from 'date-fns';
 import { id } from 'date-fns/locale';
@@ -21,7 +21,11 @@ export const AdminTugasStaff: React.FC = () => {
   const [isUploading, setIsUploading] = useState(false);
 
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const filterPopupRef = useRef<HTMLDivElement>(null);
+  const statusDropdownRef = useRef<HTMLDivElement>(null);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [showFilterPopup, setShowFilterPopup] = useState(false);
+  const [isStatusDropdownOpen, setIsStatusDropdownOpen] = useState(false);
   const [staffSearch, setStaffSearch] = useState('');
 
   useEffect(() => {
@@ -30,21 +34,37 @@ export const AdminTugasStaff: React.FC = () => {
         setIsDropdownOpen(false);
         setStaffSearch('');
       }
+      if (filterPopupRef.current && !filterPopupRef.current.contains(event.target as Node)) {
+        setShowFilterPopup(false);
+      }
+      if (statusDropdownRef.current && !statusDropdownRef.current.contains(event.target as Node)) {
+        setIsStatusDropdownOpen(false);
+      }
     };
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
   const [searchQuery, setSearchQuery] = useState('');
+  const [filterStartDate, setFilterStartDate] = useState('');
+  const [filterEndDate, setFilterEndDate] = useState('');
+  const [filterPenilaian, setFilterPenilaian] = useState<'all' | 'sudah' | 'belum'>('all');
   const [showSuccess, setShowSuccess] = useState('');
 
+  const [isLoading, setIsLoading] = useState(true);
+
   const fetchData = async () => {
-    const staffData = await getStaff();
-    setStaff(staffData);
-    const tasks = await getStaffTasks();
-    setAllTasks(tasks);
-    const reports = await getAllTaskReports();
-    setTaskReports(reports);
+    setIsLoading(true);
+    try {
+      const staffData = await getStaff();
+      setStaff(staffData);
+      const tasks = await getStaffTasks();
+      setAllTasks(tasks);
+      const reports = await getAllTaskReports();
+      setTaskReports(reports);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -140,18 +160,42 @@ export const AdminTugasStaff: React.FC = () => {
     };
   });
 
-  const filteredTasks = tasksWithStaff.filter(t =>
-    t.namaTugas.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    t.staffName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    (t.deskripsi || '').toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredTasks = tasksWithStaff.filter(t => {
+    const matchesSearch = t.namaTugas.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      t.staffName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (t.deskripsi || '').toLowerCase().includes(searchQuery.toLowerCase());
+
+    let matchesDate = true;
+    if (t.createdAt) {
+      const taskDate = new Date(t.createdAt).toISOString().split('T')[0];
+      if (filterStartDate && taskDate < filterStartDate) matchesDate = false;
+      if (filterEndDate && taskDate > filterEndDate) matchesDate = false;
+    } else if (filterStartDate || filterEndDate) {
+      matchesDate = false;
+    }
+
+    let matchesPenilaian = true;
+    if (filterPenilaian !== 'all') {
+      const report = taskReports.find(
+        r => r.userId === t.userId &&
+          r.taskName === t.namaTugas &&
+          r.status === 'reviewed' &&
+          r.score
+      );
+      const isDinilai = !!(report && report.score && report.score > 0);
+      if (filterPenilaian === 'sudah' && !isDinilai) matchesPenilaian = false;
+      if (filterPenilaian === 'belum' && isDinilai) matchesPenilaian = false;
+    }
+
+    return matchesSearch && matchesDate && matchesPenilaian;
+  });
 
   return (
     <div className="w-full space-y-8 animate-in fade-in duration-300">
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div>
-          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-slate-800 mb-1 sm:mb-2 tracking-tight">Daftar Semua Tugas Staf</h1>
-          <p className="text-slate-500 text-sm sm:text-base lg:text-lg">Atur dan pantau daftar tugas laporan seluruh staf dalam satu tabel terpusat</p>
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-slate-800 mb-1 sm:mb-2 tracking-tight">Daftar Semua Tugas</h1>
+          <p className="text-slate-500 text-sm sm:text-base lg:text-lg">Atur dan pantau daftar tugas laporan seluruh staf</p>
         </div>
 
         <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto shrink-0">
@@ -177,8 +221,8 @@ export const AdminTugasStaff: React.FC = () => {
               }
             }}
             className={`px-8 py-2 text-white font-bold border border-transparent rounded-xl transition-all shadow-md hover:shadow-lg text-sm flex items-center justify-center gap-2 whitespace-nowrap ${showForm && !editingTaskId
-                ? 'bg-gradient-to-r from-slate-500 to-slate-600 hover:from-slate-600 hover:to-slate-700'
-                : 'bg-gradient-to-r from-school-blue to-indigo-600 hover:from-blue-700 hover:to-indigo-700'
+              ? 'bg-gradient-to-r from-slate-500 to-slate-600 hover:from-slate-600 hover:to-slate-700'
+              : 'bg-gradient-to-r from-school-blue to-indigo-600 hover:from-blue-700 hover:to-indigo-700'
               }`}
           >
             {showForm && !editingTaskId ? 'Tutup Form' : <><Plus size={18} /> <span>Tambah Tugas</span></>}
@@ -202,7 +246,7 @@ export const AdminTugasStaff: React.FC = () => {
           </h2>
 
           <form onSubmit={handleAddTask} className="flex flex-col gap-4">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-1">
                 <label className="text-sm font-bold text-slate-700">Pilih Staf <span className="text-rose-500">*</span></label>
                 <div className="relative" ref={dropdownRef}>
@@ -280,25 +324,62 @@ export const AdminTugasStaff: React.FC = () => {
               </div>
 
               <div className="space-y-1">
-                <label className="text-sm font-bold text-slate-700">Nama Tugas <span className="text-rose-500">*</span></label>
+                <label className="text-sm font-bold text-slate-700">Ditugaskan Untuk</label>
                 <input
                   type="text"
+                  value={selectedStaffId ? staff.find(s => s.id === selectedStaffId)?.position || 'Tidak ada jabatan' : ''}
+                  placeholder="Otomatis terisi setelah memilih staf..."
+                  className="w-full bg-slate-100 border border-slate-200 rounded-xl px-4 py-2 text-sm text-slate-500 font-medium outline-none cursor-not-allowed"
+                  disabled
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-sm font-bold text-slate-700">Nama Tugas <span className="text-rose-500">*</span></label>
+                <textarea
                   value={newTaskName}
                   onChange={(e) => setNewTaskName(e.target.value)}
                   placeholder="misal: Membuat RPP, Piket Harian"
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-sm focus:ring-4 focus:ring-school-blue/10 focus:border-school-blue outline-none transition-all"
+                  className="w-full h-16 bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:ring-4 focus:ring-school-blue/10 focus:border-school-blue outline-none transition-all resize-none custom-scrollbar"
                   required
                 />
               </div>
 
               <div className="space-y-1">
                 <label className="text-sm font-bold text-slate-700">Upload Media (Opsional)</label>
-                <input
-                type="file"
-                accept="image/*,video/*,application/pdf"
-                onChange={(e) => setNewMedia(e.target.files?.[0] || null)}
-                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5 text-sm file:mr-3 file:py-1 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-school-blue/10 file:text-school-blue hover:file:bg-school-blue/20 transition-all text-slate-600 cursor-pointer focus:ring-4 focus:ring-school-blue/10 focus:border-school-blue outline-none"
-              />
+                {newMedia ? (
+                  <div className="w-full h-16 flex items-center justify-between bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-sm transition-all shadow-sm">
+                    <div className="flex items-center gap-2 overflow-hidden">
+                      <Paperclip size={16} className="text-school-blue shrink-0" />
+                      <span className="truncate text-slate-700 font-bold max-w-[120px] sm:max-w-[200px]" title={newMedia.name}>
+                        {newMedia.name}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-1.5 shrink-0">
+                      <button
+                        type="button"
+                        onClick={() => window.open(URL.createObjectURL(newMedia), '_blank')}
+                        className="text-[10px] sm:text-xs font-bold bg-gradient-to-r from-blue-500 to-indigo-600 text-white px-2.5 py-1.5 rounded-lg hover:from-blue-600 hover:to-indigo-700 transition-all shadow-sm hover:shadow-md uppercase tracking-wider"
+                      >
+                        Periksa
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setNewMedia(null)}
+                        className="text-[10px] sm:text-xs font-bold bg-gradient-to-r from-rose-500 to-red-600 text-white px-2.5 py-1.5 rounded-lg hover:from-rose-600 hover:to-red-700 transition-all shadow-sm hover:shadow-md uppercase tracking-wider"
+                      >
+                        Ganti
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <input
+                    type="file"
+                    accept="image/*,video/*,application/pdf"
+                    onChange={(e) => setNewMedia(e.target.files?.[0] || null)}
+                    className="w-full h-16 block pt-4 bg-slate-50 border border-slate-200 rounded-xl px-4 text-sm file:mr-4 file:py-1.5 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-school-blue/10 file:text-school-blue hover:file:bg-school-blue/20 transition-all text-slate-600 cursor-pointer focus:ring-4 focus:ring-school-blue/10 focus:border-school-blue outline-none"
+                  />
+                )}
               </div>
             </div>
 
@@ -313,27 +394,145 @@ export const AdminTugasStaff: React.FC = () => {
                 </button>
               )}
               <button
-              type="submit"
-              disabled={isUploading}
-              className={`px-8 py-2 text-white font-bold rounded-xl transition-all shadow-md hover:shadow-lg text-sm flex items-center justify-center gap-2 ${
-                isUploading ? 'opacity-70 cursor-not-allowed bg-slate-400' :
-                editingTaskId 
-                  ? 'bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700' 
-                  : 'bg-gradient-to-r from-school-blue to-indigo-600 hover:from-blue-700 hover:to-indigo-700'
-              }`}
-            >
-              {isUploading ? 'Mengunggah...' : (editingTaskId ? 'Simpan Perubahan' : <><Plus size={16} /> Tambah Tugas</>)}
-            </button>
+                type="submit"
+                disabled={isUploading}
+                className={`px-8 py-2 text-white font-bold rounded-xl transition-all shadow-md hover:shadow-lg text-sm flex items-center justify-center gap-2 ${isUploading ? 'opacity-70 cursor-not-allowed bg-slate-400' :
+                  editingTaskId
+                    ? 'bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700'
+                    : 'bg-gradient-to-r from-school-blue to-indigo-600 hover:from-blue-700 hover:to-indigo-700'
+                  }`}
+              >
+                {isUploading ? 'Mengunggah...' : (editingTaskId ? 'Simpan Perubahan' : <><Plus size={16} /> Tambah Tugas</>)}
+              </button>
             </div>
           </form>
         </div>
       )}
 
-      <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-        <div className="p-4 border-b border-slate-200 flex items-center justify-between bg-white">
-          <div className="flex items-center space-x-2">
-            <ListChecks size={20} className="text-slate-600" />
+      <div className="bg-white rounded-xl shadow-sm border border-slate-200">
+        <div className="p-4 border-b border-slate-200 flex flex-row items-center justify-between bg-white gap-3 relative">
+          <div className="flex items-center space-x-2 truncate">
+            <ListChecks size={20} className="text-slate-600 shrink-0" />
             <h2 className="font-bold text-slate-800 text-lg">Semua Data Tugas ({filteredTasks.length})</h2>
+          </div>
+          <div className="flex items-center gap-2 relative" ref={filterPopupRef}>
+            <button
+              onClick={() => setShowFilterPopup(!showFilterPopup)}
+              className={`flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-bold border transition-all ${showFilterPopup || filterStartDate || filterEndDate || filterPenilaian !== 'all'
+                ? 'bg-school-blue/10 border-school-blue text-school-blue shadow-sm'
+                : 'bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100 shadow-sm'
+                }`}
+            >
+              <SlidersHorizontal size={16} />
+              Filter
+            </button>
+
+            {/* Pop-up Filter */}
+            {showFilterPopup && (
+              <div className="absolute right-0 top-full mt-2 w-72 bg-white rounded-xl shadow-xl border border-slate-200 p-4 z-50 animate-in fade-in slide-in-from-top-2">
+                <div className="flex justify-between items-center mb-4">
+                  <h3 className="font-bold text-slate-800 text-sm">
+                    Filter Data
+                  </h3>
+                  <button onClick={() => setShowFilterPopup(false)} className="text-slate-400 hover:text-slate-600 bg-slate-50 hover:bg-slate-100 p-1 rounded-md transition-colors">
+                    <X size={16} />
+                  </button>
+                </div>
+
+                <div className="space-y-3">
+                  <div>
+                    <input
+                      type={filterStartDate ? "date" : "text"}
+                      placeholder="Tanggal Mulai"
+                      onFocus={(e) => {
+                        e.target.type = 'date';
+                        e.target.showPicker && e.target.showPicker();
+                      }}
+                      onBlur={(e) => {
+                        if (!e.target.value) e.target.type = 'text';
+                      }}
+                      value={filterStartDate}
+                      onChange={(e) => setFilterStartDate(e.target.value)}
+                      className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-school-blue/20 outline-none text-slate-700 font-bold text-center cursor-pointer transition-all hover:bg-slate-100"
+                    />
+                  </div>
+                  <div>
+                    <input
+                      type={filterEndDate ? "date" : "text"}
+                      placeholder="Tanggal Akhir"
+                      onFocus={(e) => {
+                        e.target.type = 'date';
+                        e.target.showPicker && e.target.showPicker();
+                      }}
+                      onBlur={(e) => {
+                        if (!e.target.value) e.target.type = 'text';
+                      }}
+                      value={filterEndDate}
+                      onChange={(e) => setFilterEndDate(e.target.value)}
+                      className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-school-blue/20 outline-none text-slate-700 font-bold text-center cursor-pointer transition-all hover:bg-slate-100"
+                    />
+                  </div>
+                  <div className="relative" ref={statusDropdownRef}>
+                    <button
+                      type="button"
+                      onClick={() => setIsStatusDropdownOpen(!isStatusDropdownOpen)}
+                      className="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-2.5 text-sm outline-none text-slate-700 font-bold flex justify-center items-center transition-all hover:bg-slate-100 hover:border-slate-300 focus:ring-2 focus:ring-school-blue/20"
+                    >
+                      <span className="flex items-center gap-2">
+                        {filterPenilaian === 'all' && 'Semua Penilaian'}
+                        {filterPenilaian === 'sudah' && <><CheckCircle2 size={16} className="text-emerald-500" /> Sudah Dinilai</>}
+                        {filterPenilaian === 'belum' && <><Clock size={16} className="text-amber-500" /> Belum Dinilai</>}
+                      </span>
+                    </button>
+
+                    {isStatusDropdownOpen && (
+                      <div className="absolute z-50 w-full mt-1.5 bg-white border border-slate-200 rounded-xl shadow-lg overflow-hidden animate-in fade-in zoom-in-95 duration-100">
+                        <button
+                          type="button"
+                          onClick={() => { setFilterPenilaian('all'); setIsStatusDropdownOpen(false); }}
+                          className={`w-full text-left px-4 py-2.5 text-sm font-semibold flex items-center gap-2 transition-colors hover:bg-slate-50 ${filterPenilaian === 'all' ? 'text-school-blue bg-blue-50/50' : 'text-slate-700'}`}
+                        >
+                          <Layers size={16} className={filterPenilaian === 'all' ? 'text-school-blue' : 'text-slate-500'} /> Semua Penilaian
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => { setFilterPenilaian('sudah'); setIsStatusDropdownOpen(false); }}
+                          className={`w-full text-left px-4 py-2.5 text-sm font-semibold flex items-center gap-2 transition-colors hover:bg-slate-50 ${filterPenilaian === 'sudah' ? 'text-emerald-600 bg-emerald-50/50' : 'text-slate-700'}`}
+                        >
+                          <CheckCircle2 size={16} className={filterPenilaian === 'sudah' ? 'text-emerald-600' : 'text-emerald-500'} /> Sudah Dinilai
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => { setFilterPenilaian('belum'); setIsStatusDropdownOpen(false); }}
+                          className={`w-full text-left px-4 py-2.5 text-sm font-semibold flex items-center gap-2 transition-colors hover:bg-slate-50 ${filterPenilaian === 'belum' ? 'text-amber-600 bg-amber-50/50' : 'text-slate-700'}`}
+                        >
+                          <Clock size={16} className={filterPenilaian === 'belum' ? 'text-amber-600' : 'text-amber-500'} /> Belum Dinilai
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                <div className="flex justify-between items-center mt-5 pt-3 border-t border-slate-100">
+                  <button
+                    onClick={() => {
+                      setFilterStartDate('');
+                      setFilterEndDate('');
+                      setFilterPenilaian('all');
+                    }}
+                    className="text-xs font-bold text-rose-500 hover:text-rose-600 px-2 py-1.5 rounded-md hover:bg-rose-50 transition-colors"
+                  >
+                    Reset Filter
+                  </button>
+                  <button
+                    onClick={() => setShowFilterPopup(false)}
+                    className="bg-school-blue text-white text-xs font-bold px-4 py-2 rounded-lg shadow-sm hover:bg-blue-700 transition-colors"
+                  >
+                    Terapkan
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         </div>
         <div className="overflow-x-auto">
@@ -351,7 +550,16 @@ export const AdminTugasStaff: React.FC = () => {
               </tr>
             </thead>
             <tbody>
-              {filteredTasks.length > 0 ? (
+              {isLoading ? (
+                <tr>
+                  <td colSpan={7} className="p-12 text-center text-slate-500 border border-slate-200">
+                    <div className="flex justify-center mb-3 text-school-blue">
+                      <Loader2 size={32} className="animate-spin" />
+                    </div>
+                    <p className="font-bold text-lg text-slate-600 mb-1">Memuat Data...</p>
+                  </td>
+                </tr>
+              ) : filteredTasks.length > 0 ? (
                 filteredTasks.map((task, index) => (
                   <tr key={task.id} className={`transition-colors ${editingTaskId === task.id ? 'bg-amber-50' : 'hover:bg-slate-50'}`}>
                     <td className="px-4 py-3 border border-slate-200 text-center text-sm font-medium text-slate-500">
@@ -380,9 +588,9 @@ export const AdminTugasStaff: React.FC = () => {
                       {(() => {
                         const report = taskReports.find(
                           r => r.userId === task.userId &&
-                          r.taskName === task.namaTugas &&
-                          r.status === 'reviewed' &&
-                          r.score
+                            r.taskName === task.namaTugas &&
+                            r.status === 'reviewed' &&
+                            r.score
                         );
                         const score = report?.score ?? 0;
                         return (
@@ -437,73 +645,90 @@ export const AdminTugasStaff: React.FC = () => {
 
           {/* Mobile Card View */}
           <div className="md:hidden flex flex-col divide-y divide-slate-100">
-            {filteredTasks.length > 0 ? (
+            {isLoading ? (
+              <div className="p-12 text-center text-slate-500">
+                <div className="flex justify-center mb-3 text-school-blue">
+                  <Loader2 size={32} className="animate-spin" />
+                </div>
+                <p className="font-bold text-lg text-slate-600 mb-1">Memuat Data...</p>
+              </div>
+            ) : filteredTasks.length > 0 ? (
               filteredTasks.map(task => (
                 <div key={task.id} className={`p-4 transition-colors flex flex-col gap-3 ${editingTaskId === task.id ? 'bg-amber-50' : 'hover:bg-slate-50'}`}>
-                  <div className="flex flex-col">
-                    <h3 className="font-extrabold text-slate-800 text-base">{task.namaTugas}</h3>
-                    {task.createdAt && (
-                      <p className="text-xs font-bold text-slate-400 mt-1">
-                        {format(new Date(task.createdAt), 'dd MMM yyyy', { locale: id })}
-                      </p>
-                    )}
+                  <div className="flex justify-between items-start gap-2">
+                    <div className="flex flex-col min-w-0">
+                      <h3 className="font-extrabold text-slate-800 text-base leading-snug truncate">{task.namaTugas}</h3>
+                      {task.createdAt && (
+                        <p className="text-xs font-bold text-slate-400 mt-1 truncate">
+                          {format(new Date(task.createdAt), 'dd MMM yyyy', { locale: id })}
+                        </p>
+                      )}
+                    </div>
                   </div>
 
-                  <div className="flex items-center gap-2 mt-1">
-                    <span className="text-xs font-bold text-slate-500 uppercase">Lampiran:</span>
+                  <div className="flex items-center justify-between gap-2 mt-1">
+                    <span className="text-xs font-bold text-slate-500 uppercase">Lampiran</span>
                     {task.lampiranUrl ? (
-                      <a href={task.lampiranUrl} target="_blank" rel="noopener noreferrer" className="text-school-blue hover:text-blue-700 transition-colors flex items-center gap-1 text-xs font-bold" title="Lihat Lampiran">
+                      <a href={task.lampiranUrl} target="_blank" rel="noopener noreferrer" className="text-school-blue hover:text-blue-700 transition-colors flex items-center gap-1 text-xs font-bold mr-1" title="Lihat Lampiran">
                         <Paperclip size={14} /> Lihat File
                       </a>
                     ) : (
-                      <span className="text-slate-400 font-bold">-</span>
+                      <span className="text-slate-400 font-bold mr-1">-</span>
                     )}
                   </div>
 
-                  <div className="flex items-center gap-2 bg-slate-100 p-2.5 rounded-lg border border-slate-200">
-                    <UserIcon size={16} className="text-slate-400" />
+                  <div className="flex items-center justify-between bg-slate-100 p-2.5 rounded-lg border border-slate-200">
                     <div>
                       <p className="text-sm font-bold text-school-blue leading-tight">{task.staffName}</p>
                       <p className="text-xs text-slate-500">{task.staffPosition}</p>
                     </div>
+                    <div className="bg-white p-2 rounded-full shadow-sm border border-slate-200 text-slate-400 shrink-0">
+                      <UserIcon size={16} />
+                    </div>
                   </div>
-                  <div className="flex items-center gap-2 mt-1">
-                    <span className="text-xs font-bold text-slate-500 uppercase">Penilaian:</span>
-                    {(() => {
-                      const report = taskReports.find(
-                        r => r.userId === task.userId &&
-                        r.taskName === task.namaTugas &&
-                        r.status === 'reviewed' &&
-                        r.score
-                      );
-                      const score = report?.score ?? 0;
-                      return (
-                        <div className="flex items-center gap-0.5">
-                          {[1, 2, 3, 4, 5].map((star) => (
-                            <Star
-                              key={`mobile-${star}`}
-                              size={16}
-                              className={score >= star ? 'fill-amber-400 text-amber-400' : 'fill-transparent text-slate-300'}
-                            />
-                          ))}
-                        </div>
-                      );
-                    })()}
-                  </div>
-
-                  <div className="flex gap-2 mt-2">
-                    <button
-                      onClick={() => handleEditClick(task)}
-                      className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-sm font-bold bg-amber-50 text-amber-600 hover:bg-amber-100 border border-amber-200 transition-all"
-                    >
-                      <Edit size={16} /> Edit
-                    </button>
-                    <button
-                      onClick={() => handleDeleteTask(task.id)}
-                      className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-sm font-bold bg-rose-50 text-rose-600 hover:bg-rose-100 border border-rose-200 transition-all"
-                    >
-                      <Trash2 size={16} /> Hapus
-                    </button>
+                  
+                  <div className="flex items-center justify-between gap-2 mt-1">
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs font-bold text-slate-500 uppercase">Penilaian</span>
+                      {(() => {
+                        const report = taskReports.find(
+                          r => r.userId === task.userId &&
+                            r.taskName === task.namaTugas &&
+                            r.status === 'reviewed' &&
+                            r.score
+                        );
+                        const score = report?.score ?? 0;
+                        return (
+                          <div className="flex items-center gap-0.5">
+                            {[1, 2, 3, 4, 5].map((star) => (
+                              <Star
+                                key={`mobile-${star}`}
+                                size={16}
+                                className={score >= star ? 'fill-amber-400 text-amber-400' : 'fill-transparent text-slate-300'}
+                              />
+                            ))}
+                          </div>
+                        );
+                      })()}
+                    </div>
+                    
+                    {/* Tombol aksi dipindahkan ke samping penilaian */}
+                    <div className="flex items-center shrink-0">
+                      <button
+                        onClick={() => handleEditClick(task)}
+                        className="p-2 text-slate-400 hover:text-school-blue transition-colors rounded-full bg-slate-50"
+                        title="Edit Tugas"
+                      >
+                        <Edit size={16} />
+                      </button>
+                      <button
+                        onClick={() => handleDeleteTask(task.id)}
+                        className="p-2 text-slate-400 hover:text-rose-500 transition-colors rounded-full bg-slate-50 ml-1"
+                        title="Hapus Tugas"
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    </div>
                   </div>
                 </div>
               ))

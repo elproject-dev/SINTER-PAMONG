@@ -2,15 +2,16 @@ import { useState, useEffect } from 'react';
 import { HashRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Login } from './pages/Login';
 import { Register } from './pages/Register';
+import { ForgotPassword } from './pages/ForgotPassword';
+import { ResetPassword } from './pages/ResetPassword';
 import { Layout } from './components/Layout';
 import { AdminDashboard } from './pages/admin/Dashboard';
 import { AttendanceList } from './pages/admin/AttendanceList';
 import { AdminStaffList } from './pages/admin/StaffList';
 import { AdminKPIEvaluation } from './pages/admin/KPIEvaluation';
-import { AdminReviewLaporanTugas } from './pages/admin/LaporanTugas';
+import { AdminReviewLaporanTugas } from './pages/admin/PenilaianTugas';
 import { AdminTugasStaff } from './pages/admin/TugasStaff';
 import { AdminSettings } from './pages/admin/Settings';
-import { PositionList } from './pages/admin/PositionList';
 import { StaffDashboard } from './pages/staff/Dashboard';
 import { BukuSaku } from './pages/staff/Laporan-Kpi';
 import { KPI } from './pages/staff/Nilai-Kpi';
@@ -68,17 +69,17 @@ function App() {
           element={user ? <Navigate to={user.role === 'admin' ? '/admin' : '/staff'} replace /> : <Login onLogin={handleLogin} />}
         />
         <Route path="/login" element={<Login onLogin={handleLogin} />} />
-
         <Route path="/register" element={<Register />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
 
         {/* Admin Routes */}
         <Route path="/admin" element={<Layout user={user} onLogout={handleLogout} allowedRole="admin" />}>
           <Route index element={<AdminDashboard />} />
           <Route path="absensi" element={<AttendanceList />} />
           <Route path="staff" element={<AdminStaffList />} />
-          <Route path="jabatan" element={<PositionList />} />
           <Route path="kpi" element={<AdminKPIEvaluation currentUser={user!} />} />
-          <Route path="laporan-tugas" element={<AdminReviewLaporanTugas />} />
+          <Route path="penilaian-tugas" element={<AdminReviewLaporanTugas />} />
           <Route path="tugas-staff" element={<AdminTugasStaff />} />
           <Route path="settings" element={<AdminSettings user={user!} onUserUpdate={handleUpdateUser} />} />
         </Route>

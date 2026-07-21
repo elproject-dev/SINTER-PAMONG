@@ -1,25 +1,17 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { Mail, Lock, User as UserIcon, Briefcase, Eye, EyeOff, UserPlus, Phone } from 'lucide-react';
+import { Mail, Lock, User as UserIcon, Eye, EyeOff, UserPlus, Phone } from 'lucide-react';
 import { supabase } from '../lib/supabase';
-import { getPositions } from '../lib/db';
-import { MasterJabatan } from '../lib/types';
 
 export const Register: React.FC = () => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
-  const [position, setPosition] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
-  const [availablePositions, setAvailablePositions] = useState<MasterJabatan[]>([]);
   const navigate = useNavigate();
-
-  useEffect(() => {
-    getPositions().then(setAvailablePositions);
-  }, []);
 
   const primaryDarker = 'hsl(217, 85%, 20%)';
   const primaryDark = 'hsl(217, 85%, 35%)';
@@ -38,7 +30,7 @@ export const Register: React.FC = () => {
         options: {
           data: {
             name,
-            position,
+            position: 'Belum Ditugaskan',
             role: 'staff' // Default role
           }
         }
@@ -53,7 +45,7 @@ export const Register: React.FC = () => {
             id: data.user.id,
             name,
             role: 'staff',
-            position,
+            position: 'Belum Ditugaskan',
             job_roles: [],
             no_telp: phone,
             email
@@ -129,23 +121,6 @@ export const Register: React.FC = () => {
                 </div>
               </div>
 
-              <div className="space-y-2">
-                <label className="text-xs font-semibold text-white/90 ml-1">Jabatan Utama</label>
-                <div className="relative group/input">
-                  <Briefcase className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within/input:text-school-blue transition-colors z-10" />
-                  <select
-                    value={position}
-                    onChange={(e) => setPosition(e.target.value)}
-                    className="w-full h-12 pl-11 bg-white/90 border border-slate-200 text-slate-800 rounded-xl focus:bg-white focus:border-school-blue outline-none focus:ring-4 focus:ring-school-blue/20 transition-all text-sm appearance-none"
-                    required
-                  >
-                    <option value="" disabled>-- Pilih Jabatan --</option>
-                    {availablePositions.map(pos => (
-                      <option key={pos.id} value={pos.nama_jabatan}>{pos.nama_jabatan}</option>
-                    ))}
-                  </select>
-                </div>
-              </div>
 
               <div className="space-y-2">
                 <label className="text-xs font-semibold text-white/90 ml-1">Nomor Telepon</label>
