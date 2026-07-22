@@ -3,14 +3,13 @@ import { getAttendance, getUsers } from '../../lib/db';
 import { AttendanceRecord, User } from '../../lib/types';
 import { format } from 'date-fns';
 import { id } from 'date-fns/locale';
-import { Download, List, Eye, Loader2, X, Camera, MapPin } from 'lucide-react';
+import { Download, List, Eye, Loader2, MapPin } from 'lucide-react';
 import { useRealtimeSubscription } from '../../lib/useRealtime';
 
 export const AttendanceList: React.FC = () => {
   const [records, setRecords] = useState<AttendanceRecord[]>([]);
   const [staff, setStaff] = useState<User[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [lightboxUrl, setLightboxUrl] = useState<string | null>(null);
 
   const fetchData = useCallback(async () => {
     setIsLoading(true);
@@ -145,13 +144,15 @@ export const AttendanceList: React.FC = () => {
                     </td>
                     <td className="px-4 py-3 border border-slate-200 text-center">
                       {record.selfieUrl ? (
-                        <button
-                          onClick={() => setLightboxUrl(record.selfieUrl!)}
-                          className="inline-flex items-center text-xs font-bold text-white bg-school-blue hover:bg-blue-700 px-3 py-1.5 rounded-md transition-colors shadow-sm"
-                          title="Lihat Foto Selfie"
+                        <a
+                          href={record.selfieUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-school-blue hover:text-blue-700 hover:underline font-bold text-sm"
+                          title="Lihat Foto Selfie di Tab Baru"
                         >
-                          <Eye size={14} className="mr-1.5" /> Lihat Foto
-                        </button>
+                          Lihat
+                        </a>
                       ) : (
                         <span className="text-slate-400 text-xs">-</span>
                       )}
@@ -225,14 +226,16 @@ export const AttendanceList: React.FC = () => {
                     <div className="text-xs text-slate-500 italic max-w-[50%] truncate">
                       {record.note ? `Catatan: ${record.note}` : 'Tidak ada catatan'}
                     </div>
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-3">
                       {record.selfieUrl && (
-                        <button
-                          onClick={() => setLightboxUrl(record.selfieUrl!)}
-                          className="inline-flex items-center text-xs font-bold text-white bg-school-blue hover:bg-blue-700 px-3 py-1.5 rounded-md transition-colors shadow-sm"
+                        <a
+                          href={record.selfieUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-school-blue hover:text-blue-700 hover:underline text-xs font-bold"
                         >
-                          <Eye size={14} className="mr-1.5" /> Foto
-                        </button>
+                          Lihat Foto
+                        </a>
                       )}
                       {record.latitude && record.longitude ? (
                         <a
@@ -262,28 +265,6 @@ export const AttendanceList: React.FC = () => {
         </div>
       </div>
 
-      {/* Lightbox Modal for Selfie */}
-      {lightboxUrl && (
-        <div
-          className="fixed inset-0 z-[9999] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-200"
-          onClick={() => setLightboxUrl(null)}
-        >
-          <div
-            className="relative max-w-sm w-full animate-in zoom-in-95 duration-300"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <button
-              onClick={() => setLightboxUrl(null)}
-              className="absolute -top-3 -right-3 z-10 bg-white rounded-full p-1.5 shadow-lg hover:bg-slate-100 transition-colors"
-            >
-              <X size={20} className="text-slate-600" />
-            </button>
-            <div className="w-72 h-72 mx-auto rounded-full overflow-hidden border-4 border-white shadow-2xl">
-              <img src={lightboxUrl} alt="Foto Selfie Absensi" className="w-full h-full object-cover" />
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };
