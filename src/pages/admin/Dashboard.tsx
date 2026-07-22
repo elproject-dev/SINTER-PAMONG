@@ -61,7 +61,7 @@ export const AdminDashboard: React.FC = () => {
 
   useEffect(() => {
     const savedPic = localStorage.getItem(`profile_pic_${currentUser?.id}`);
-    if (savedPic) setProfilePic(savedPic);
+    if (savedPic && savedPic !== 'null' && savedPic !== 'undefined') setProfilePic(savedPic);
   }, [currentUser?.id]);
 
   const handleProfilePicChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -124,7 +124,7 @@ export const AdminDashboard: React.FC = () => {
 
             <div className="relative z-10 w-full h-full rounded-full flex flex-col items-center justify-center text-base sm:text-lg font-bold shadow-md border-2 border-slate-200 bg-white overflow-hidden">
               {profilePic ? (
-                <img src={profilePic} alt="Profile" className="w-full h-full object-cover" />
+                <img src={profilePic} alt="Profile" className="w-full h-full object-cover" onError={() => setProfilePic(null)} />
               ) : (
                 <div className="flex items-center justify-center w-full h-full">
                   <BiHappyBeaming className="w-10 h-10 sm:w-12 sm:h-12 text-slate-400" />
@@ -183,7 +183,7 @@ export const AdminDashboard: React.FC = () => {
                     <div className="flex flex-col items-center gap-3 shrink-0 w-full sm:w-auto">
                       <div className="relative group w-20 h-20 rounded-full border-4 border-white shadow-md bg-slate-200 flex items-center justify-center overflow-hidden">
                         {profilePic ? (
-                          <img src={profilePic} alt="Profile" className="w-full h-full object-cover" />
+                          <img src={profilePic} alt="Profile" className="w-full h-full object-cover" onError={() => setProfilePic(null)} />
                         ) : (
                           <div className="w-full h-full bg-slate-50 flex items-center justify-center">
                             <BiHappyBeaming className="w-16 h-16 text-slate-400" />

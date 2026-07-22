@@ -16,10 +16,10 @@ export const ListAbsensi: React.FC = () => {
   const [filterStartDate, setFilterStartDate] = useState('');
   const [filterEndDate, setFilterEndDate] = useState('');
   const [filterStatus, setFilterStatus] = useState<'all' | 'present' | 'leave' | 'sick' | 'absent'>('all');
-  
+
   const [showFilterPopup, setShowFilterPopup] = useState(false);
   const [isStatusDropdownOpen, setIsStatusDropdownOpen] = useState(false);
-  
+
   const filterPopupRef = useRef<HTMLDivElement>(null);
   const statusDropdownRef = useRef<HTMLDivElement>(null);
 
@@ -41,13 +41,13 @@ export const ListAbsensi: React.FC = () => {
     try {
       const recordsData = await getAttendance();
       const staffData = await getUsers();
-      
+
       // Filter out admin users
       const nonAdminStaff = staffData.filter(s => s.role !== 'admin');
       const nonAdminIds = new Set(nonAdminStaff.map(s => s.id));
-      
+
       const filteredRecords = recordsData.filter(r => nonAdminIds.has(r.userId));
-      
+
       setRecords(filteredRecords.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()));
       setStaff(nonAdminStaff);
     } finally {
@@ -89,10 +89,10 @@ export const ListAbsensi: React.FC = () => {
       if (filterStartDate && r.date < filterStartDate) matchesDate = false;
       if (filterEndDate && r.date > filterEndDate) matchesDate = false;
     }
-    
+
     let matchesStatus = true;
     if (filterStatus !== 'all' && r.status !== filterStatus) matchesStatus = false;
-    
+
     return matchesDate && matchesStatus;
   });
 
@@ -136,11 +136,10 @@ export const ListAbsensi: React.FC = () => {
           <div className="flex items-center gap-2 relative" ref={filterPopupRef}>
             <button
               onClick={() => setShowFilterPopup(!showFilterPopup)}
-              className={`flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-bold border transition-all ${
-                showFilterPopup || filterStartDate !== '' || filterEndDate !== '' || filterStatus !== 'all'
+              className={`flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-bold border transition-all ${showFilterPopup || filterStartDate !== '' || filterEndDate !== '' || filterStatus !== 'all'
                   ? 'bg-school-blue/10 border-school-blue text-school-blue shadow-sm'
                   : 'bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100 shadow-sm'
-              }`}
+                }`}
             >
               <SlidersHorizontal size={16} />
               Filter

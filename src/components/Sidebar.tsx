@@ -18,7 +18,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ user, onLogout }) => {
 
   useEffect(() => {
     const savedPic = localStorage.getItem(`profile_pic_${user.id}`);
-    if (savedPic) setProfilePic(savedPic);
+    if (savedPic && savedPic !== 'null' && savedPic !== 'undefined') setProfilePic(savedPic);
   }, [user.id]);
 
   const handleProfilePicChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -98,7 +98,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ user, onLogout }) => {
         >
           <div className="w-8 h-8 rounded-full bg-slate-50 border border-slate-200 flex items-center justify-center flex-shrink-0 shadow-sm overflow-hidden">
             {profilePic ? (
-              <img src={profilePic} alt="Profile" className="w-full h-full object-cover" />
+              <img src={profilePic} alt="Profile" className="w-full h-full object-cover" onError={() => setProfilePic(null)} />
             ) : (
               <BiHappyBeaming className="w-6 h-6 text-slate-400" />
             )}
@@ -155,7 +155,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ user, onLogout }) => {
                   <div className="flex flex-col items-center gap-3 shrink-0 w-full sm:w-auto">
                     <div className="relative group w-20 h-20 rounded-full border-4 border-white shadow-md bg-slate-200 flex items-center justify-center overflow-hidden">
                       {profilePic ? (
-                        <img src={profilePic} alt="Profile" className="w-full h-full object-cover" />
+                        <img src={profilePic} alt="Profile" className="w-full h-full object-cover" onError={() => setProfilePic(null)} />
                       ) : (
                         <div className="w-full h-full bg-slate-50 flex items-center justify-center">
                           <BiHappyBeaming className="w-16 h-16 text-slate-400" />
