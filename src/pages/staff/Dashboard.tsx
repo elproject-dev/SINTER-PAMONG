@@ -217,8 +217,8 @@ export const StaffDashboard: React.FC<StaffDashboardProps> = ({ user }) => {
           <div>
             <p className="text-blue-100 font-medium mb-1 tracking-wide">Selamat datang kembali,</p>
             <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight">{user.name}</h2>
-            <p className="text-sm mt-3 bg-white/20 inline-block px-3 py-1 rounded-full backdrop-blur-sm">
-              {user.jobRoles?.join(', ') || user.role}
+            <p className="text-sm mt-3 bg-white/20 inline-block px-3 py-1 rounded-full backdrop-blur-sm capitalize font-semibold shadow-sm">
+              {user.position || user.jobRoles?.join(', ') || user.role}
             </p>
           </div>
           <div className="mt-6 md:mt-0 text-left md:text-right">
