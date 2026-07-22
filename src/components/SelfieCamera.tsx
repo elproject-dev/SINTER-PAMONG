@@ -87,10 +87,13 @@ export const SelfieCamera: React.FC<SelfieCameraProps> = ({ onCapture, onClose }
     ctx.font = 'bold 16px Inter, system-ui, sans-serif';
     ctx.textAlign = 'center';
     const now = new Date();
-    const timeStr = now.toLocaleString('id-ID', {
-      day: '2-digit', month: 'long', year: 'numeric',
-      hour: '2-digit', minute: '2-digit', second: '2-digit'
+    const dateStr = now.toLocaleDateString('id-ID', {
+      day: '2-digit', month: 'long', year: 'numeric'
     });
+    const hmStr = now.toLocaleTimeString('id-ID', {
+      hour: '2-digit', minute: '2-digit'
+    }).replace(':', '.');
+    const timeStr = `${dateStr} - Pukul ${hmStr}`;
     ctx.fillText(timeStr, width / 2, height - 20);
 
     const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
