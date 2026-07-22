@@ -64,35 +64,34 @@ export const SelfieCamera: React.FC<SelfieCameraProps> = ({ onCapture, onClose }
 
     const video = videoRef.current;
     const canvas = canvasRef.current;
-    const size = Math.min(video.videoWidth, video.videoHeight);
+    const width = video.videoWidth;
+    const height = video.videoHeight;
 
-    canvas.width = size;
-    canvas.height = size;
+    canvas.width = width;
+    canvas.height = height;
 
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    // Mirror the image horizontally to match preview, and crop to square
-    ctx.translate(size, 0);
+    // Mirror the image horizontally to match preview
+    ctx.translate(width, 0);
     ctx.scale(-1, 1);
 
-    const offsetX = (video.videoWidth - size) / 2;
-    const offsetY = (video.videoHeight - size) / 2;
-    ctx.drawImage(video, offsetX, offsetY, size, size, 0, 0, size, size);
+    ctx.drawImage(video, 0, 0, width, height);
 
     // Add timestamp overlay
     ctx.setTransform(1, 0, 0, 1, 0, 0); // Reset transform
     ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
-    ctx.fillRect(0, size - 40, size, 40);
+    ctx.fillRect(0, height - 50, width, 50);
     ctx.fillStyle = '#ffffff';
-    ctx.font = 'bold 14px Inter, system-ui, sans-serif';
+    ctx.font = 'bold 16px Inter, system-ui, sans-serif';
     ctx.textAlign = 'center';
     const now = new Date();
     const timeStr = now.toLocaleString('id-ID', {
       day: '2-digit', month: 'long', year: 'numeric',
       hour: '2-digit', minute: '2-digit', second: '2-digit'
     });
-    ctx.fillText(timeStr, size / 2, size - 16);
+    ctx.fillText(timeStr, width / 2, height - 20);
 
     const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
     setCapturedImage(dataUrl);
@@ -141,7 +140,7 @@ export const SelfieCamera: React.FC<SelfieCameraProps> = ({ onCapture, onClose }
 
         {/* Camera / Preview Area */}
         <div className="p-5 flex flex-col items-center">
-          <div className="relative w-64 h-64 rounded-full overflow-hidden border-4 border-school-blue/20 shadow-lg shadow-blue-500/10 mb-5 bg-slate-100">
+          <div className="relative w-full max-w-[320px] aspect-[3/4] rounded-3xl overflow-hidden border-4 border-school-blue/20 shadow-lg shadow-blue-500/10 mb-5 bg-slate-100">
             {/* Selalu render video agar referensi (ref) tidak null saat stream siap */}
             <video
               ref={videoRef}
@@ -173,9 +172,9 @@ export const SelfieCamera: React.FC<SelfieCameraProps> = ({ onCapture, onClose }
               </div>
             )}
 
-            {/* Overlay ring effect */}
+            {/* Overlay border effect */}
             {!error && !isLoading && !capturedImage && (
-              <div className="absolute inset-0 rounded-full border-4 border-white/20 pointer-events-none z-30" />
+              <div className="absolute inset-0 rounded-3xl border-4 border-white/20 pointer-events-none z-30" />
             )}
           </div>
 
