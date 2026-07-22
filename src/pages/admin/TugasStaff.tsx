@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { User, StaffTask, TaskReport } from '../../lib/types';
 import { getStaff, getStaffTasks, addStaffTask, deleteStaffTask, updateStaffTask, uploadTaskAttachment, getAllTaskReports } from '../../lib/db';
-import { Plus, Trash2, Search, ListChecks, User as UserIcon, Edit, Check, ChevronDown, Star, Paperclip, X, SlidersHorizontal, Layers, Clock, CheckCircle2, Loader2 } from 'lucide-react';
+import { Plus, Trash2, Search, ListChecks, User as UserIcon, Edit, Check, ChevronDown, Paperclip, X, SlidersHorizontal, Layers, Clock, CheckCircle2, Loader2 } from 'lucide-react';
 import { useRealtimeSubscription } from '../../lib/useRealtime';
+import { StarRating } from '../../components/StarRating';
 import { format } from 'date-fns';
 import { id } from 'date-fns/locale';
 
@@ -127,7 +128,7 @@ export const AdminTugasStaff: React.FC = () => {
     setNewTaskName(task.namaTugas || '');
     setNewTaskDesc(task.deskripsi || '');
     setShowForm(true);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    setTimeout(() => document.getElementById('form-tugas-staff')?.scrollIntoView({ behavior: 'smooth', block: 'center' }), 50);
   };
 
   const cancelEdit = () => {
@@ -176,13 +177,10 @@ export const AdminTugasStaff: React.FC = () => {
 
     let matchesPenilaian = true;
     if (filterPenilaian !== 'all') {
-      const report = taskReports.find(
-        r => r.userId === t.userId &&
-          r.taskName === t.namaTugas &&
-          r.status === 'reviewed' &&
-          r.score
+      const relatedReports = taskReports.filter(
+        r => r.userId === t.userId && r.taskName === t.namaTugas && r.score
       );
-      const isDinilai = !!(report && report.score && report.score > 0);
+      const isDinilai = relatedReports.length > 0;
       if (filterPenilaian === 'sudah' && !isDinilai) matchesPenilaian = false;
       if (filterPenilaian === 'belum' && isDinilai) matchesPenilaian = false;
     }
@@ -239,7 +237,7 @@ export const AdminTugasStaff: React.FC = () => {
 
       {/* Form Tambah/Edit Tugas */}
       {showForm && (
-        <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 animate-in slide-in-from-top-4 fade-in duration-300">
+        <div id="form-tugas-staff" className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 animate-in slide-in-from-top-4 fade-in duration-300">
           <h2 className="font-bold text-slate-800 text-lg mb-4 flex items-center gap-2 border-b border-slate-100 pb-3">
             {editingTaskId ? <Edit size={20} className="text-emerald-500" /> : <Plus size={20} className="text-school-blue" />}
             {editingTaskId ? 'Edit Tugas' : 'Tambah Tugas Baru'}
@@ -336,22 +334,23 @@ export const AdminTugasStaff: React.FC = () => {
 
               <div className="space-y-1">
                 <label className="text-sm font-bold text-slate-700">Nama Tugas <span className="text-rose-500">*</span></label>
-                <textarea
+                <input
+                  type="text"
                   value={newTaskName}
                   onChange={(e) => setNewTaskName(e.target.value)}
                   placeholder="misal: Membuat RPP, Piket Harian"
-                  className="w-full h-16 bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:ring-4 focus:ring-school-blue/10 focus:border-school-blue outline-none transition-all resize-none custom-scrollbar"
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 h-12 text-sm focus:ring-4 focus:ring-school-blue/10 focus:border-school-blue outline-none transition-all"
                   required
                 />
               </div>
 
               <div className="space-y-1">
-                <label className="text-sm font-bold text-slate-700">Upload Media (Opsional)</label>
+                <label className="text-sm font-bold text-slate-700">Upload Media <span className="text-slate-400 font-medium">(Opsional)</span></label>
                 {newMedia ? (
-                  <div className="w-full h-16 flex items-center justify-between bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-sm transition-all shadow-sm">
+                  <div className="w-full h-12 flex items-center justify-between bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-sm transition-all shadow-sm">
                     <div className="flex items-center gap-2 overflow-hidden">
                       <Paperclip size={16} className="text-school-blue shrink-0" />
-                      <span className="truncate text-slate-700 font-bold max-w-[120px] sm:max-w-[200px]" title={newMedia.name}>
+                      <span className="truncate text-slate-700 font-bold max-w-[120px] sm:max-w-[180px]" title={newMedia.name}>
                         {newMedia.name}
                       </span>
                     </div>
@@ -377,9 +376,19 @@ export const AdminTugasStaff: React.FC = () => {
                     type="file"
                     accept="image/*,video/*,application/pdf"
                     onChange={(e) => setNewMedia(e.target.files?.[0] || null)}
-                    className="w-full h-16 block pt-4 bg-slate-50 border border-slate-200 rounded-xl px-4 text-sm file:mr-4 file:py-1.5 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-school-blue/10 file:text-school-blue hover:file:bg-school-blue/20 transition-all text-slate-600 cursor-pointer focus:ring-4 focus:ring-school-blue/10 focus:border-school-blue outline-none"
+                    className="w-full h-12 block bg-slate-50 border border-slate-200 rounded-xl px-3 text-sm file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-school-blue/10 file:text-school-blue hover:file:bg-school-blue/20 transition-all text-slate-600 cursor-pointer focus:ring-4 focus:ring-school-blue/10 focus:border-school-blue outline-none py-2"
                   />
                 )}
+              </div>
+
+              <div className="space-y-1 md:col-span-2">
+                <label className="text-sm font-bold text-slate-700">Instruksi Khusus / Catatan <span className="text-slate-400 font-medium">(Opsional)</span></label>
+                <textarea
+                  value={newTaskDesc}
+                  onChange={(e) => setNewTaskDesc(e.target.value)}
+                  placeholder="Tambahkan instruksi detail tentang tugas ini..."
+                  className="w-full h-20 bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:ring-4 focus:ring-school-blue/10 focus:border-school-blue outline-none transition-all resize-none custom-scrollbar"
+                />
               </div>
             </div>
 
@@ -543,8 +552,8 @@ export const AdminTugasStaff: React.FC = () => {
                 <th className="px-4 py-3 font-bold border border-slate-200 w-12 text-center">NO</th>
                 <th className="px-4 py-3 font-bold border border-slate-200 text-center w-36">TANGGAL</th>
                 <th className="px-4 py-3 font-bold border border-slate-200">NAMA TUGAS</th>
-                <th className="px-4 py-3 font-bold border border-slate-200 text-center w-32">LAMPIRAN</th>
                 <th className="px-4 py-3 font-bold border border-slate-200 w-1/4">DITUGASKAN KEPADA</th>
+                <th className="px-4 py-3 font-bold border border-slate-200 text-center w-32">LAMPIRAN</th>
                 <th className="px-4 py-3 font-bold border border-slate-200 text-center w-[120px]">PENILAIAN</th>
                 <th className="px-4 py-3 font-bold border border-slate-200 text-center w-24">AKSI</th>
               </tr>
@@ -571,6 +580,10 @@ export const AdminTugasStaff: React.FC = () => {
                     <td className="px-4 py-3 border border-slate-200 text-sm font-bold text-slate-800">
                       {task.namaTugas}
                     </td>
+                    <td className="px-4 py-3 border border-slate-200 text-sm text-slate-800">
+                      <div className="font-bold text-school-blue">{task.staffName}</div>
+                      <div className="text-xs text-slate-500 font-medium">{task.staffPosition}</div>
+                    </td>
                     <td className="px-4 py-3 border border-slate-200 text-center">
                       {task.lampiranUrl ? (
                         <a href={task.lampiranUrl} target="_blank" rel="noopener noreferrer" className="text-school-blue hover:text-blue-700 transition-colors inline-block" title="Lihat Lampiran">
@@ -580,32 +593,15 @@ export const AdminTugasStaff: React.FC = () => {
                         <span className="text-slate-400 font-bold">-</span>
                       )}
                     </td>
-                    <td className="px-4 py-3 border border-slate-200 text-sm text-slate-800">
-                      <div className="font-bold text-school-blue">{task.staffName}</div>
-                      <div className="text-xs text-slate-500 font-medium">{task.staffPosition}</div>
-                    </td>
                     <td className="px-4 py-3 border border-slate-200 text-center">
                       {(() => {
-                        const report = taskReports.find(
-                          r => r.userId === task.userId &&
-                            r.taskName === task.namaTugas &&
-                            r.status === 'reviewed' &&
-                            r.score
+                        const relatedReports = taskReports.filter(
+                          r => r.userId === task.userId && r.taskName === task.namaTugas && (r.averageScore || r.score)
                         );
-                        const score = report?.score ?? 0;
+                        const totalScore = relatedReports.reduce((sum, r) => sum + (r.averageScore ?? r.score ?? 0), 0);
+                        const score = relatedReports.length > 0 ? Number((totalScore / relatedReports.length).toFixed(1)) : 0;
                         return (
-                          <div className="flex items-center justify-center gap-0.5">
-                            {[1, 2, 3, 4, 5].map((star) => (
-                              <Star
-                                key={star}
-                                size={16}
-                                className={score >= star
-                                  ? 'fill-amber-400 text-amber-400'
-                                  : 'fill-transparent text-slate-300'
-                                }
-                              />
-                            ))}
-                          </div>
+                          <StarRating score={score} />
                         );
                       })()}
                     </td>
@@ -691,23 +687,13 @@ export const AdminTugasStaff: React.FC = () => {
                     <div className="flex items-center gap-2">
                       <span className="text-xs font-bold text-slate-500 uppercase">Penilaian</span>
                       {(() => {
-                        const report = taskReports.find(
-                          r => r.userId === task.userId &&
-                            r.taskName === task.namaTugas &&
-                            r.status === 'reviewed' &&
-                            r.score
+                        const relatedReports = taskReports.filter(
+                          r => r.userId === task.userId && r.taskName === task.namaTugas && r.score
                         );
-                        const score = report?.score ?? 0;
+                        const totalScore = relatedReports.reduce((sum, r) => sum + (r.score || 0), 0);
+                        const score = relatedReports.length > 0 ? (Math.round((totalScore / relatedReports.length) * 2) / 2) : 0;
                         return (
-                          <div className="flex items-center gap-0.5">
-                            {[1, 2, 3, 4, 5].map((star) => (
-                              <Star
-                                key={`mobile-${star}`}
-                                size={16}
-                                className={score >= star ? 'fill-amber-400 text-amber-400' : 'fill-transparent text-slate-300'}
-                              />
-                            ))}
-                          </div>
+                          <StarRating score={score} size={16} className="flex items-center gap-0.5" />
                         );
                       })()}
                     </div>

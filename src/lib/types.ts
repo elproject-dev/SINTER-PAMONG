@@ -59,6 +59,11 @@ export interface TaskReport {
   status?: ReportStatus; // Review status
   adminFeedback?: string; // Feedback from admin
   score?: number | null; // 0-100 Score from admin
+  averageScore?: number | null; // Average score including attachments
+  totalUpdates?: number; // Total attachments/updates for this task
+  totalMenunggu?: number;
+  totalDisetujui?: number;
+  totalDitolak?: number;
 }
 
 export interface SchoolSettings {
@@ -74,4 +79,17 @@ export interface StaffTask {
   deskripsi?: string;
   lampiranUrl?: string;
   createdAt?: string;
+}
+
+export interface TaskAttachment {
+  id: string;
+  reportId: string;
+  userId: string;
+  link: string;
+  catatan?: string;
+  score?: number;
+  adminFeedback?: string;
+  status?: 'pending' | 'reviewed' | 'rejected';
+  createdAt: string;
+  isPrimary?: boolean;
 }

@@ -1,4 +1,4 @@
-import { User, AttendanceRecord, KPIEvaluation, TaskReport, SchoolSettings, MasterJabatan, StaffTask } from './types';
+import { User, AttendanceRecord, KPIEvaluation, TaskReport, SchoolSettings, MasterJabatan, StaffTask, TaskAttachment } from './types';
 import { supabase } from './supabase';
 
 export const initializeDB = async () => {
@@ -72,7 +72,7 @@ export const updateStaffAssignment = async (userId: string, updates: Partial<Use
       no_telp: updates.phone
     })
     .eq('id', userId);
-    
+
   if (error) {
     console.error('Error updating staff assignment:', error);
     throw error;
@@ -84,7 +84,7 @@ export const updateUserProfileName = async (userId: string, name: string) => {
     .from('profil_pengguna')
     .update({ name })
     .eq('id', userId);
-    
+
   if (error) {
     console.error('Error updating user profile name:', error);
     throw error;
@@ -96,7 +96,7 @@ export const deleteUser = async (userId: string) => {
     .from('profil_pengguna')
     .delete()
     .eq('id', userId);
-    
+
   if (error) {
     console.error('Error deleting user:', error);
     throw error;
@@ -167,9 +167,9 @@ export const getUserTodayAttendance = async (userId: string): Promise<Attendance
     .eq('user_id', userId)
     .eq('date', today)
     .maybeSingle();
-    
+
   if (error || !data) return undefined;
-  
+
   return {
     id: data.id,
     userId: data.user_id,
@@ -188,7 +188,7 @@ export const getUserTodayAttendance = async (userId: string): Promise<Attendance
 export const getKPIs = async (): Promise<KPIEvaluation[]> => {
   const { data, error } = await supabase.from('penilaian_kpi').select('*, nilai_kpi(*)');
   if (error) return [];
-  
+
   return data.map((d: any) => ({
     id: d.id,
     userId: d.user_id,
@@ -207,7 +207,7 @@ export const saveKPI = async (kpi: KPIEvaluation) => {
     .select('id')
     .eq('user_id', kpi.userId)
     .eq('month', kpi.month);
-    
+
   if (existingKPIs && existingKPIs.length > 0) {
     const existingIds = existingKPIs.map(k => k.id);
     // Delete scores first (cascade might not be set up)
@@ -223,18 +223,18 @@ export const saveKPI = async (kpi: KPIEvaluation) => {
     month: kpi.month,
     notes: kpi.notes,
   });
-  
+
   if (kpiError) {
     console.error('Error saving KPI:', kpiError);
     return;
   }
-  
+
   const scoresToInsert = kpi.taskScores.map(score => ({
     kpi_id: kpi.id,
     task: score.task,
     score: score.score
   }));
-  
+
   await supabase.from('nilai_kpi').insert(scoresToInsert);
 };
 
@@ -243,9 +243,9 @@ export const getUserKPIs = async (userId: string): Promise<KPIEvaluation[]> => {
     .from('penilaian_kpi')
     .select('*, nilai_kpi(*)')
     .eq('user_id', userId);
-    
+
   if (error) return [];
-  
+
   return data.map((d: any) => ({
     id: d.id,
     userId: d.user_id,
@@ -262,46 +262,128 @@ export const getUserKPIs = async (userId: string): Promise<KPIEvaluation[]> => {
 export const getUserTaskReports = async (userId: string): Promise<TaskReport[]> => {
   const { data, error } = await supabase
     .from('penilaian_tugas')
-    .select('*')
+    .select('*, lampiran_tugas(score, status)')
     .eq('user_id', userId)
     .order('created_at', { ascending: false });
-    
+
   if (error) return [];
-  
-  return data.map((d: any) => ({
-    id: d.id,
-    userId: d.user_id,
-    date: d.date,
-    taskName: d.task_name,
-    description: d.description,
-    link: d.link,
-    createdAt: d.created_at,
-    status: d.status,
-    adminFeedback: d.admin_feedback,
-    score: d.score
-  }));
+
+  return data.map((d: any) => {
+    let totalScore = 0;
+    let scoredCount = 0;
+    let totalMenunggu = 0;
+    let totalDisetujui = 0;
+    let totalDitolak = 0;
+    
+    if (d.link) {
+      if (d.status === 'pending') totalMenunggu++;
+      if (d.status === 'reviewed') {
+        totalDisetujui++;
+        if (d.score) {
+          totalScore += d.score;
+          scoredCount++;
+        }
+      }
+      if (d.status === 'rejected') totalDitolak++;
+    }
+    
+    if (d.lampiran_tugas && Array.isArray(d.lampiran_tugas)) {
+      d.lampiran_tugas.forEach((l: any) => {
+        if (l.status === 'pending') totalMenunggu++;
+        if (l.status === 'reviewed') {
+          totalDisetujui++;
+          if (l.score) {
+            totalScore += l.score;
+            scoredCount++;
+          }
+        }
+        if (l.status === 'rejected') totalDitolak++;
+      });
+    }
+
+    const averageScore = scoredCount > 0 ? Number((totalScore / scoredCount).toFixed(1)) : (d.score ? Math.round(d.score) : null);
+
+    return {
+      id: d.id,
+      userId: d.user_id,
+      date: d.date,
+      taskName: d.task_name,
+      description: d.description,
+      link: d.link,
+      createdAt: d.created_at,
+      status: d.status,
+      adminFeedback: d.admin_feedback,
+      score: d.score,
+      averageScore: averageScore,
+      totalUpdates: (d.link ? 1 : 0) + (d.lampiran_tugas?.length || 0),
+      totalMenunggu,
+      totalDisetujui,
+      totalDitolak
+    };
+  });
 };
 
 export const getAllTaskReports = async (): Promise<TaskReport[]> => {
   const { data, error } = await supabase
     .from('penilaian_tugas')
-    .select('*')
+    .select('*, lampiran_tugas(score, status)')
     .order('created_at', { ascending: false });
-    
+
   if (error) return [];
-  
-  return data.map((d: any) => ({
-    id: d.id,
-    userId: d.user_id,
-    date: d.date,
-    taskName: d.task_name,
-    description: d.description,
-    link: d.link,
-    createdAt: d.created_at,
-    status: d.status,
-    adminFeedback: d.admin_feedback,
-    score: d.score
-  }));
+
+  return data.map((d: any) => {
+    let totalScore = 0;
+    let scoredCount = 0;
+    let totalMenunggu = 0;
+    let totalDisetujui = 0;
+    let totalDitolak = 0;
+    
+    if (d.link) {
+      if (d.status === 'pending') totalMenunggu++;
+      if (d.status === 'reviewed') {
+        totalDisetujui++;
+        if (d.score) {
+          totalScore += d.score;
+          scoredCount++;
+        }
+      }
+      if (d.status === 'rejected') totalDitolak++;
+    }
+    
+    if (d.lampiran_tugas && Array.isArray(d.lampiran_tugas)) {
+      d.lampiran_tugas.forEach((l: any) => {
+        if (l.status === 'pending') totalMenunggu++;
+        if (l.status === 'reviewed') {
+          totalDisetujui++;
+          if (l.score) {
+            totalScore += l.score;
+            scoredCount++;
+          }
+        }
+        if (l.status === 'rejected') totalDitolak++;
+      });
+    }
+
+    const averageScore = scoredCount > 0 ? Number((totalScore / scoredCount).toFixed(1)) : (d.score ? Math.round(d.score) : null);
+
+    return {
+      id: d.id,
+      userId: d.user_id,
+      date: d.date,
+      taskName: d.task_name,
+      description: d.description,
+      link: d.link,
+      createdAt: d.created_at,
+      status: d.status,
+      adminFeedback: d.admin_feedback,
+      score: d.score,
+      averageScore: averageScore,
+      totalUpdates: (d.link ? 1 : 0) + (d.lampiran_tugas?.length || 0),
+      totalMenunggu,
+      totalDisetujui,
+      totalDitolak
+    };
+  });
 };
 
 export const saveTaskReport = async (report: TaskReport) => {
@@ -322,9 +404,20 @@ export const updateTaskReportStatus = async (id: string, status: string, feedbac
     .from('penilaian_tugas')
     .update({ status, admin_feedback: feedback, score })
     .eq('id', id);
-    
+
   if (error) {
     console.error('Error updating task report status:', error);
+  }
+};
+
+export const updateTaskReportScore = async (id: string, score: number) => {
+  const { error } = await supabase
+    .from('penilaian_tugas')
+    .update({ score, status: 'reviewed' })
+    .eq('id', id);
+    
+  if (error) {
+    console.error('Error updating task report score:', error);
   }
 };
 
@@ -335,7 +428,8 @@ export const updateTaskReport = async (id: string, taskName: string, description
       task_name: taskName,
       description: description,
       link: link || null,
-      status: 'pending' // Reset status to pending for admin re-review
+      status: 'pending', // Reset status to pending for admin re-review
+      score: null // Reset score
     })
     .eq('id', id);
   if (error) throw error;
@@ -351,9 +445,9 @@ export const deleteTaskReport = async (id: string) => {
 export const getSchoolSettings = async (): Promise<SchoolSettings> => {
   const defaultSettings = { latitude: -6.175110, longitude: 106.827153, maxRadius: 100 };
   const { data, error } = await supabase.from('pengaturan_sekolah').select('*').maybeSingle();
-  
+
   if (error || !data) return defaultSettings;
-  
+
   return {
     latitude: data.latitude,
     longitude: data.longitude,
@@ -459,7 +553,7 @@ export const uploadProfilePicture = async (file: File): Promise<string> => {
         return;
       }
       ctx.drawImage(img, 0, 0, width, height);
-      
+
       canvas.toBlob(
         (blob) => {
           if (blob) {
@@ -530,6 +624,87 @@ export const addStaffTask = async (task: Omit<StaffTask, 'id' | 'createdAt'>) =>
 export const deleteStaffTask = async (id: string) => {
   const { error } = await supabase.from('tugas_staff').delete().eq('id', id);
   if (error) throw error;
+};
+
+// ================= LAMPIRAN TUGAS (MULTI-ATTACHMENT) =================
+
+export const getTaskAttachments = async (reportId: string): Promise<TaskAttachment[]> => {
+  const { data, error } = await supabase
+    .from('lampiran_tugas')
+    .select('*')
+    .eq('report_id', reportId)
+    .order('created_at', { ascending: true });
+
+  if (error) {
+    console.error('Error fetching task attachments:', error);
+    return [];
+  }
+
+  return data.map((d: any) => ({
+    id: d.id,
+    reportId: d.report_id,
+    userId: d.user_id,
+    link: d.link,
+    catatan: d.catatan,
+    score: d.score,
+    adminFeedback: d.admin_feedback,
+    status: d.status,
+    createdAt: d.created_at
+  }));
+};
+
+export const addTaskAttachment = async (attachment: Omit<TaskAttachment, 'id' | 'createdAt'>) => {
+  const { error } = await supabase.from('lampiran_tugas').insert({
+    report_id: attachment.reportId,
+    user_id: attachment.userId,
+    link: attachment.link,
+    catatan: attachment.catatan || null
+  });
+  if (error) {
+    console.error('Error adding task attachment:', error);
+    throw error;
+  }
+};
+
+export const deleteTaskAttachment = async (id: string) => {
+  const { error } = await supabase.from('lampiran_tugas').delete().eq('id', id);
+  if (error) {
+    console.error('Error deleting task attachment:', error);
+    throw error;
+  }
+};
+
+export const updateTaskAttachmentScore = async (id: string, score: number | null, adminFeedback: string, status: string) => {
+  const { error } = await supabase
+    .from('lampiran_tugas')
+    .update({ score, admin_feedback: adminFeedback, status })
+    .eq('id', id);
+    
+  if (error) {
+    console.error('Error updating task attachment score:', error);
+    throw error;
+  }
+};
+
+export const reviseTaskAttachment = async (id: string, link: string, catatan?: string) => {
+  const updateData: any = { 
+    link: link, 
+    status: 'pending',
+    score: null 
+  };
+  if (catatan !== undefined) {
+    updateData.catatan = catatan;
+  }
+
+  const { error } = await supabase
+    .from('lampiran_tugas')
+    .update(updateData)
+    .eq('id', id);
+    
+  if (error) {
+    console.error('Error revising task attachment:', error);
+    throw error;
+  }
 };
 
 export const updateStaffTask = async (id: string, task: { namaTugas: string; deskripsi?: string; lampiranUrl?: string }) => {

@@ -15,6 +15,11 @@ export const useRealtimeSubscription = (
   onUpdate: () => void
 ) => {
   const channelRef = useRef<RealtimeChannel | null>(null);
+  const onUpdateRef = useRef(onUpdate);
+
+  useEffect(() => {
+    onUpdateRef.current = onUpdate;
+  }, [onUpdate]);
 
   useEffect(() => {
     // Buat nama channel unik berdasarkan tabel yang diawasi
@@ -28,7 +33,7 @@ export const useRealtimeSubscription = (
         'postgres_changes',
         { event: '*', schema: 'public', table },
         () => {
-          onUpdate();
+          onUpdateRef.current();
         }
       );
     });
