@@ -26,8 +26,8 @@ export const Layout: React.FC<LayoutProps> = ({ user, onLogout, allowedRole }) =
         onLogout={onLogout} 
       />
       
-      <div className="flex-1 flex flex-col w-full h-full transition-all duration-300 md:ml-16">
-        <div id="main-scroll-container" className="flex-1 p-4 md:p-8 overflow-y-auto pb-24 md:pb-8">
+      <div className="flex-1 flex flex-col w-full h-full transition-all duration-300 xl:ml-16">
+        <div id="main-scroll-container" className="flex-1 p-4 xl:p-8 overflow-y-auto pb-24 xl:pb-8">
           <Outlet />
         </div>
       </div>

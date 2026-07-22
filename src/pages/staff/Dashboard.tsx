@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { User, AttendanceRecord, KPIEvaluation, TaskReport } from '../../lib/types';
-import { getUserTodayAttendance, getUserKPIs, getUserTaskReports, uploadProfilePicture } from '../../lib/db';
-import { Clock, Calendar, CheckCircle, XCircle, Star, ClipboardList, ArrowRight, User as UserIcon, X, Camera, Loader2, LogOut } from 'lucide-react';
-import { format } from 'date-fns';
-import { id } from 'date-fns/locale';
+import { User, TaskReport, AttendanceRecord } from '../../lib/types';
+import { getUserTaskReports, uploadProfilePicture, getUserMonthlyAttendance } from '../../lib/db';
+import { Clock, CheckCircle, XCircle, ClipboardList, User as UserIcon, X, Camera, Loader2, LogOut } from 'lucide-react';
+import { ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import { Link } from 'react-router-dom';
+import { StarRating } from '../../components/StarRating';
+import { BiHappyBeaming } from "react-icons/bi";
 import { useRealtimeSubscription } from '../../lib/useRealtime';
 import { supabase } from '../../lib/supabase';
 
@@ -13,17 +14,14 @@ interface StaffDashboardProps {
 }
 
 export const StaffDashboard: React.FC<StaffDashboardProps> = ({ user }) => {
-  const [attendance, setAttendance] = useState<AttendanceRecord | undefined>(undefined);
-  const [kpis, setKpis] = useState<KPIEvaluation[]>([]);
   const [taskReports, setTaskReports] = useState<TaskReport[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  
+  const [monthlyAttendance, setMonthlyAttendance] = useState<AttendanceRecord[]>([]);
+
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [profilePic, setProfilePic] = useState<string | null>(null);
   const [isUploadingPic, setIsUploadingPic] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const userInitial = user.name.charAt(0).toUpperCase();
 
   useEffect(() => {
     const savedPic = localStorage.getItem(`profile_pic_${user.id}`);
@@ -46,56 +44,82 @@ export const StaffDashboard: React.FC<StaffDashboardProps> = ({ user }) => {
       setIsUploadingPic(false);
     }
   };
-  
+
   const fetchData = useCallback(async () => {
-    setIsLoading(true);
-    const [att, userKpis, reports] = await Promise.all([
-      getUserTodayAttendance(user.id),
-      getUserKPIs(user.id),
-      getUserTaskReports(user.id)
+    const [reports, attData] = await Promise.all([
+      getUserTaskReports(user.id),
+      getUserMonthlyAttendance(user.id)
     ]);
-    
-    setAttendance(att);
-    setKpis(userKpis);
+
     setTaskReports(reports);
-    setIsLoading(false);
+    setMonthlyAttendance(attData);
   }, [user.id]);
 
   useEffect(() => {
     fetchData();
   }, [fetchData]);
 
-  useRealtimeSubscription(['data_absensi', 'penilaian_kpi', 'penilaian_tugas'], fetchData);
+  useRealtimeSubscription(['data_absensi', 'penilaian_tugas'], fetchData);
 
-  const latestKPI = kpis.length > 0 ? kpis[kpis.length - 1] : null;
-  const totalTasks = latestKPI?.taskScores?.length || 0;
-  const totalScore = latestKPI?.taskScores?.reduce((sum, item) => sum + item.score, 0) || 0;
-  const kpiAverage = totalTasks > 0 ? (totalScore / totalTasks).toFixed(1) : '-';
+  // Calculate task report stats
+  const totalLampiranTugas = taskReports.reduce((sum, r) => sum + (r.totalUpdates || 0), 0);
+  const totalMenunggu = taskReports.reduce((sum, r) => sum + (r.totalMenunggu || 0), 0);
+  const totalDisetujui = taskReports.reduce((sum, r) => sum + (r.totalDisetujui || 0), 0);
+  const totalDitolak = taskReports.reduce((sum, r) => sum + (r.totalDitolak || 0), 0);
+
+  // Calculate monthly attendance stats
+  const totalMasuk = monthlyAttendance.filter(a => a.status === 'present').length;
+  const totalIzin = monthlyAttendance.filter(a => a.status === 'leave' || a.status === 'sick').length;
+  const totalTercatat = totalMasuk + totalIzin;
+
+  // Calculate task star rating
+  const gradedTasks = taskReports.filter(r => (r.averageScore ?? r.score) != null && (r.averageScore ?? r.score)! > 0);
+  const overallScore = gradedTasks.reduce((sum, r) => sum + ((r.averageScore ?? r.score) || 0), 0);
+  const averageAllTasks = gradedTasks.length > 0 ? overallScore / gradedTasks.length : 0;
+  const starRating = averageAllTasks.toFixed(1);
+
+  const StatCard = ({ title, value, icon, gradientClass, subtitle, to, className = '' }: any) => {
+    const CardContent = (
+      <div className={`relative overflow-hidden rounded-2xl p-4 sm:p-5 shadow-md hover:shadow-xl hover:-translate-y-1 transition-all duration-300 ${gradientClass} text-white border border-white/20 h-full`}>
+        <div className="absolute top-0 right-0 -mt-3 -mr-3 w-24 h-24 bg-white opacity-[0.15] rounded-full blur-2xl"></div>
+        <div className="absolute bottom-0 left-0 -mb-4 -ml-4 w-20 h-20 bg-black opacity-[0.05] rounded-full blur-xl"></div>
+        <div className="relative z-10">
+          <div className="absolute top-0 right-0 p-1.5 rounded-xl bg-white/20 backdrop-blur-md border border-white/30 shadow-sm">
+            {React.cloneElement(icon, { size: 16, className: 'text-white' })}
+          </div>
+          <p className="text-white/90 font-bold text-[10px] sm:text-[11px] uppercase tracking-widest">{title}</p>
+          <h3 className="text-2xl sm:text-3xl font-black mt-1.5 tracking-tight drop-shadow-sm truncate">{value}</h3>
+          <p className="text-white/80 text-[10px] sm:text-[11px] mt-1.5 truncate font-medium">{subtitle}</p>
+        </div>
+      </div>
+    );
+
+    return to ? <Link to={to} className={`block h-full cursor-pointer ${className}`}>{CardContent}</Link> : <div className={`h-full ${className}`}>{CardContent}</div>;
+  };
 
   return (
     <div className="w-full space-y-6 sm:space-y-10 overflow-x-clip pb-8">
-      
+
       <div className="flex items-stretch justify-between gap-4 mb-8">
         <div className="flex-1 min-w-0">
           <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-slate-800 tracking-tight mb-1 sm:mb-2 truncate">Dashboard Staf</h1>
           <p className="text-slate-500 text-sm sm:text-base lg:text-lg truncate">Ringkasan informasi dan aktivitas Anda hari ini</p>
         </div>
-        
+
         <div className="shrink-0 flex items-center justify-end relative">
-          <button 
+          <button
             onClick={() => setIsProfileOpen(true)}
-            className="relative inline-flex items-center justify-center shrink-0 border-0 bg-transparent p-0 cursor-pointer focus:outline-none focus:ring-2 focus:ring-school-blue focus:ring-offset-2 rounded-full transition-transform hover:scale-105 w-12 h-12 sm:w-14 sm:h-14 mr-2 sm:mr-4" 
+            className="relative inline-flex items-center justify-center shrink-0 border-0 bg-transparent p-0 cursor-pointer focus:outline-none focus:ring-2 focus:ring-school-blue focus:ring-offset-2 rounded-full transition-transform hover:scale-105 w-12 h-12 sm:w-14 sm:h-14 mr-2 sm:mr-4"
             title="Profil Pengguna & Live Update"
           >
-            <div className="absolute inset-0.5 sm:inset-1 rounded-full animate-ping opacity-20 bg-emerald-500"></div>
-            
-            <div className="relative z-10 w-full h-full rounded-full flex flex-col items-center justify-center text-base sm:text-lg font-bold shadow-md border-2 border-emerald-500 text-emerald-700 bg-emerald-50 overflow-hidden">
+            <div className="absolute inset-0.5 sm:inset-1 rounded-full animate-ping opacity-50 bg-emerald-400"></div>
+
+            <div className="relative z-10 w-full h-full rounded-full flex flex-col items-center justify-center text-base sm:text-lg font-bold shadow-md border-2 border-slate-200 bg-white overflow-hidden">
               {profilePic ? (
                 <img src={profilePic} alt="Profile" className="w-full h-full object-cover" />
               ) : (
-                <div className="flex flex-col items-center justify-center gap-0.5">
-                  <span className="text-xl sm:text-2xl font-extrabold leading-none mt-1">{userInitial}</span>
-                  <span className="text-[9px] font-bold text-emerald-600 uppercase tracking-wider">Profil</span>
+                <div className="flex items-center justify-center w-full h-full">
+                  <BiHappyBeaming className="w-10 h-10 sm:w-12 sm:h-12 text-slate-400" />
                 </div>
               )}
             </div>
@@ -159,8 +183,8 @@ export const StaffDashboard: React.FC<StaffDashboardProps> = ({ user }) => {
                         {profilePic ? (
                           <img src={profilePic} alt="Profile" className="w-full h-full object-cover" />
                         ) : (
-                          <div className="w-full h-full bg-school-blue flex items-center justify-center text-3xl font-bold text-white">
-                            {userInitial}
+                          <div className="w-full h-full bg-slate-50 flex items-center justify-center">
+                            <BiHappyBeaming className="w-16 h-16 text-slate-400" />
                           </div>
                         )}
 
@@ -202,7 +226,7 @@ export const StaffDashboard: React.FC<StaffDashboardProps> = ({ user }) => {
                       </button>
                     </div>
                   </div>
-                  
+
                 </div>
               </div>
             </div>
@@ -210,109 +234,199 @@ export const StaffDashboard: React.FC<StaffDashboardProps> = ({ user }) => {
         </div>
       </div>
 
-      {/* Greeting Banner */}
-      <div className="bg-gradient-to-r from-school-blue to-indigo-600 rounded-3xl p-8 sm:p-10 shadow-lg shadow-blue-500/20 relative overflow-hidden text-white">
-        <div className="absolute top-0 right-0 -mt-10 -mr-10 w-64 h-64 bg-white opacity-10 rounded-full blur-3xl"></div>
-        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between">
-          <div>
-            <p className="text-blue-100 font-medium mb-1 tracking-wide">Selamat datang kembali,</p>
-            <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight">{user.name}</h2>
-            <p className="text-sm mt-3 bg-white/20 inline-block px-3 py-1 rounded-full backdrop-blur-sm capitalize font-semibold shadow-sm">
-              {user.position || user.jobRoles?.join(', ') || user.role}
-            </p>
-          </div>
-          <div className="mt-6 md:mt-0 text-left md:text-right">
-            <p className="text-sm text-blue-100 mb-1 flex items-center md:justify-end">
-              <Calendar size={16} className="mr-1.5" /> Tanggal Hari Ini
-            </p>
-            <p className="text-xl font-bold">{format(new Date(), 'EEEE, d MMMM yyyy', { locale: id })}</p>
-          </div>
-        </div>
+
+
+      <div className="grid grid-cols-2 md:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4">
+        <StatCard
+          title="Total Lampiran"
+          value={totalLampiranTugas}
+          subtitle="Semua dokumen lampiran"
+          icon={<ClipboardList />}
+          gradientClass="bg-gradient-to-tr from-emerald-500 via-green-500 to-teal-400"
+          to="/staff/daftar-tugas"
+        />
+        <StatCard
+          title="Total Tugas"
+          value={taskReports.length}
+          subtitle="Tugas keseluruhan"
+          icon={<ClipboardList />}
+          gradientClass="bg-gradient-to-tr from-blue-600 via-indigo-600 to-violet-600"
+          to="/staff/daftar-tugas"
+          className="hidden xl:block"
+        />
+        <StatCard
+          title="Disetujui"
+          value={totalDisetujui}
+          subtitle="Lampiran selesai"
+          icon={<CheckCircle />}
+          gradientClass="bg-gradient-to-tr from-sky-500 via-cyan-500 to-teal-400"
+          to="/staff/daftar-tugas"
+        />
+        <StatCard
+          title="Menunggu"
+          value={totalMenunggu}
+          subtitle="Belum direview"
+          icon={<Clock />}
+          gradientClass="bg-gradient-to-tr from-amber-500 via-orange-400 to-yellow-400"
+          to="/staff/daftar-tugas"
+        />
+        <StatCard
+          title="Ditolak"
+          value={totalDitolak}
+          subtitle="Perlu perbaikan"
+          icon={<XCircle />}
+          gradientClass="bg-gradient-to-tr from-rose-500 via-pink-500 to-red-400"
+          to="/staff/daftar-tugas"
+        />
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
-        
-        {/* Status Kehadiran Widget */}
-        <div className="bg-gradient-to-br from-blue-500 to-indigo-600 rounded-3xl p-6 sm:p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/20 relative overflow-hidden group transition-all duration-500 hover:-translate-y-1 hover:shadow-[0_20px_40px_rgb(0,0,0,0.12)] flex flex-col justify-between min-h-[220px]">
-          <div className="absolute -top-10 -right-10 w-40 h-40 bg-white/20 rounded-full blur-3xl group-hover:bg-white/30 transition-colors duration-500"></div>
-          <div className="relative z-10 flex-1 flex flex-col">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="font-bold text-white/90 text-lg tracking-wide">Kehadiran</h3>
-              <div className="p-2.5 bg-white/15 backdrop-blur-md text-white rounded-2xl shadow-sm border border-white/20 group-hover:scale-110 transition-transform duration-300">
-                <Clock size={20} />
-              </div>
-            </div>
-            
-            <div className="flex-1 flex flex-col justify-center">
-              {isLoading ? (
-                <div className="flex items-center text-white/70 mb-4 animate-pulse">
-                  <div className="w-5 h-5 mr-2 rounded-full border-2 border-white/50 border-t-transparent animate-spin"></div>
-                  <span className="font-bold">Memeriksa...</span>
-                </div>
-              ) : !attendance ? (
-                <div className="flex items-center text-rose-200 mb-4">
-                  <XCircle size={24} className="mr-2" />
-                  <span className="font-bold text-lg drop-shadow-sm">Belum Absen Masuk</span>
-                </div>
-              ) : (
-                <div className="flex items-center text-emerald-200 mb-4">
-                  <CheckCircle size={24} className="mr-2" />
-                  <span className="font-bold text-lg drop-shadow-sm">
-                    {attendance.status === 'present' ? 'Hadir & Aktif' : 'Izin / Sakit'}
-                  </span>
-                </div>
-              )}
+      {/* Distribusi Kehadiran Chart Section */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-8">
+        <div className="bg-white rounded-3xl shadow-sm border border-slate-100 p-6 sm:p-8 flex flex-col sm:flex-row gap-6 sm:gap-8 items-center">
+          <div className="w-full sm:w-1/2 flex flex-col items-center sm:items-start h-full">
+            <h3 className="text-slate-600 font-medium mb-4 sm:mb-6 text-center sm:text-left w-full">Distribusi Total Kehadiran</h3>
+            <div className="w-full h-48 sm:h-56 relative flex justify-center items-center">
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <defs>
+                    <linearGradient id="gradMasuk" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stopColor="#10b981" />
+                      <stop offset="100%" stopColor="#34d399" />
+                    </linearGradient>
+                    <linearGradient id="gradIzin" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stopColor="#f59e0b" />
+                      <stop offset="100%" stopColor="#fbbf24" />
+                    </linearGradient>
+                    <linearGradient id="gradKosong" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stopColor="#cbd5e1" />
+                      <stop offset="100%" stopColor="#e2e8f0" />
+                    </linearGradient>
+                  </defs>
+                  <Pie
+                    data={totalTercatat === 0 ? [
+                      { name: 'Belum Ada Data', value: 1, color: 'url(#gradKosong)' }
+                    ] : [
+                      { name: 'Hadir', value: totalMasuk, color: 'url(#gradMasuk)' },
+                      { name: 'Izin/Sakit', value: totalIzin, color: 'url(#gradIzin)' },
+                    ]}
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={45}
+                    outerRadius={75}
+                    dataKey="value"
+                    stroke="none"
+                  >
+                    {(totalTercatat === 0 ? [
+                      { color: 'url(#gradKosong)' }
+                    ] : [
+                      { color: 'url(#gradMasuk)' },
+                      { color: 'url(#gradIzin)' }
+                    ]).map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={entry.color} />
+                    ))}
+                  </Pie>
+                </PieChart>
+              </ResponsiveContainer>
             </div>
           </div>
-          
-          <Link to="/staff/absensi" className="flex items-center justify-center w-full py-3 mt-4 bg-white/10 hover:bg-white hover:text-school-blue text-white rounded-xl font-bold transition-colors duration-300 group/btn relative z-10 backdrop-blur-md border border-white/20 shadow-sm">
-            Catat Kehadiran <ArrowRight size={18} className="ml-2 group-hover/btn:translate-x-1 transition-transform" />
-          </Link>
+          <div className="w-full sm:w-1/2 space-y-4">
+            <div>
+            <p className="text-slate-500 font-medium mb-1 text-center sm:text-left">Total Absensi</p>
+            <div className="flex items-center justify-between w-full mt-2 border-b border-dashed border-slate-200 pb-4">
+              <span className="text-slate-800 text-3xl font-bold leading-none">{totalTercatat}</span>
+              <span className="text-slate-400 font-medium text-lg mt-1">Hari</span>
+            </div>
+          </div>
+            <div className="pt-4 space-y-4">
+              <div className="flex justify-between items-center border-b border-dashed border-slate-200 pb-2">
+                <span className="text-slate-600 flex items-center gap-2"><div className="w-3 h-3 rounded-full bg-gradient-to-br from-emerald-500 to-green-400 shadow-[0_0_8px_rgba(16,185,129,0.5)]"></div> Masuk (Hadir)</span>
+                <span className="font-bold text-emerald-500">{totalMasuk}</span>
+              </div>
+              <div className="flex justify-between items-center border-b border-dashed border-slate-200 pb-2">
+                <span className="text-slate-600 flex items-center gap-2"><div className="w-3 h-3 rounded-full bg-gradient-to-br from-amber-500 to-yellow-400 shadow-[0_0_8px_rgba(245,158,11,0.5)]"></div> Izin / Sakit</span>
+                <span className="font-bold text-amber-500">{totalIzin}</span>
+              </div>
+            </div>
+          </div>
         </div>
 
-        {/* Laporan Kegiatan Widget */}
-        <div className="bg-gradient-to-br from-amber-500 to-orange-500 rounded-3xl p-6 sm:p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/20 relative overflow-hidden group transition-all duration-500 hover:-translate-y-1 hover:shadow-[0_20px_40px_rgb(0,0,0,0.12)] flex flex-col justify-between min-h-[220px]">
-          <div className="absolute -top-10 -right-10 w-40 h-40 bg-white/20 rounded-full blur-3xl group-hover:bg-white/30 transition-colors duration-500"></div>
-          <div className="relative z-10 flex-1 flex flex-col">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="font-bold text-white/90 text-lg tracking-wide">Daftar Tugas</h3>
-              <div className="p-2.5 bg-white/15 backdrop-blur-md text-white rounded-2xl shadow-sm border border-white/20 group-hover:scale-110 transition-transform duration-300">
-                <ClipboardList size={20} />
-              </div>
-            </div>
-            <div className="flex-1 flex flex-col justify-center mb-4">
-              <p className="text-5xl font-extrabold text-white drop-shadow-sm">{taskReports.length}</p>
-              <p className="text-sm text-white/80 font-medium mt-1">Laporan tugas dikirim</p>
+        {/* Distribusi Status Tugas Chart Section */}
+        <div className="bg-white rounded-3xl shadow-sm border border-slate-100 p-6 sm:p-8 flex flex-col sm:flex-row gap-6 sm:gap-8 items-center">
+          <div className="w-full sm:w-1/2 flex flex-col items-center sm:items-start h-full">
+            <h3 className="text-slate-600 font-medium mb-4 sm:mb-6 text-center sm:text-left w-full">Distribusi Status Tugas</h3>
+            <div className="w-full h-48 sm:h-56 relative flex justify-center items-center">
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <defs>
+                    <linearGradient id="gradSelesai" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stopColor="#0ea5e9" />
+                      <stop offset="100%" stopColor="#2dd4bf" />
+                    </linearGradient>
+                    <linearGradient id="gradMenungguTugas" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stopColor="#f59e0b" />
+                      <stop offset="100%" stopColor="#fbbf24" />
+                    </linearGradient>
+                    <linearGradient id="gradDitolak" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stopColor="#f43f5e" />
+                      <stop offset="100%" stopColor="#fb7185" />
+                    </linearGradient>
+                  </defs>
+                  <Pie
+                    data={(totalDisetujui + totalMenunggu + totalDitolak) === 0 ? [
+                      { name: 'Belum Ada Data', value: 1, color: 'url(#gradKosong)' }
+                    ] : [
+                      { name: 'Sudah Dinilai', value: totalDisetujui, color: 'url(#gradSelesai)' },
+                      { name: 'Menunggu', value: totalMenunggu, color: 'url(#gradMenungguTugas)' },
+                      { name: 'Ditolak', value: totalDitolak, color: 'url(#gradDitolak)' },
+                    ]}
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={45}
+                    outerRadius={75}
+                    dataKey="value"
+                    stroke="none"
+                  >
+                    {((totalDisetujui + totalMenunggu + totalDitolak) === 0 ? [
+                      { color: 'url(#gradKosong)' }
+                    ] : [
+                      { color: 'url(#gradSelesai)' },
+                      { color: 'url(#gradMenungguTugas)' },
+                      { color: 'url(#gradDitolak)' }
+                    ]).map((entry, index) => (
+                      <Cell key={`cell-tugas-${index}`} fill={entry.color} />
+                    ))}
+                  </Pie>
+                </PieChart>
+              </ResponsiveContainer>
             </div>
           </div>
-          
-          <Link to="/staff/daftar-tugas" className="flex items-center justify-center w-full py-3 mt-4 bg-white/10 hover:bg-white hover:text-amber-600 text-white rounded-xl font-bold transition-colors duration-300 group/btn relative z-10 backdrop-blur-md border border-white/20 shadow-sm">
-            Lihat Daftar Tugas <ArrowRight size={18} className="ml-2 group-hover/btn:translate-x-1 transition-transform" />
-          </Link>
+          <div className="w-full sm:w-1/2 space-y-4">
+            <div>
+              <p className="text-slate-500 font-medium mb-1 text-center sm:text-left">Nilai Bintang</p>
+              <div className="flex items-center justify-center sm:justify-start gap-3 mt-2">
+                <span className="text-slate-800 text-3xl font-bold leading-none">{starRating}</span>
+                <StarRating score={averageAllTasks} size={26} className="flex items-center gap-1" />
+              </div>
+            </div>
+            <div className="pt-4 space-y-4">
+              <div className="flex justify-between items-center border-b border-dashed border-slate-200 pb-2">
+                <span className="text-slate-600 flex items-center gap-2"><div className="w-3 h-3 rounded-full bg-gradient-to-br from-sky-500 to-teal-400 shadow-[0_0_8px_rgba(14,165,233,0.5)]"></div> Sudah Dinilai</span>
+                <span className="font-bold text-sky-500">{totalDisetujui}</span>
+              </div>
+              <div className="flex justify-between items-center border-b border-dashed border-slate-200 pb-2">
+                <span className="text-slate-600 flex items-center gap-2"><div className="w-3 h-3 rounded-full bg-gradient-to-br from-amber-500 to-yellow-400 shadow-[0_0_8px_rgba(245,158,11,0.5)]"></div> Menunggu</span>
+                <span className="font-bold text-amber-500">{totalMenunggu}</span>
+              </div>
+              <div className="flex justify-between items-center border-b border-dashed border-slate-200 pb-2">
+                <span className="text-slate-600 flex items-center gap-2"><div className="w-3 h-3 rounded-full bg-gradient-to-br from-rose-500 to-pink-400 shadow-[0_0_8px_rgba(244,63,94,0.5)]"></div> Ditolak</span>
+                <span className="font-bold text-rose-500">{totalDitolak}</span>
+              </div>
+            </div>
+          </div>
         </div>
 
-        {/* Penilaian KPI Widget */}
-        <div className="bg-gradient-to-br from-emerald-500 to-teal-500 rounded-3xl p-6 sm:p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/20 relative overflow-hidden group transition-all duration-500 hover:-translate-y-1 hover:shadow-[0_20px_40px_rgb(0,0,0,0.12)] flex flex-col justify-between min-h-[220px]">
-          <div className="absolute -top-10 -right-10 w-40 h-40 bg-white/20 rounded-full blur-3xl group-hover:bg-white/30 transition-colors duration-500"></div>
-          <div className="relative z-10 flex-1 flex flex-col">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="font-bold text-white/90 text-lg tracking-wide">Penilaian KPI</h3>
-              <div className="p-2.5 bg-white/15 backdrop-blur-md text-white rounded-2xl shadow-sm border border-white/20 group-hover:scale-110 transition-transform duration-300">
-                <Star size={20} />
-              </div>
-            </div>
-            <div className="flex-1 flex flex-col justify-center mb-4">
-              <p className="text-5xl font-extrabold text-white drop-shadow-sm">{kpiAverage}</p>
-              <p className="text-sm text-white/80 font-medium mt-1">Rata-rata skor bulan terakhir</p>
-            </div>
-          </div>
-          
-          <Link to="/staff/nilai-kpi" className="flex items-center justify-center w-full py-3 mt-4 bg-white/10 hover:bg-white hover:text-emerald-600 text-white rounded-xl font-bold transition-colors duration-300 group/btn relative z-10 backdrop-blur-md border border-white/20 shadow-sm">
-            Lihat Rincian <ArrowRight size={18} className="ml-2 group-hover/btn:translate-x-1 transition-transform" />
-          </Link>
-        </div>
-        
       </div>
+
     </div>
   );
 };

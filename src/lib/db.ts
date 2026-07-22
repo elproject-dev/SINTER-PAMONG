@@ -187,6 +187,32 @@ export const getUserTodayAttendance = async (userId: string): Promise<Attendance
   };
 };
 
+export const getUserAllAttendance = async (userId: string): Promise<AttendanceRecord[]> => {
+  const { data, error } = await supabase
+    .from('data_absensi')
+    .select('*')
+    .eq('user_id', userId)
+    .order('date', { ascending: false });
+
+  if (error) {
+    console.error('Error fetching user all attendance:', error);
+    return [];
+  }
+
+  return data.map((d: any) => ({
+    id: d.id,
+    userId: d.user_id,
+    date: d.date,
+    checkIn: d.check_in,
+    checkOut: d.check_out,
+    status: d.status,
+    note: d.note,
+    latitude: d.latitude,
+    longitude: d.longitude,
+    selfieUrl: d.selfie_url
+  })) as AttendanceRecord[];
+};
+
 // ================= KPI =================
 
 export const getKPIs = async (): Promise<KPIEvaluation[]> => {
@@ -739,4 +765,32 @@ export const updateUserPassword = async (password: string) => {
     console.error('Error updating password:', error);
     throw error;
   }
+};
+
+export const getUserMonthlyAttendance = async (userId: string): Promise<AttendanceRecord[]> => {
+  const date = new Date();
+  const startOfMonth = new Date(date.getFullYear(), date.getMonth(), 1).toISOString().split('T')[0];
+  const endOfMonth = new Date(date.getFullYear(), date.getMonth() + 1, 0).toISOString().split('T')[0];
+
+  const { data, error } = await supabase
+    .from('data_absensi')
+    .select('*')
+    .eq('user_id', userId)
+    .gte('date', startOfMonth)
+    .lte('date', endOfMonth);
+
+  if (error) return [];
+
+  return data.map((d: any) => ({
+    id: d.id,
+    userId: d.user_id,
+    date: d.date,
+    checkIn: d.check_in,
+    checkOut: d.check_out,
+    status: d.status,
+    note: d.note,
+    latitude: d.latitude,
+    longitude: d.longitude,
+    selfieUrl: d.selfie_url
+  }));
 };

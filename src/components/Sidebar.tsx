@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { NavLink } from 'react-router-dom';
 import { LayoutDashboard, Users, UserCheck, LogOut, FileText, ClipboardList, Star, Settings, GraduationCap, User as UserIcon, X, Camera, Loader2 } from 'lucide-react';
+import { BiHappyBeaming } from "react-icons/bi";
 import { User } from '../lib/types';
 import { uploadProfilePicture } from '../lib/db';
 
@@ -56,11 +57,9 @@ export const Sidebar: React.FC<SidebarProps> = ({ user, onLogout }) => {
   ];
 
   const links = user.role === 'admin' ? adminLinks : staffLinks;
-  
-  const userInitial = user?.name?.charAt(0)?.toUpperCase() || "U";
 
   return (
-    <aside className="w-16 bg-white text-slate-700 border-r border-slate-200 hidden md:flex flex-col flex-shrink-0 transition-all duration-300 fixed top-0 left-0 h-screen z-40">
+    <aside className="w-16 bg-white text-slate-700 border-r border-slate-200 hidden xl:flex flex-col flex-shrink-0 transition-all duration-300 fixed top-0 left-0 h-screen z-40">
       <div className="h-16 flex items-center justify-center border-b border-slate-200">
         <GraduationCap className="h-8 w-8 text-school-blue" />
       </div>
@@ -95,11 +94,11 @@ export const Sidebar: React.FC<SidebarProps> = ({ user, onLogout }) => {
           title={user.name}
           onClick={() => setIsProfileOpen(!isProfileOpen)}
         >
-          <div className="w-8 h-8 rounded-full bg-school-blue flex items-center justify-center text-sm font-bold text-white flex-shrink-0 shadow-sm overflow-hidden">
+          <div className="w-8 h-8 rounded-full bg-slate-50 border border-slate-200 flex items-center justify-center flex-shrink-0 shadow-sm overflow-hidden">
             {profilePic ? (
               <img src={profilePic} alt="Profile" className="w-full h-full object-cover" />
             ) : (
-              userInitial
+              <BiHappyBeaming className="w-6 h-6 text-slate-400" />
             )}
           </div>
         </div>
@@ -156,8 +155,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ user, onLogout }) => {
                       {profilePic ? (
                         <img src={profilePic} alt="Profile" className="w-full h-full object-cover" />
                       ) : (
-                        <div className="w-full h-full bg-school-blue flex items-center justify-center text-3xl font-bold text-white">
-                          {userInitial}
+                        <div className="w-full h-full bg-slate-50 flex items-center justify-center">
+                          <BiHappyBeaming className="w-16 h-16 text-slate-400" />
                         </div>
                       )}
 

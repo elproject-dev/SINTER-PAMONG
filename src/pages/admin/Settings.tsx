@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { User, SchoolSettings } from '../../lib/types';
 import { getSchoolSettings, saveSchoolSettings, updateUserProfileName, updateUserPassword } from '../../lib/db';
-import { Shield, Bell, Smartphone, MapPin, Save, Map } from 'lucide-react';
+import { Shield, Bell, Smartphone, MapPin, Map } from 'lucide-react';
 
 interface AdminSettingsProps {
   user: User;
@@ -35,7 +35,7 @@ export const AdminSettings: React.FC<AdminSettingsProps> = ({ user, onUserUpdate
       alert('Nama lengkap tidak boleh kosong');
       return;
     }
-    
+
     if (passwordInput) {
       if (passwordInput.length < 6) {
         alert('Kata sandi minimal harus 6 karakter');
@@ -80,15 +80,14 @@ export const AdminSettings: React.FC<AdminSettingsProps> = ({ user, onUserUpdate
       const lat = parseFloat(parts[0].trim());
       const lon = parseFloat(parts[1].trim());
       if (!isNaN(lat) && !isNaN(lon)) {
-        setGpsSettings(prev => ({...prev, latitude: lat, longitude: lon}));
+        const newSettings = { ...gpsSettings, latitude: lat, longitude: lon };
+        setGpsSettings(newSettings);
+        saveSchoolSettings(newSettings);
       }
     }
   };
 
-  const handleSaveGps = async () => {
-    await saveSchoolSettings(gpsSettings);
-    alert('Pengaturan GPS berhasil disimpan!');
-  };
+
 
   const handleGetCurrentLocation = () => {
     setIsLocating(true);
@@ -99,11 +98,13 @@ export const AdminSettings: React.FC<AdminSettingsProps> = ({ user, onUserUpdate
     }
     navigator.geolocation.getCurrentPosition(
       (pos) => {
-        setGpsSettings(prev => ({
-          ...prev,
+        const newSettings = {
+          ...gpsSettings,
           latitude: pos.coords.latitude,
           longitude: pos.coords.longitude
-        }));
+        };
+        setGpsSettings(newSettings);
+        saveSchoolSettings(newSettings);
         setCoordsInput(`${pos.coords.latitude}, ${pos.coords.longitude}`);
         setIsLocating(false);
       },
@@ -126,32 +127,32 @@ export const AdminSettings: React.FC<AdminSettingsProps> = ({ user, onUserUpdate
           <Shield className="mr-2 text-school-blue" size={20} />
           Profil & Keamanan
         </h3>
-        
+
         <div className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <label className="block text-sm font-bold text-slate-700 mb-2">Nama Lengkap</label>
-              <input 
-                type="text" 
-                value={nameInput} 
+              <input
+                type="text"
+                value={nameInput}
                 onChange={e => setNameInput(e.target.value)}
                 className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-slate-700 text-sm focus:ring-4 focus:ring-school-blue/10 focus:border-school-blue outline-none transition-all shadow-sm"
               />
             </div>
             <div>
               <label className="block text-sm font-bold text-slate-700 mb-2">ID Admin</label>
-              <input 
-                type="text" 
-                value={user.id ? (user.id.includes('-') ? user.id.split('-')[0] : user.id.slice(0, 8)) : ''} 
+              <input
+                type="text"
+                value={user.id ? (user.id.includes('-') ? user.id.split('-')[0] : user.id.slice(0, 8)) : ''}
                 disabled
                 className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-slate-500 text-sm font-medium cursor-not-allowed shadow-sm"
               />
             </div>
             <div>
               <label className="block text-sm font-bold text-slate-700 mb-2">Kata Sandi Baru</label>
-              <input 
-                type="password" 
-                value={passwordInput} 
+              <input
+                type="password"
+                value={passwordInput}
                 onChange={e => setPasswordInput(e.target.value)}
                 placeholder="Kosongkan jika tidak ingin diubah"
                 className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-slate-700 text-sm focus:ring-4 focus:ring-school-blue/10 focus:border-school-blue outline-none transition-all shadow-sm"
@@ -159,23 +160,22 @@ export const AdminSettings: React.FC<AdminSettingsProps> = ({ user, onUserUpdate
             </div>
             <div>
               <label className="block text-sm font-bold text-slate-700 mb-2">Konfirmasi Kata Sandi Baru</label>
-              <input 
-                type="password" 
-                value={confirmPasswordInput} 
+              <input
+                type="password"
+                value={confirmPasswordInput}
                 onChange={e => setConfirmPasswordInput(e.target.value)}
                 placeholder="Kosongkan jika tidak ingin diubah"
                 className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-slate-700 text-sm focus:ring-4 focus:ring-school-blue/10 focus:border-school-blue outline-none transition-all shadow-sm"
               />
             </div>
           </div>
-          
+
           <div className="pt-4 border-t border-slate-100 flex flex-wrap gap-4">
-            <button 
+            <button
               onClick={handleSaveProfile}
               disabled={isSavingProfile}
               className="px-8 py-2 border border-transparent bg-gradient-to-r from-school-blue to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-xl text-sm font-bold shadow-md hover:shadow-lg transition-all flex items-center justify-center disabled:opacity-50 whitespace-nowrap"
             >
-              <Save size={18} className="mr-2" />
               {isSavingProfile ? 'Menyimpan...' : 'Simpan Perubahan'}
             </button>
           </div>
@@ -187,55 +187,54 @@ export const AdminSettings: React.FC<AdminSettingsProps> = ({ user, onUserUpdate
           <Map className="mr-2 text-school-blue" size={20} />
           Pengaturan Lokasi Absensi (GPS)
         </h3>
-        
+
         <div className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <label className="block text-sm font-bold text-slate-700 mb-2">Koordinat (Latitude, Longitude)</label>
-              <input 
-                type="text"
-                value={coordsInput}
-                onChange={handleCoordChange}
-                placeholder="Contoh: -6.1751, 106.8271"
-                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-slate-700 text-sm focus:ring-4 focus:ring-school-blue/10 focus:border-school-blue outline-none transition-all shadow-sm"
-              />
+            <div className="flex flex-col gap-4">
+              <div>
+                <label className="block text-sm font-bold text-slate-700 mb-2">Koordinat (Latitude, Longitude)</label>
+                <input
+                  type="text"
+                  value={coordsInput}
+                  onChange={handleCoordChange}
+                  placeholder="Contoh: -6.1751, 106.8271"
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-slate-700 text-sm focus:ring-4 focus:ring-school-blue/10 focus:border-school-blue outline-none transition-all shadow-sm"
+                />
+              </div>
+              <div className="flex flex-row w-full gap-3">
+                <button
+                  onClick={handleGetCurrentLocation}
+                  disabled={isLocating}
+                  className="flex-1 py-2 border border-slate-200 bg-white text-school-blue hover:bg-slate-50 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center justify-center disabled:opacity-50 px-2 gap-1.5"
+                >
+                  <MapPin size={16} className="shrink-0" />
+                  <span className="truncate">{isLocating ? 'Mencari...' : 'Ambil Lokasi Saat Ini'}</span>
+                </button>
+                <a
+                  href={`https://www.google.com/maps/search/?api=1&query=${gpsSettings.latitude},${gpsSettings.longitude}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex-1 py-2 border border-transparent bg-[#00bcd4] hover:bg-cyan-500 text-white rounded-xl text-xs sm:text-sm font-bold shadow-md hover:shadow-lg transition-all flex items-center justify-center px-2 gap-1.5"
+                >
+                  <Map size={16} className="shrink-0" />
+                  <span className="truncate">Lihat Lokasi</span>
+                </a>
+              </div>
             </div>
             <div>
               <label className="block text-sm font-bold text-slate-700 mb-2">Radius Maksimal (Meter)</label>
-              <input 
+              <input
                 type="number"
                 value={gpsSettings.maxRadius}
-                onChange={e => setGpsSettings({...gpsSettings, maxRadius: parseInt(e.target.value) || 100})}
+                onChange={e => {
+                  const newRadius = parseInt(e.target.value) || 100;
+                  const newSettings = { ...gpsSettings, maxRadius: newRadius };
+                  setGpsSettings(newSettings);
+                  saveSchoolSettings(newSettings);
+                }}
                 className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-slate-700 text-sm focus:ring-4 focus:ring-school-blue/10 focus:border-school-blue outline-none transition-all shadow-sm"
               />
             </div>
-          </div>
-          
-          <div className="pt-4 border-t border-slate-100 flex flex-wrap gap-4">
-            <button 
-              onClick={handleGetCurrentLocation}
-              disabled={isLocating}
-              className="px-6 py-2 border border-slate-200 bg-white text-school-blue hover:bg-slate-50 rounded-xl text-sm font-bold transition-all flex items-center justify-center disabled:opacity-50 whitespace-nowrap"
-            >
-              <MapPin size={18} className="mr-2" />
-              {isLocating ? 'Mencari...' : 'Ambil Lokasi Saya Saat Ini'}
-            </button>
-            <a 
-              href={`https://www.google.com/maps/search/?api=1&query=${gpsSettings.latitude},${gpsSettings.longitude}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="px-6 py-2 border border-transparent bg-[#00bcd4] hover:bg-cyan-500 text-white rounded-xl text-sm font-bold shadow-md hover:shadow-lg transition-all flex items-center justify-center whitespace-nowrap"
-            >
-              <Map size={18} className="mr-2" />
-              Lihat Lokasi
-            </a>
-            <button 
-              onClick={handleSaveGps}
-              className="px-8 py-2 border border-transparent bg-gradient-to-r from-school-blue to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-xl text-sm font-bold shadow-md hover:shadow-lg transition-all flex items-center justify-center whitespace-nowrap"
-            >
-              <Save size={18} className="mr-2" />
-              Simpan Pengaturan GPS
-            </button>
           </div>
         </div>
       </div>
@@ -245,7 +244,7 @@ export const AdminSettings: React.FC<AdminSettingsProps> = ({ user, onUserUpdate
           <Bell className="mr-2 text-school-blue" size={20} />
           Notifikasi Sistem
         </h3>
-        
+
         <div className="space-y-4">
           <label className="flex items-center justify-between p-4 border border-slate-100 rounded-2xl hover:bg-slate-50 cursor-pointer transition-colors">
             <div>
@@ -269,7 +268,7 @@ export const AdminSettings: React.FC<AdminSettingsProps> = ({ user, onUserUpdate
           <Smartphone className="mr-2 text-school-blue" size={20} />
           Tampilan Aplikasi
         </h3>
-        
+
         <div className="space-y-4">
           <label className="flex items-center justify-between p-4 border border-slate-100 rounded-2xl hover:bg-slate-50 cursor-pointer transition-colors">
             <div>

@@ -3,6 +3,7 @@ import { getUsers, getTodayAttendance, getAllTaskReports, uploadProfilePicture, 
 import { User, AttendanceRecord } from '../../lib/types';
 import { Users, UserCheck, UserX, ClipboardList, CheckCircle2, LogOut, User as UserIcon, Camera, Loader2, X } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, PieChart, Pie } from 'recharts';
+import { BiHappyBeaming } from "react-icons/bi";
 import { supabase } from '../../lib/supabase';
 import { useRealtimeSubscription } from '../../lib/useRealtime';
 
@@ -16,7 +17,15 @@ export const AdminDashboard: React.FC = () => {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [profilePic, setProfilePic] = useState<string | null>(null);
   const [isUploadingPic, setIsUploadingPic] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
   const fileInputRef = React.useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 640);
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const fetchData = useCallback(async () => {
     const staffData = await getUsers();
@@ -49,7 +58,6 @@ export const AdminDashboard: React.FC = () => {
   useRealtimeSubscription(['data_absensi', 'profil_pengguna'], fetchData);
 
   const currentUser = JSON.parse(localStorage.getItem('hr_current_user') || '{}');
-  const userInitial = (currentUser?.name || 'Admin').charAt(0).toUpperCase();
 
   useEffect(() => {
     const savedPic = localStorage.getItem(`profile_pic_${currentUser?.id}`);
@@ -84,8 +92,8 @@ export const AdminDashboard: React.FC = () => {
     { name: 'Belum Hadir', value: absent, color: '#EF4444' }
   ];
 
-  const StatCard = ({ title, value, icon, gradientClass, subtitle }: any) => (
-    <div className={`relative overflow-hidden rounded-2xl p-4 sm:p-5 shadow-md hover:shadow-xl hover:-translate-y-1 transition-all duration-300 ${gradientClass} text-white border border-white/20`}>
+  const StatCard = ({ title, value, icon, gradientClass, subtitle, className = '' }: any) => (
+    <div className={`relative overflow-hidden rounded-2xl p-4 sm:p-5 shadow-md hover:shadow-xl hover:-translate-y-1 transition-all duration-300 ${gradientClass} text-white border border-white/20 ${className}`}>
       <div className="absolute top-0 right-0 -mt-3 -mr-3 w-24 h-24 bg-white opacity-[0.15] rounded-full blur-2xl"></div>
       <div className="absolute bottom-0 left-0 -mb-4 -ml-4 w-20 h-20 bg-black opacity-[0.05] rounded-full blur-xl"></div>
       <div className="relative z-10">
@@ -112,15 +120,14 @@ export const AdminDashboard: React.FC = () => {
             className="relative inline-flex items-center justify-center shrink-0 border-0 bg-transparent p-0 cursor-pointer focus:outline-none focus:ring-2 focus:ring-school-blue focus:ring-offset-2 rounded-full transition-transform hover:scale-105 w-12 h-12 sm:w-14 sm:h-14 mr-2 sm:mr-4"
             title="Profil Pengguna & Live Update"
           >
-            <div className="absolute inset-0.5 sm:inset-1 rounded-full animate-ping opacity-20 bg-emerald-500"></div>
+            <div className="absolute inset-0.5 sm:inset-1 rounded-full animate-ping opacity-50 bg-emerald-400"></div>
 
-            <div className="relative z-10 w-full h-full rounded-full flex flex-col items-center justify-center text-base sm:text-lg font-bold shadow-md border-2 border-emerald-500 text-emerald-700 bg-emerald-50 overflow-hidden">
+            <div className="relative z-10 w-full h-full rounded-full flex flex-col items-center justify-center text-base sm:text-lg font-bold shadow-md border-2 border-slate-200 bg-white overflow-hidden">
               {profilePic ? (
                 <img src={profilePic} alt="Profile" className="w-full h-full object-cover" />
               ) : (
-                <div className="flex flex-col items-center justify-center gap-0.5">
-                  <span className="text-xl sm:text-2xl font-extrabold leading-none mt-1">{userInitial}</span>
-                  <span className="text-[9px] font-bold text-emerald-600 uppercase tracking-wider">Profil</span>
+                <div className="flex items-center justify-center w-full h-full">
+                  <BiHappyBeaming className="w-10 h-10 sm:w-12 sm:h-12 text-slate-400" />
                 </div>
               )}
             </div>
@@ -178,8 +185,8 @@ export const AdminDashboard: React.FC = () => {
                         {profilePic ? (
                           <img src={profilePic} alt="Profile" className="w-full h-full object-cover" />
                         ) : (
-                          <div className="w-full h-full bg-school-blue flex items-center justify-center text-3xl font-bold text-white">
-                            {userInitial}
+                          <div className="w-full h-full bg-slate-50 flex items-center justify-center">
+                            <BiHappyBeaming className="w-16 h-16 text-slate-400" />
                           </div>
                         )}
 
@@ -264,6 +271,7 @@ export const AdminDashboard: React.FC = () => {
           subtitle="Disetujui admin"
           icon={<CheckCircle2 />}
           gradientClass="bg-gradient-to-tr from-sky-500 via-cyan-500 to-teal-400"
+          className="hidden sm:block"
         />
       </div>
 
@@ -272,7 +280,7 @@ export const AdminDashboard: React.FC = () => {
           <h2 className="text-slate-600 font-medium mb-6">Grafik Kehadiran</h2>
           <div className="w-full h-64">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={chartData} margin={{ top: 20, right: 30, left: -20, bottom: 5 }}>
+              <BarChart data={chartData} margin={{ top: 20, right: isMobile ? 0 : 30, left: isMobile ? 0 : -20, bottom: 5 }}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
                 <XAxis
                   dataKey="name"
@@ -282,6 +290,7 @@ export const AdminDashboard: React.FC = () => {
                   dy={10}
                 />
                 <YAxis
+                  hide={isMobile}
                   allowDecimals={false}
                   axisLine={false}
                   tickLine={false}

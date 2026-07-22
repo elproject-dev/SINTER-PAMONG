@@ -60,12 +60,12 @@ export const BottomNavigation: React.FC<BottomNavigationProps> = ({ user, onLogo
     <>
       {showMore && (
         <div
-          className="fixed inset-0 bg-black/50 z-40 md:hidden"
+          className="fixed inset-0 bg-black/50 z-40 xl:hidden"
           onClick={() => setShowMore(false)}
         />
       )}
 
-      <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 md:hidden z-50 shadow-[0_-4px_20px_-10px_rgba(0,0,0,0.1)] transition-all duration-300 rounded-t-2xl">
+      <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 xl:hidden z-50 shadow-[0_-4px_20px_-10px_rgba(0,0,0,0.1)] transition-all duration-300 rounded-t-2xl">
         <div className="flex items-center justify-around py-2 px-1 relative z-10 bg-white rounded-t-2xl">
           {mainLinks.map((link) => {
             const Icon = link.icon;

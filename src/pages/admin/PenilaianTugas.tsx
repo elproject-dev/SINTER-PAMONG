@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { TaskReport, User, TaskAttachment } from '../../lib/types';
 import { getAllTaskReports, getUsers, updateTaskReportStatus, deleteTaskReport, getTaskAttachments, updateTaskAttachmentScore, updateTaskReportScore } from '../../lib/db';
-import { CheckCircle2, XCircle, BookOpen, Search, Eye, Star, Paperclip, User as UserIcon, Edit, Trash2, SlidersHorizontal, X, Download, Loader2, Clock } from 'lucide-react';
+import { CheckCircle2, XCircle, BookOpen, Search, Eye, Star, Paperclip, Edit, Trash2, SlidersHorizontal, X, Download, Loader2, Clock } from 'lucide-react';
 import { format } from 'date-fns';
 import { id } from 'date-fns/locale';
 import { useRealtimeSubscription } from '../../lib/useRealtime';
@@ -270,13 +270,13 @@ export const AdminReviewLaporanTugas: React.FC = () => {
             {/* Inline Panel Penilaian */}
             {selectedAttachmentForReview && (
               <div id="panel-penilaian" className="bg-amber-50/30 p-6 border-b border-amber-100 animate-in fade-in slide-in-from-top-2 relative">
-                <div className="mb-4 flex items-start justify-between gap-4">
-                  <div>
-                    <h3 className="font-bold text-slate-800 flex items-center gap-2 text-lg mb-1">
-                      <Edit size={20} className="text-amber-500" />
-                      Panel Penilaian Lampiran
+                <div className="mb-4 flex flex-col items-start gap-3 sm:flex-row sm:justify-between sm:gap-4">
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-bold text-slate-800 flex items-center gap-2 text-base sm:text-lg mb-1">
+                      <Edit size={20} className="text-amber-500 shrink-0" />
+                      <span className="truncate">Panel Penilaian Lampiran</span>
                     </h3>
-                    <p className="text-sm text-slate-500">
+                    <p className="text-xs sm:text-sm text-slate-500 leading-relaxed">
                       Beri nilai dan tanggapan untuk pembaruan tanggal <span className="font-bold text-slate-700">{format(new Date(selectedAttachmentForReview.createdAt), 'dd MMMM yyyy, HH:mm', { locale: id })}</span>
                     </p>
                   </div>
@@ -373,7 +373,7 @@ export const AdminReviewLaporanTugas: React.FC = () => {
               </div>
             )}
 
-            <div className="overflow-x-auto">
+            <div className="overflow-x-auto hidden lg:block">
               <table className="w-full text-left border-collapse text-sm min-w-[600px]">
                 <thead>
                   <tr className="bg-slate-50 text-slate-500 text-xs uppercase tracking-wider">
@@ -513,6 +513,151 @@ export const AdminReviewLaporanTugas: React.FC = () => {
                 </tbody>
               </table>
             </div>
+
+            {/* Mobile Card View for Lampiran */}
+            <div className="lg:hidden flex flex-col divide-y divide-slate-100">
+              {isAttachmentsLoading ? (
+                <div className="p-12 text-center text-slate-500">
+                  <div className="flex justify-center mb-3 text-school-blue">
+                    <Loader2 size={32} className="animate-spin" />
+                  </div>
+                  <p className="font-bold text-lg text-slate-600 mb-1">Memuat Lampiran...</p>
+                </div>
+              ) : (
+                <>
+                  {selectedReport.link && (
+                    <div className={`p-4 transition-colors flex flex-col gap-3 ${selectedAttachmentForReview?.isPrimary ? 'bg-amber-50/80 border-l-4 border-l-amber-500' : 'hover:bg-slate-50 bg-white'}`}>
+                      <div className="flex justify-between items-start gap-2">
+                        <div className="flex flex-col min-w-0">
+                          <p className="text-xs font-bold text-slate-400 truncate">
+                            {format(new Date(selectedReport.createdAt), 'dd MMM yyyy, HH:mm', { locale: id })}
+                          </p>
+                          <h3 className="font-extrabold text-slate-800 text-sm mt-1 leading-snug">{selectedReport.taskName}</h3>
+                        </div>
+                        <div className="shrink-0 flex items-center justify-center">
+                          {selectedReport.status === 'reviewed' ? (
+                            <CheckCircle2 size={20} className="text-emerald-500" />
+                          ) : selectedReport.status === 'rejected' ? (
+                            <XCircle size={20} className="text-rose-500" />
+                          ) : (
+                            <Clock size={20} className="text-slate-400" />
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="mt-1 border-b border-slate-100 pb-2">
+                         <p className="text-sm text-slate-700 italic">-</p>
+                      </div>
+
+                      <div className="flex items-center justify-between gap-2 mt-1">
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs font-bold text-slate-500 uppercase">Penilaian</span>
+                          <div className="flex items-center gap-0.5 text-slate-300">
+                            {selectedReport.score ? (
+                              <>
+                                <StarRating score={selectedReport.score} size={14} className="flex items-center gap-0.5 text-slate-300" />
+                                <span className="ml-1 text-xs font-bold text-amber-500">{selectedReport.score}</span>
+                              </>
+                            ) : (
+                              <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider bg-slate-100 px-2 py-0.5 rounded-md border border-slate-200/50">Belum Dinilai</span>
+                            )}
+                          </div>
+                        </div>
+
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setSelectedAttachmentForReview({
+                              id: selectedReport.id,
+                              reportId: selectedReport.id,
+                              userId: selectedReport.userId,
+                              link: selectedReport.link!,
+                              catatan: '',
+                              score: selectedReport.score ?? undefined,
+                              adminFeedback: selectedReport.adminFeedback,
+                              createdAt: selectedReport.createdAt,
+                              isPrimary: true
+                            });
+                            setModalScore(selectedReport.score || '');
+                            setModalFeedback(selectedReport.adminFeedback || '');
+                            setTimeout(() => document.getElementById('panel-penilaian')?.scrollIntoView({ behavior: 'smooth', block: 'center' }), 50);
+                          }}
+                          className="p-2 transition-colors rounded-full text-amber-500 hover:text-amber-600 hover:bg-amber-50 bg-slate-50 border border-slate-200"
+                          title="Beri Penilaian"
+                        >
+                          <Edit size={16} />
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
+                  {attachments.map((att) => (
+                    <div key={att.id} className={`p-4 transition-colors flex flex-col gap-3 ${(!selectedAttachmentForReview?.isPrimary && selectedAttachmentForReview?.id === att.id) ? 'bg-amber-50/80 border-l-4 border-l-amber-500' : 'hover:bg-slate-50 bg-white'}`}>
+                      <div className="flex justify-between items-start gap-2">
+                        <div className="flex flex-col min-w-0">
+                          <p className="text-xs font-bold text-slate-400 truncate">
+                            {format(new Date(att.createdAt), 'dd MMM yyyy, HH:mm', { locale: id })}
+                          </p>
+                          <h3 className="font-extrabold text-slate-800 text-sm mt-1 leading-snug">{selectedReport.taskName}</h3>
+                        </div>
+                        <div className="shrink-0 flex items-center justify-center">
+                          {att.status === 'reviewed' ? (
+                            <CheckCircle2 size={20} className="text-emerald-500" />
+                          ) : att.status === 'rejected' ? (
+                            <XCircle size={20} className="text-rose-500" />
+                          ) : (
+                            <Clock size={20} className="text-slate-400" />
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="mt-1 border-b border-slate-100 pb-2">
+                         <p className="text-sm text-slate-700">{att.catatan || '-'}</p>
+                      </div>
+
+                      <div className="flex items-center justify-between gap-2 mt-1">
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs font-bold text-slate-500 uppercase">Penilaian</span>
+                          <div className="flex items-center gap-0.5 text-slate-300">
+                            {att.score ? (
+                              <>
+                                <StarRating score={att.score} size={14} className="flex items-center gap-0.5 text-slate-300" />
+                                <span className="ml-1 text-xs font-bold text-amber-500">{att.score}</span>
+                              </>
+                            ) : (
+                              <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider bg-slate-100 px-2 py-0.5 rounded-md border border-slate-200/50">Belum Dinilai</span>
+                            )}
+                          </div>
+                        </div>
+
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setSelectedAttachmentForReview({
+                              ...att,
+                              isPrimary: false
+                            });
+                            setModalScore(att.score || '');
+                            setModalFeedback(att.adminFeedback || '');
+                            setTimeout(() => document.getElementById('panel-penilaian')?.scrollIntoView({ behavior: 'smooth', block: 'center' }), 50);
+                          }}
+                          className="p-2 transition-colors rounded-full text-amber-500 hover:text-amber-600 hover:bg-amber-50 bg-slate-50 border border-slate-200"
+                          title="Beri Penilaian"
+                        >
+                          <Edit size={16} />
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+
+                  {!selectedReport.link && attachments.length === 0 && (
+                    <div className="p-8 text-center text-slate-500">
+                      Belum ada lampiran.
+                    </div>
+                  )}
+                </>
+              )}
+            </div>
           </div>
         </>
       )}
@@ -615,7 +760,7 @@ export const AdminReviewLaporanTugas: React.FC = () => {
 
           <div className="overflow-x-auto">
             {/* Desktop Table View */}
-            <table className="w-full text-left border-collapse min-w-[900px] hidden md:table">
+            <table className="w-full text-left border-collapse min-w-[900px] hidden lg:table">
               <thead>
                 <tr className="bg-slate-50 text-slate-500 text-xs uppercase tracking-wider">
                   <th className="px-4 py-3 font-bold border border-slate-200 w-12 text-center">NO</th>
@@ -715,7 +860,7 @@ export const AdminReviewLaporanTugas: React.FC = () => {
             </table>
 
             {/* Mobile Card View */}
-            <div className="md:hidden flex flex-col divide-y divide-slate-100">
+            <div className="lg:hidden flex flex-col divide-y divide-slate-100">
               {isLoading ? (
                 <div className="p-12 text-center text-slate-500">
                   <div className="flex justify-center mb-3 text-school-blue">
@@ -749,15 +894,10 @@ export const AdminReviewLaporanTugas: React.FC = () => {
                       </span>
                     </div>
 
-                    <div className="flex items-center justify-between bg-slate-100 p-2.5 rounded-lg border border-slate-200 mt-1">
-                      <div>
+                      <div className="mt-1 border-b border-slate-100 pb-2">
                         <p className="text-sm font-bold text-school-blue leading-tight">{report.user?.name || 'Staf Tidak Dikenal'}</p>
                         <p className="text-xs text-slate-500">{report.user?.position || 'Belum ada jabatan'}</p>
                       </div>
-                      <div className="bg-white p-2 rounded-full shadow-sm border border-slate-200 text-slate-400 shrink-0">
-                        <UserIcon size={16} />
-                      </div>
-                    </div>
 
                     <div className="flex items-center justify-between gap-2 mt-1">
                       <div className="flex items-center gap-2">

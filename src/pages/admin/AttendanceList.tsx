@@ -90,7 +90,7 @@ export const AttendanceList: React.FC = () => {
         </div>
         <div className="overflow-x-auto">
           {/* Desktop Table View */}
-          <table className="w-full text-left border-collapse min-w-[900px] hidden md:table">
+          <table className="w-full text-left border-collapse min-w-[900px] hidden lg:table">
             <thead>
               <tr className="bg-slate-50 text-slate-500 text-xs uppercase tracking-wider">
                 <th className="px-4 py-3 font-bold border border-slate-200 w-12 text-center">NO</th>
@@ -184,7 +184,7 @@ export const AttendanceList: React.FC = () => {
           </table>
 
           {/* Mobile Card View */}
-          <div className="md:hidden flex flex-col divide-y divide-slate-100">
+          <div className="lg:hidden flex flex-col divide-y divide-slate-100">
             {isLoading ? (
               <div className="p-8 text-center text-slate-500">
                 <div className="flex justify-center mb-3 text-school-blue">

@@ -67,7 +67,14 @@ export const AdminStaffList: React.FC = () => {
     setIsPositionDropdownOpen(false);
     setIsRoleDropdownOpen(false);
     setIsModalOpen(true);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    
+    // Scroll to the top of the main scroll container, or window as fallback
+    const scrollContainer = document.getElementById('main-scroll-container');
+    if (scrollContainer) {
+      scrollContainer.scrollTo({ top: 0, behavior: 'smooth' });
+    } else {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
   };
 
   const handleAssignSave = async (e: React.FormEvent) => {
@@ -157,7 +164,7 @@ export const AdminStaffList: React.FC = () => {
           <p className="text-slate-500 text-sm sm:text-base lg:text-lg">Kelola dan lihat profil seluruh pegawai sekolah</p>
         </div>
 
-        <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto shrink-0">
+        <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto shrink-0 bg-white md:bg-transparent p-4 md:p-0 rounded-2xl md:rounded-none shadow-sm md:shadow-none border border-slate-100 md:border-none">
           <div className="relative w-full sm:w-64 shrink-0">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
               <Search size={20} />
@@ -287,14 +294,18 @@ export const AdminStaffList: React.FC = () => {
       {/* Form Penugasan Inline */}
       {isModalOpen && selectedUser && (
         <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 animate-in slide-in-from-top-4 fade-in duration-300">
-          <div className="flex items-center justify-between mb-4 border-b border-slate-100 pb-3">
-            <h2 className="font-bold text-slate-800 text-lg flex items-center gap-2">
-              <Settings size={20} className="text-school-blue" />
-              Penugasan / Edit Profil: {selectedUser.name}
+          <div className="flex items-start justify-between mb-4 border-b border-slate-100 pb-3 gap-3">
+            <h2 className="font-bold text-slate-800 text-base sm:text-lg flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 flex-1 min-w-0">
+              <span className="leading-tight">
+                Penugasan / Edit Profil
+              </span>
+              <span className="text-school-blue sm:text-slate-800 leading-tight">
+                {selectedUser.name}
+              </span>
             </h2>
             <button
               onClick={() => setIsModalOpen(false)}
-              className="text-slate-400 hover:text-slate-600 transition-colors p-2 rounded-full hover:bg-slate-100"
+              className="text-slate-400 hover:text-slate-600 transition-colors p-1.5 sm:p-2 rounded-full hover:bg-slate-100 shrink-0 -mt-1 sm:mt-0"
               title="Tutup Form"
             >
               <X size={20} />
@@ -446,7 +457,7 @@ export const AdminStaffList: React.FC = () => {
         </div>
         <div className="overflow-x-auto">
           {/* Desktop Table View */}
-          <table className="w-full text-left border-collapse min-w-[800px] hidden md:table">
+          <table className="w-full text-left border-collapse min-w-[800px] hidden lg:table">
             <thead>
               <tr className="bg-slate-50 text-slate-500 text-xs uppercase tracking-wider">
                 <th className="px-4 py-3 font-bold border border-slate-200 w-12 text-center">NO</th>
@@ -535,7 +546,7 @@ export const AdminStaffList: React.FC = () => {
           </table>
 
           {/* Mobile Card View */}
-          <div className="md:hidden flex flex-col divide-y divide-slate-100">
+          <div className="lg:hidden flex flex-col divide-y divide-slate-100">
             {isLoading ? (
               <div className="p-12 text-center text-slate-500">
                 <div className="flex justify-center mb-3 text-school-blue">
