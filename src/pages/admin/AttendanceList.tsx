@@ -3,7 +3,7 @@ import { getAttendance, getUsers } from '../../lib/db';
 import { AttendanceRecord, User } from '../../lib/types';
 import { format } from 'date-fns';
 import { id } from 'date-fns/locale';
-import { Download, List, Eye, Loader2, X, Camera } from 'lucide-react';
+import { Download, List, Eye, Loader2, X, Camera, MapPin } from 'lucide-react';
 import { useRealtimeSubscription } from '../../lib/useRealtime';
 
 export const AttendanceList: React.FC = () => {
@@ -147,15 +147,13 @@ export const AttendanceList: React.FC = () => {
                       {record.selfieUrl ? (
                         <button
                           onClick={() => setLightboxUrl(record.selfieUrl!)}
-                          className="inline-block"
+                          className="inline-flex items-center text-xs font-bold text-white bg-school-blue hover:bg-blue-700 px-3 py-1.5 rounded-md transition-colors shadow-sm"
                           title="Lihat Foto Selfie"
                         >
-                          <div className="w-9 h-9 rounded-full overflow-hidden border-2 border-school-blue/30 hover:border-school-blue transition-colors shadow-sm mx-auto cursor-pointer hover:scale-110 transform duration-200">
-                            <img src={record.selfieUrl} alt="Selfie" className="w-full h-full object-cover" />
-                          </div>
+                          <Eye size={14} className="mr-1.5" /> Lihat Foto
                         </button>
                       ) : (
-                        <span className="text-slate-300 text-xs"><Camera size={16} className="mx-auto text-slate-300" /></span>
+                        <span className="text-slate-400 text-xs">-</span>
                       )}
                     </td>
                     <td className="px-4 py-3 border border-slate-200 text-center">
@@ -198,13 +196,7 @@ export const AttendanceList: React.FC = () => {
                 <div key={record.id} className="p-4 hover:bg-slate-50 transition-colors flex flex-col gap-3">
                   <div className="flex justify-between items-start">
                     <div className="flex items-center gap-3">
-                      {record.selfieUrl ? (
-                        <button onClick={() => setLightboxUrl(record.selfieUrl!)} className="shrink-0">
-                          <div className="w-11 h-11 rounded-full overflow-hidden border-2 border-school-blue/30 shadow-sm">
-                            <img src={record.selfieUrl} alt="Selfie" className="w-full h-full object-cover" />
-                          </div>
-                        </button>
-                      ) : null}
+                      {/* Removed image thumbnail from here */}
                       <div className="flex flex-col">
                         <span className="text-xs font-bold text-slate-400 mb-0.5">{format(new Date(record.date), 'dd MMM yyyy', { locale: id })}</span>
                         <h3 className="font-extrabold text-school-blue text-base">{getStaffName(record.userId)}</h3>
@@ -233,18 +225,28 @@ export const AttendanceList: React.FC = () => {
                     <div className="text-xs text-slate-500 italic max-w-[50%] truncate">
                       {record.note ? `Catatan: ${record.note}` : 'Tidak ada catatan'}
                     </div>
-                    {record.latitude && record.longitude ? (
-                      <a
-                        href={`https://www.google.com/maps/search/?api=1&query=${record.latitude},${record.longitude}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center text-xs font-bold text-white bg-[#00bcd4] hover:bg-cyan-500 px-3 py-1.5 rounded-md transition-colors shadow-sm"
-                      >
-                        <Eye size={14} className="mr-1.5" /> Lihat Lokasi
-                      </a>
-                    ) : (
-                      <span className="text-slate-400 text-xs">Tanpa Lokasi GPS</span>
-                    )}
+                    <div className="flex items-center gap-2">
+                      {record.selfieUrl && (
+                        <button
+                          onClick={() => setLightboxUrl(record.selfieUrl!)}
+                          className="inline-flex items-center text-xs font-bold text-white bg-school-blue hover:bg-blue-700 px-3 py-1.5 rounded-md transition-colors shadow-sm"
+                        >
+                          <Eye size={14} className="mr-1.5" /> Foto
+                        </button>
+                      )}
+                      {record.latitude && record.longitude ? (
+                        <a
+                          href={`https://www.google.com/maps/search/?api=1&query=${record.latitude},${record.longitude}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center text-xs font-bold text-white bg-[#00bcd4] hover:bg-cyan-500 px-3 py-1.5 rounded-md transition-colors shadow-sm"
+                        >
+                          <MapPin size={14} className="mr-1.5" /> Lokasi
+                        </a>
+                      ) : (
+                        <span className="text-slate-400 text-xs">Tanpa GPS</span>
+                      )}
+                    </div>
                   </div>
                 </div>
               ))
