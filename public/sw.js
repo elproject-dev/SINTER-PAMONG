@@ -39,6 +39,9 @@ self.addEventListener('fetch', (event) => {
   const url = new URL(event.request.url);
   if (url.hostname.includes('supabase')) return;
 
+  // Skip browser extensions requests
+  if (url.protocol === 'chrome-extension:') return;
+
   event.respondWith(
     fetch(event.request)
       .then((response) => {

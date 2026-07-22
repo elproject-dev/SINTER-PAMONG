@@ -450,6 +450,7 @@ export const AdminTugasStaff: React.FC = () => {
 
                 <div className="space-y-3">
                   <div>
+                    <label className="text-xs font-bold text-slate-500 mb-1 block">Tanggal Mulai</label>
                     <input
                       type={filterStartDate ? "date" : "text"}
                       placeholder="Tanggal Mulai"
@@ -466,6 +467,7 @@ export const AdminTugasStaff: React.FC = () => {
                     />
                   </div>
                   <div>
+                    <label className="text-xs font-bold text-slate-500 mb-1 block">Tanggal Akhir</label>
                     <input
                       type={filterEndDate ? "date" : "text"}
                       placeholder="Tanggal Akhir"

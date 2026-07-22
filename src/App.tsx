@@ -6,7 +6,7 @@ import { ForgotPassword } from './pages/ForgotPassword';
 import { ResetPassword } from './pages/ResetPassword';
 import { Layout } from './components/Layout';
 import { AdminDashboard } from './pages/admin/Dashboard';
-import { AttendanceList } from './pages/admin/AttendanceList';
+import { ListAbsensi } from './pages/admin/List-Absensi';
 import { AdminStaffList } from './pages/admin/StaffList';
 import { AdminKPIEvaluation } from './pages/admin/KPIEvaluation';
 import { AdminReviewLaporanTugas } from './pages/admin/PenilaianTugas';
@@ -17,6 +17,7 @@ import { DaftarTugas } from './pages/staff/Daftar-Tugas';
 import { KPI } from './pages/staff/Nilai-Kpi';
 import { Settings } from './pages/staff/Settings';
 import { Absensi } from './pages/staff/Absensi';
+import { BukuSaku } from './pages/BukuSaku';
 import { initializeDB } from './lib/db';
 import { supabase } from './lib/supabase';
 import { User } from './lib/types';
@@ -76,12 +77,13 @@ function App() {
         {/* Admin Routes */}
         <Route path="/admin" element={<Layout user={user} onLogout={handleLogout} allowedRole="admin" />}>
           <Route index element={<AdminDashboard />} />
-          <Route path="absensi" element={<AttendanceList />} />
+          <Route path="absensi" element={<ListAbsensi />} />
           <Route path="staff" element={<AdminStaffList />} />
           <Route path="kpi" element={<AdminKPIEvaluation currentUser={user!} />} />
           <Route path="penilaian-tugas" element={<AdminReviewLaporanTugas />} />
           <Route path="tugas-staff" element={<AdminTugasStaff />} />
           <Route path="settings" element={<AdminSettings user={user!} onUserUpdate={handleUpdateUser} />} />
+          <Route path="buku-saku" element={<BukuSaku />} />
         </Route>
 
         {/* Staff Routes */}
@@ -91,6 +93,7 @@ function App() {
           <Route path="daftar-tugas" element={<DaftarTugas user={user!} />} />
           <Route path="nilai-kpi" element={<KPI user={user!} />} />
           <Route path="settings" element={<Settings user={user!} onUserUpdate={handleUpdateUser} />} />
+          <Route path="buku-saku" element={<BukuSaku />} />
         </Route>
 
         <Route path="*" element={<Navigate to="/" replace />} />

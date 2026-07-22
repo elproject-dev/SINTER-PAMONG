@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { NavLink } from 'react-router-dom';
-import { LayoutDashboard, Users, UserCheck, LogOut, FileText, ClipboardList, Star, Settings, GraduationCap, User as UserIcon, X, Camera, Loader2 } from 'lucide-react';
+import { LayoutDashboard, Users, UserCheck, LogOut, FileText, ClipboardList, Star, Settings, GraduationCap, User as UserIcon, X, Camera, Loader2, BookOpen } from 'lucide-react';
 import { BiHappyBeaming } from "react-icons/bi";
 import { User } from '../lib/types';
 import { uploadProfilePicture } from '../lib/db';
@@ -46,6 +46,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ user, onLogout }) => {
     { to: '/admin/staff', icon: Users, label: 'Daftar Staf' },
     { to: '/admin/kpi', icon: FileText, label: 'Penilaian KPI' },
     { to: '/admin/settings', icon: Settings, label: 'Pengaturan' },
+    { to: '/admin/buku-saku', icon: BookOpen, label: 'Buku Saku' },
   ];
 
   const staffLinks = [
@@ -54,6 +55,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ user, onLogout }) => {
     { to: '/staff/daftar-tugas', icon: ClipboardList, label: 'Daftar Tugas' },
     { to: '/staff/nilai-kpi', icon: Star, label: 'Penilaian KPI' },
     { to: '/staff/settings', icon: Settings, label: 'Pengaturan' },
+    { to: '/staff/buku-saku', icon: BookOpen, label: 'Buku Saku' },
   ];
 
   const links = user.role === 'admin' ? adminLinks : staffLinks;

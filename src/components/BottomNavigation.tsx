@@ -2,7 +2,7 @@ import React, { useMemo, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { 
   LayoutDashboard, Users, UserCheck, FileText, 
-  Settings, Menu, LogOut, ClipboardList, Star
+  Settings, Menu, LogOut, ClipboardList, Star, BookOpen
 } from 'lucide-react';
 import { User } from '../lib/types';
 
@@ -40,11 +40,13 @@ export const BottomNavigation: React.FC<BottomNavigationProps> = ({ user, onLogo
       return [
         { href: "/admin/staff", label: "Daftar Staf", icon: Users },
         { href: "/admin/kpi", label: "Penilaian KPI", icon: FileText },
+        { href: "/admin/buku-saku", label: "Buku Saku", icon: BookOpen },
         { href: "/admin/settings", label: "Pengaturan", icon: Settings },
         { href: "#logout", label: "Keluar", icon: LogOut, isLogout: true },
       ];
     }
     return [
+      { href: "/staff/buku-saku", label: "Buku Saku", icon: BookOpen },
       { href: "/staff/settings", label: "Pengaturan", icon: Settings },
       { href: "#logout", label: "Keluar", icon: LogOut, isLogout: true },
     ];
