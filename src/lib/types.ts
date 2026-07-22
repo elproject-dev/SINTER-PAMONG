@@ -29,6 +29,7 @@ export interface AttendanceRecord {
   note?: string; // For leave/sick reasons
   latitude?: number;
   longitude?: number;
+  selfieUrl?: string; // URL foto selfie absensi
 }
 
 export interface KPITaskScore {

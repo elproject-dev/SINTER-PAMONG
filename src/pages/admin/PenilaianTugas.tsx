@@ -381,9 +381,7 @@ export const AdminReviewLaporanTugas: React.FC = () => {
                     <th className="px-4 py-3 font-bold border border-slate-200 text-center w-36">TANGGAL</th>
                     <th className="px-4 py-3 font-bold border border-slate-200 text-center w-28">JAM</th>
                     <th className="px-4 py-3 font-bold border border-slate-200">NAMA TUGAS</th>
-                    <th className="px-4 py-3 font-bold border border-slate-200">CATATAN</th>
-                    <th className="px-4 py-3 font-bold border border-slate-200 text-center w-24">LAMPIRAN</th>
-                    <th className="px-4 py-3 font-bold border border-slate-200 text-center w-24">UNDUH</th>
+                    <th className="px-4 py-3 font-bold border border-slate-200 w-80">CATATAN</th>
                     <th className="px-4 py-3 font-bold border border-slate-200 text-center w-28">STATUS</th>
                     <th className="px-4 py-3 font-bold border border-slate-200 text-center w-32">NILAI</th>
                     <th className="px-4 py-3 font-bold border border-slate-200 text-center w-16">SKOR</th>
@@ -393,7 +391,7 @@ export const AdminReviewLaporanTugas: React.FC = () => {
                 <tbody>
                   {isAttachmentsLoading ? (
                     <tr>
-                      <td colSpan={11} className="p-12 text-center text-slate-500 border border-slate-200">
+                      <td colSpan={9} className="p-12 text-center text-slate-500 border border-slate-200">
                         <div className="flex justify-center mb-3 text-school-blue">
                           <Loader2 size={32} className="animate-spin" />
                         </div>
@@ -408,31 +406,7 @@ export const AdminReviewLaporanTugas: React.FC = () => {
                           <td className="px-4 py-3 border border-slate-200 text-center text-sm text-slate-700">{format(new Date(selectedReport.createdAt), 'dd MMM yyyy', { locale: id })}</td>
                           <td className="px-4 py-3 border border-slate-200 text-center text-sm font-bold text-slate-600">{format(new Date(selectedReport.createdAt), 'HH:mm', { locale: id })}</td>
                           <td className="px-4 py-3 border border-slate-200 text-sm font-bold text-slate-800">{selectedReport.taskName}</td>
-                          <td className="px-4 py-3 border border-slate-200 text-slate-700 text-sm">-</td>
-                          <td className="px-4 py-3 border border-slate-200 text-center">
-                            <div className="flex items-center justify-center">
-                              <a href={selectedReport.link} target="_blank" rel="noopener noreferrer" className="text-school-blue hover:text-blue-700 transition-colors inline-block" title="Lihat Lampiran">
-                                <Paperclip size={18} />
-                              </a>
-                            </div>
-                          </td>
-                          <td className="px-4 py-3 border border-slate-200 text-center">
-                            <div className="flex items-center justify-center">
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  const link = selectedReport.link!;
-                                  const fileName = decodeURIComponent(link.split('/').pop()?.split('?')[0] || `bukti-${selectedReport.id}`);
-                                  handleDownload(link, fileName);
-                                }}
-                                disabled={downloadingUrl === selectedReport.link}
-                                className={`${downloadingUrl === selectedReport.link ? 'text-school-blue' : 'text-slate-500 hover:text-slate-700'} transition-colors inline-block cursor-pointer`}
-                                title="Unduh Lampiran"
-                              >
-                                {downloadingUrl === selectedReport.link ? <Loader2 size={18} className="animate-spin" /> : <Download size={18} />}
-                              </button>
-                            </div>
-                          </td>
+                          <td className="px-4 py-3 border border-slate-200 text-slate-700 text-sm w-80 text-center">-</td>
                           <td className="px-4 py-3 border border-slate-200 text-center">
                             <div className="flex items-center justify-center">
                               {selectedReport.status === 'reviewed' ? (
@@ -485,31 +459,7 @@ export const AdminReviewLaporanTugas: React.FC = () => {
                           <td className="px-4 py-3 border border-slate-200 text-center text-sm text-slate-700">{format(new Date(att.createdAt), 'dd MMM yyyy', { locale: id })}</td>
                           <td className="px-4 py-3 border border-slate-200 text-center text-sm font-bold text-slate-600">{format(new Date(att.createdAt), 'HH:mm', { locale: id })}</td>
                           <td className="px-4 py-3 border border-slate-200 text-sm font-bold text-slate-800">{selectedReport.taskName}</td>
-                          <td className="px-4 py-3 border border-slate-200 text-slate-700 text-sm">{att.catatan || '-'}</td>
-                          <td className="px-4 py-3 border border-slate-200 text-center">
-                            <div className="flex items-center justify-center">
-                              <a href={att.link} target="_blank" rel="noopener noreferrer" className="text-school-blue hover:text-blue-700 transition-colors inline-block" title="Lihat Lampiran">
-                                <Paperclip size={18} />
-                              </a>
-                            </div>
-                          </td>
-                          <td className="px-4 py-3 border border-slate-200 text-center">
-                            <div className="flex items-center justify-center">
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  const link = att.link;
-                                  const fileName = decodeURIComponent(link.split('/').pop()?.split('?')[0] || `lampiran-${att.id}`);
-                                  handleDownload(link, fileName);
-                                }}
-                                disabled={downloadingUrl === att.link}
-                                className={`${downloadingUrl === att.link ? 'text-school-blue' : 'text-slate-500 hover:text-slate-700'} transition-colors inline-block cursor-pointer`}
-                                title="Unduh Lampiran"
-                              >
-                                {downloadingUrl === att.link ? <Loader2 size={18} className="animate-spin" /> : <Download size={18} />}
-                              </button>
-                            </div>
-                          </td>
+                          <td className="px-4 py-3 border border-slate-200 text-slate-700 text-sm w-80 max-w-[320px] truncate" title={att.catatan}>{att.catatan || '-'}</td>
                           <td className="px-4 py-3 border border-slate-200 text-center">
                             <div className="flex items-center justify-center">
                               {att.status === 'reviewed' ? (
@@ -702,7 +652,7 @@ export const AdminReviewLaporanTugas: React.FC = () => {
                       <td className="px-4 py-3 border border-slate-200 text-center text-sm text-slate-700">
                         {format(new Date(report.date), 'dd MMM yyyy', { locale: id })}
                       </td>
-                      <td className="px-4 py-3 border border-slate-200 text-sm font-bold text-slate-800 max-w-xs truncate" title={report.taskName}>
+                      <td className="px-4 py-3 border border-slate-200 text-sm font-bold text-slate-800 max-w-md truncate" title={report.taskName}>
                         {report.taskName}
                       </td>
                       <td className="px-4 py-3 border border-slate-200 text-sm text-slate-800">

@@ -958,8 +958,8 @@ export const DaftarTugas: React.FC<DaftarTugasProps> = ({ user }) => {
                     <th className="px-4 py-3 font-bold border border-slate-200 w-12 text-center">NO</th>
                     <th className="px-4 py-3 font-bold border border-slate-200 text-center w-36">TANGGAL</th>
                     <th className="px-4 py-3 font-bold border border-slate-200 text-center w-28">JAM</th>
-                    <th className="px-4 py-3 font-bold border border-slate-200">NAMA TUGAS</th>
-                    <th className="px-4 py-3 font-bold border border-slate-200">CATATAN</th>
+                    <th className="px-4 py-3 font-bold border border-slate-200 w-64">NAMA TUGAS</th>
+                    <th className="px-4 py-3 font-bold border border-slate-200 w-80">CATATAN</th>
                     <th className="px-4 py-3 font-bold border border-slate-200 text-center w-32">STATUS</th>
                     <th className="px-4 py-3 font-bold border border-slate-200 text-center w-28">NILAI</th>
                     <th className="px-4 py-3 font-bold border border-slate-200 text-center w-16">SKOR</th>
@@ -984,10 +984,10 @@ export const DaftarTugas: React.FC<DaftarTugasProps> = ({ user }) => {
                           <td className="px-4 py-3 border border-slate-200 text-center text-sm font-medium text-slate-500">1</td>
                           <td className="px-4 py-3 border border-slate-200 text-center text-sm text-slate-700">{format(new Date(selectedReport.createdAt), 'dd MMM yyyy', { locale: id })}</td>
                           <td className="px-4 py-3 border border-slate-200 text-center text-sm font-bold text-slate-600">{format(new Date(selectedReport.createdAt), 'HH:mm', { locale: id })}</td>
-                          <td className="px-4 py-3 border border-slate-200 text-sm font-bold text-slate-800">{selectedReport.taskName}</td>
+                          <td className="px-4 py-3 border border-slate-200 text-sm font-bold text-slate-800 max-w-[200px] truncate" title={selectedReport.taskName}>{selectedReport.taskName}</td>
                           <td className="px-4 py-3 border border-slate-200">
                             <div className="flex items-center justify-between gap-2">
-                              <span className="text-sm text-slate-700 truncate max-w-[120px]">-</span>
+                              <span className="text-sm text-slate-700 truncate max-w-[260px]">-</span>
                               {selectedReport.adminFeedback && (
                                 <button
                                   onClick={() => {
@@ -1054,10 +1054,10 @@ export const DaftarTugas: React.FC<DaftarTugasProps> = ({ user }) => {
                           <td className="px-4 py-3 border border-slate-200 text-center text-sm font-medium text-slate-500">{(selectedReport.link ? 1 : 0) + idx + 1}</td>
                           <td className="px-4 py-3 border border-slate-200 text-center text-sm text-slate-700">{format(new Date(att.createdAt), 'dd MMM yyyy', { locale: id })}</td>
                           <td className="px-4 py-3 border border-slate-200 text-center text-sm font-bold text-slate-600">{format(new Date(att.createdAt), 'HH:mm', { locale: id })}</td>
-                          <td className="px-4 py-3 border border-slate-200 text-sm font-bold text-slate-800">{selectedReport.taskName}</td>
+                          <td className="px-4 py-3 border border-slate-200 text-sm font-bold text-slate-800 max-w-[200px] truncate" title={selectedReport.taskName}>{selectedReport.taskName}</td>
                           <td className="px-4 py-3 border border-slate-200">
                             <div className="flex items-center justify-between gap-2">
-                              <span className="text-sm text-slate-700 truncate max-w-[120px]" title={att.catatan}>{att.catatan || '-'}</span>
+                              <span className="text-sm text-slate-700 truncate max-w-[260px]" title={att.catatan}>{att.catatan || '-'}</span>
                               {att.adminFeedback && (
                                 <button
                                   onClick={() => {
@@ -1281,7 +1281,7 @@ export const DaftarTugas: React.FC<DaftarTugasProps> = ({ user }) => {
               <tr className="bg-slate-50 text-slate-500 text-xs uppercase tracking-wider">
                 <th className="px-4 py-3 font-bold border border-slate-200 w-12 text-center">NO</th>
                 <th className="px-4 py-3 font-bold border border-slate-200 text-center w-36">TANGGAL</th>
-                <th className="px-4 py-3 font-bold border border-slate-200">NAMA TUGAS</th>
+                <th className="px-4 py-3 font-bold border border-slate-200 w-1/3">NAMA TUGAS</th>
                 <th className="px-4 py-3 font-bold border border-slate-200 text-center w-24">MENUNGGU</th>
                 <th className="px-4 py-3 font-bold border border-slate-200 text-center w-24">DISETUJUI</th>
                 <th className="px-4 py-3 font-bold border border-slate-200 text-center w-24">DITOLAK</th>
@@ -1313,7 +1313,7 @@ export const DaftarTugas: React.FC<DaftarTugasProps> = ({ user }) => {
                       <td className="px-4 py-3 border border-slate-200 text-center text-sm text-slate-700">
                         {format(new Date(item.date), 'dd MMM yyyy', { locale: id })}
                       </td>
-                      <td className="px-4 py-3 border border-slate-200 text-sm font-bold text-slate-800">
+                      <td className="px-4 py-3 border border-slate-200 text-sm font-bold text-slate-800 max-w-sm truncate" title={item.taskName}>
                         {item.taskName}
                       </td>
                       <td className="px-4 py-3 border border-slate-200 text-center">

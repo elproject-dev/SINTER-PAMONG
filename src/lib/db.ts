@@ -120,7 +120,8 @@ export const getAttendance = async (): Promise<AttendanceRecord[]> => {
     status: d.status,
     note: d.note,
     latitude: d.latitude,
-    longitude: d.longitude
+    longitude: d.longitude,
+    selfieUrl: d.selfie_url
   })) as AttendanceRecord[];
 };
 
@@ -134,7 +135,8 @@ export const saveAttendance = async (record: AttendanceRecord) => {
     status: record.status,
     note: record.note,
     latitude: record.latitude,
-    longitude: record.longitude
+    longitude: record.longitude,
+    selfie_url: record.selfieUrl
   });
   if (error) console.error('Error saving attendance:', error);
 };
@@ -155,7 +157,8 @@ export const getTodayAttendance = async (): Promise<AttendanceRecord[]> => {
     status: d.status,
     note: d.note,
     latitude: d.latitude,
-    longitude: d.longitude
+    longitude: d.longitude,
+    selfieUrl: d.selfie_url
   })) as AttendanceRecord[];
 };
 
@@ -179,7 +182,8 @@ export const getUserTodayAttendance = async (userId: string): Promise<Attendance
     status: data.status,
     note: data.note,
     latitude: data.latitude,
-    longitude: data.longitude
+    longitude: data.longitude,
+    selfieUrl: data.selfie_url
   };
 };
 

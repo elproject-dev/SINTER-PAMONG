@@ -3,14 +3,14 @@ import { getAttendance, getUsers } from '../../lib/db';
 import { AttendanceRecord, User } from '../../lib/types';
 import { format } from 'date-fns';
 import { id } from 'date-fns/locale';
-import { Download, List, Eye, Loader2 } from 'lucide-react';
+import { Download, List, Eye, Loader2, X, Camera } from 'lucide-react';
 import { useRealtimeSubscription } from '../../lib/useRealtime';
 
 export const AttendanceList: React.FC = () => {
   const [records, setRecords] = useState<AttendanceRecord[]>([]);
   const [staff, setStaff] = useState<User[]>([]);
-
   const [isLoading, setIsLoading] = useState(true);
+  const [lightboxUrl, setLightboxUrl] = useState<string | null>(null);
 
   const fetchData = useCallback(async () => {
     setIsLoading(true);
@@ -91,7 +91,7 @@ export const AttendanceList: React.FC = () => {
         </div>
         <div className="overflow-x-auto">
           {/* Desktop Table View */}
-          <table className="w-full text-left border-collapse min-w-[800px] hidden md:table">
+          <table className="w-full text-left border-collapse min-w-[900px] hidden md:table">
             <thead>
               <tr className="bg-slate-50 text-slate-500 text-xs uppercase tracking-wider">
                 <th className="px-4 py-3 font-bold border border-slate-200 w-12 text-center">NO</th>
@@ -102,13 +102,14 @@ export const AttendanceList: React.FC = () => {
                 <th className="px-4 py-3 font-bold border border-slate-200 text-center w-28">JAM MASUK</th>
                 <th className="px-4 py-3 font-bold border border-slate-200 text-center w-28">JAM KELUAR</th>
                 <th className="px-4 py-3 font-bold border border-slate-200 w-64">CATATAN</th>
+                <th className="px-4 py-3 font-bold border border-slate-200 text-center w-20">FOTO</th>
                 <th className="px-4 py-3 font-bold border border-slate-200 text-center">LOKASI (GPS)</th>
               </tr>
             </thead>
             <tbody>
               {isLoading ? (
                 <tr>
-                  <td colSpan={9} className="p-12 text-center text-slate-500 border border-slate-200">
+                  <td colSpan={10} className="p-12 text-center text-slate-500 border border-slate-200">
                     <div className="flex justify-center mb-3 text-school-blue">
                       <Loader2 size={32} className="animate-spin" />
                     </div>
@@ -139,8 +140,23 @@ export const AttendanceList: React.FC = () => {
                     <td className="px-4 py-3 border border-slate-200 text-center text-sm text-slate-600">
                       {record.checkOut ? format(new Date(record.checkOut), 'HH:mm') : '-'}
                     </td>
-                    <td className="px-4 py-3 border border-slate-200 text-sm text-slate-500" title={record.note}>
+                    <td className="px-4 py-3 border border-slate-200 text-sm text-slate-500 max-w-[200px] truncate" title={record.note}>
                       {record.note || '-'}
+                    </td>
+                    <td className="px-4 py-3 border border-slate-200 text-center">
+                      {record.selfieUrl ? (
+                        <button
+                          onClick={() => setLightboxUrl(record.selfieUrl!)}
+                          className="inline-block"
+                          title="Lihat Foto Selfie"
+                        >
+                          <div className="w-9 h-9 rounded-full overflow-hidden border-2 border-school-blue/30 hover:border-school-blue transition-colors shadow-sm mx-auto cursor-pointer hover:scale-110 transform duration-200">
+                            <img src={record.selfieUrl} alt="Selfie" className="w-full h-full object-cover" />
+                          </div>
+                        </button>
+                      ) : (
+                        <span className="text-slate-300 text-xs"><Camera size={16} className="mx-auto text-slate-300" /></span>
+                      )}
                     </td>
                     <td className="px-4 py-3 border border-slate-200 text-center">
                       {record.latitude && record.longitude ? (
@@ -160,7 +176,7 @@ export const AttendanceList: React.FC = () => {
                 ))
               ) : (
                 <tr>
-                  <td colSpan={9} className="p-8 text-center text-slate-500 border border-slate-200">
+                  <td colSpan={10} className="p-8 text-center text-slate-500 border border-slate-200">
                     Belum ada data absensi.
                   </td>
                 </tr>
@@ -181,12 +197,21 @@ export const AttendanceList: React.FC = () => {
               records.map(record => (
                 <div key={record.id} className="p-4 hover:bg-slate-50 transition-colors flex flex-col gap-3">
                   <div className="flex justify-between items-start">
-                    <div className="flex flex-col">
-                      <span className="text-xs font-bold text-slate-400 mb-0.5">{format(new Date(record.date), 'dd MMM yyyy', { locale: id })}</span>
-                      <h3 className="font-extrabold text-school-blue text-base">{getStaffName(record.userId)}</h3>
-                      {getStaffPosition(record.userId) && (
-                        <span className="text-xs text-slate-500 font-medium">{getStaffPosition(record.userId)}</span>
-                      )}
+                    <div className="flex items-center gap-3">
+                      {record.selfieUrl ? (
+                        <button onClick={() => setLightboxUrl(record.selfieUrl!)} className="shrink-0">
+                          <div className="w-11 h-11 rounded-full overflow-hidden border-2 border-school-blue/30 shadow-sm">
+                            <img src={record.selfieUrl} alt="Selfie" className="w-full h-full object-cover" />
+                          </div>
+                        </button>
+                      ) : null}
+                      <div className="flex flex-col">
+                        <span className="text-xs font-bold text-slate-400 mb-0.5">{format(new Date(record.date), 'dd MMM yyyy', { locale: id })}</span>
+                        <h3 className="font-extrabold text-school-blue text-base">{getStaffName(record.userId)}</h3>
+                        {getStaffPosition(record.userId) && (
+                          <span className="text-xs text-slate-500 font-medium">{getStaffPosition(record.userId)}</span>
+                        )}
+                      </div>
                     </div>
                     <div>
                       {getStatusBadge(record.status)}
@@ -234,6 +259,29 @@ export const AttendanceList: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* Lightbox Modal for Selfie */}
+      {lightboxUrl && (
+        <div
+          className="fixed inset-0 z-[9999] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-200"
+          onClick={() => setLightboxUrl(null)}
+        >
+          <div
+            className="relative max-w-sm w-full animate-in zoom-in-95 duration-300"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              onClick={() => setLightboxUrl(null)}
+              className="absolute -top-3 -right-3 z-10 bg-white rounded-full p-1.5 shadow-lg hover:bg-slate-100 transition-colors"
+            >
+              <X size={20} className="text-slate-600" />
+            </button>
+            <div className="w-72 h-72 mx-auto rounded-full overflow-hidden border-4 border-white shadow-2xl">
+              <img src={lightboxUrl} alt="Foto Selfie Absensi" className="w-full h-full object-cover" />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

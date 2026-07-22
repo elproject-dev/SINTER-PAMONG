@@ -1,10 +1,12 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { User, AttendanceRecord } from '../../lib/types';
 import { getUserTodayAttendance, saveAttendance, getSchoolSettings } from '../../lib/db';
-import { Clock, Calendar, CheckCircle, XCircle, MapPin, Loader2 } from 'lucide-react';
+import { supabase } from '../../lib/supabase';
+import { Clock, Calendar, CheckCircle, XCircle, MapPin, Loader2, Camera } from 'lucide-react';
 import { format } from 'date-fns';
 import { id } from 'date-fns/locale';
 import { useRealtimeSubscription } from '../../lib/useRealtime';
+import { SelfieCamera } from '../../components/SelfieCamera';
 
 interface AbsensiProps {
   user: User;
@@ -28,6 +30,10 @@ export const Absensi: React.FC<AbsensiProps> = ({ user }) => {
   const [leaveNote, setLeaveNote] = useState('');
   const [isLocating, setIsLocating] = useState(false);
   const [locationError, setLocationError] = useState('');
+  const [showCamera, setShowCamera] = useState(false);
+  const [selfieBlob, setSelfieBlob] = useState<Blob | null>(null);
+  const [selfiePreview, setSelfiePreview] = useState<string | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
   
   const fetchAttendance = useCallback(async () => {
     setIsLoading(true);
@@ -42,13 +48,50 @@ export const Absensi: React.FC<AbsensiProps> = ({ user }) => {
 
   useRealtimeSubscription(['data_absensi'], fetchAttendance);
 
+  const uploadSelfie = async (blob: Blob): Promise<string | null> => {
+    const fileName = `${user.id}_${Date.now()}.jpg`;
+    const filePath = `selfie/${fileName}`;
+
+    const { error } = await supabase.storage
+      .from('selfie_absensi')
+      .upload(filePath, blob, {
+        contentType: 'image/jpeg',
+        upsert: false
+      });
+
+    if (error) {
+      console.error('Error uploading selfie:', error);
+      return null;
+    }
+
+    const { data: urlData } = supabase.storage
+      .from('selfie_absensi')
+      .getPublicUrl(filePath);
+
+    return urlData.publicUrl;
+  };
+
+  const handleSelfieCapture = (blob: Blob) => {
+    setSelfieBlob(blob);
+    const previewUrl = URL.createObjectURL(blob);
+    setSelfiePreview(previewUrl);
+    setShowCamera(false);
+  };
+
   const handleCheckIn = () => {
+    if (!selfieBlob) {
+      setShowCamera(true);
+      return;
+    }
+
     setIsLocating(true);
+    setIsUploading(true);
     setLocationError('');
     
     if (!navigator.geolocation) {
       setLocationError('Browser Anda tidak mendukung fitur lokasi (GPS).');
       setIsLocating(false);
+      setIsUploading(false);
       return;
     }
 
@@ -61,6 +104,16 @@ export const Absensi: React.FC<AbsensiProps> = ({ user }) => {
         if (distance > settings.maxRadius) {
           setLocationError(`Gagal: Anda berjarak ${Math.round(distance)} meter dari sekolah. (Lokasi Anda: ${latitude.toFixed(5)}, ${longitude.toFixed(5)}). Maksimal radius adalah ${settings.maxRadius} meter.`);
           setIsLocating(false);
+          setIsUploading(false);
+          return;
+        }
+
+        // Upload selfie
+        const selfieUrl = await uploadSelfie(selfieBlob);
+        if (!selfieUrl) {
+          setLocationError('Gagal mengunggah foto selfie. Silakan coba lagi.');
+          setIsLocating(false);
+          setIsUploading(false);
           return;
         }
 
@@ -71,11 +124,16 @@ export const Absensi: React.FC<AbsensiProps> = ({ user }) => {
           checkIn: new Date().toISOString(),
           status: 'present',
           latitude: latitude,
-          longitude: longitude
+          longitude: longitude,
+          selfieUrl: selfieUrl
         };
         saveAttendance(record).then(() => {
           setAttendance(record);
           setIsLocating(false);
+          setIsUploading(false);
+          setSelfieBlob(null);
+          if (selfiePreview) URL.revokeObjectURL(selfiePreview);
+          setSelfiePreview(null);
         });
       },
       (error) => {
@@ -89,6 +147,7 @@ export const Absensi: React.FC<AbsensiProps> = ({ user }) => {
         }
         setLocationError(errorMsg);
         setIsLocating(false);
+        setIsUploading(false);
       },
       { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
     );
@@ -146,7 +205,7 @@ export const Absensi: React.FC<AbsensiProps> = ({ user }) => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8">
             <div className="bg-gradient-to-br from-blue-50 to-indigo-50 p-5 sm:p-6 rounded-3xl border border-blue-100 shadow-sm relative overflow-hidden">
               <div className="absolute top-0 right-0 -mt-4 -mr-4 w-32 h-32 bg-white opacity-40 rounded-full blur-2xl"></div>
-              <h3 className="font-bold text-slate-800 text-lg mb-6 relative z-10">Absen Reguler</h3>
+              <h3 className="font-bold text-slate-800 text-lg mb-4 relative z-10">Absen Reguler</h3>
               
               {locationError && (
                 <div className="bg-rose-50 border border-rose-200 text-rose-700 px-4 py-3 rounded-xl mb-4 text-sm flex items-start animate-in fade-in relative z-10">
@@ -154,21 +213,46 @@ export const Absensi: React.FC<AbsensiProps> = ({ user }) => {
                   <p className="font-medium">{locationError}</p>
                 </div>
               )}
+
+              {/* Selfie Preview */}
+              {selfiePreview && (
+                <div className="relative z-10 mb-4 flex flex-col items-center gap-2">
+                  <div className="relative w-28 h-28 rounded-full overflow-hidden border-4 border-emerald-200 shadow-lg shadow-emerald-500/20">
+                    <img src={selfiePreview} alt="Selfie Preview" className="w-full h-full object-cover" />
+                    <div className="absolute inset-0 rounded-full border-2 border-white/30" />
+                  </div>
+                  <div className="flex items-center gap-1.5 text-emerald-600">
+                    <CheckCircle size={14} />
+                    <span className="text-xs font-bold">Foto selfie siap</span>
+                  </div>
+                  <button
+                    onClick={() => { setSelfieBlob(null); if (selfiePreview) URL.revokeObjectURL(selfiePreview); setSelfiePreview(null); setShowCamera(true); }}
+                    className="text-xs font-bold text-school-blue hover:text-blue-700 underline underline-offset-2 transition-colors"
+                  >
+                    Ambil Ulang Foto
+                  </button>
+                </div>
+              )}
               
               <button
                 onClick={handleCheckIn}
-                disabled={isLocating}
+                disabled={isLocating || isUploading}
                 className="relative z-10 w-full bg-gradient-to-r from-school-blue to-indigo-600 hover:from-blue-700 hover:to-indigo-700 disabled:from-slate-400 disabled:to-slate-500 text-white py-4 rounded-2xl font-bold transition-all flex items-center justify-center space-x-3 shadow-lg shadow-blue-500/30 hover:-translate-y-1 hover:shadow-blue-500/50 disabled:shadow-none disabled:transform-none disabled:cursor-not-allowed"
               >
-                {isLocating ? (
+                {isLocating || isUploading ? (
                   <>
                     <Loader2 size={22} className="animate-spin" />
-                    <span className="text-lg tracking-wide">Mencari Lokasi...</span>
+                    <span className="text-lg tracking-wide">{isUploading ? 'Mengunggah...' : 'Mencari Lokasi...'}</span>
                   </>
-                ) : (
+                ) : selfieBlob ? (
                   <>
                     <Clock size={22} className="animate-pulse" />
                     <span className="text-lg tracking-wide">Absen Masuk Sekarang</span>
+                  </>
+                ) : (
+                  <>
+                    <Camera size={22} />
+                    <span className="text-lg tracking-wide">Ambil Selfie & Absen</span>
                   </>
                 )}
               </button>
@@ -200,7 +284,11 @@ export const Absensi: React.FC<AbsensiProps> = ({ user }) => {
               <div className="text-center sm:text-left">
                 <p className="text-sm font-medium text-emerald-600/80 uppercase tracking-widest mb-1">Status Hari Ini</p>
                 <div className="flex flex-col sm:flex-row items-center justify-center sm:justify-start space-y-2 sm:space-y-0 sm:space-x-3 mt-1">
-                  {attendance.status === 'present' ? (
+                  {attendance.selfieUrl ? (
+                    <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-emerald-300 shadow-md shrink-0">
+                      <img src={attendance.selfieUrl} alt="Selfie" className="w-full h-full object-cover" />
+                    </div>
+                  ) : attendance.status === 'present' ? (
                     <div className="bg-emerald-100 p-2 rounded-full text-emerald-600">
                       <CheckCircle size={28} />
                     </div>
@@ -225,6 +313,13 @@ export const Absensi: React.FC<AbsensiProps> = ({ user }) => {
             </div>
             
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm relative z-10 bg-white/40 p-4 rounded-2xl">
+              {attendance.selfieUrl && (
+                <div className="col-span-2 flex justify-center pb-3 border-b border-emerald-100">
+                  <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-emerald-200 shadow-lg shadow-emerald-500/20">
+                    <img src={attendance.selfieUrl} alt="Foto Selfie Absensi" className="w-full h-full object-cover" />
+                  </div>
+                </div>
+              )}
               {attendance.checkIn && (
                 <div>
                   <p className="text-slate-500">Waktu Masuk</p>
@@ -269,6 +364,14 @@ export const Absensi: React.FC<AbsensiProps> = ({ user }) => {
           </div>
         )}
       </div>
+
+      {/* Selfie Camera Modal */}
+      {showCamera && (
+        <SelfieCamera
+          onCapture={handleSelfieCapture}
+          onClose={() => setShowCamera(false)}
+        />
+      )}
     </div>
   );
 };
