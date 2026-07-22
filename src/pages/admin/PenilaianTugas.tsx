@@ -65,7 +65,7 @@ export const AdminReviewLaporanTugas: React.FC = () => {
             link: r.link,
             catatan: `Update Laporan Utama`,
             createdAt: r.createdAt,
-            score: r.score,
+            score: r.score ?? undefined,
             status: r.status,
             isPrimary: true
           });
@@ -436,7 +436,7 @@ export const AdminReviewLaporanTugas: React.FC = () => {
                                   userId: selectedReport.userId,
                                   link: selectedReport.link!,
                                   catatan: '',
-                                  score: selectedReport.score,
+                                  score: selectedReport.score ?? undefined,
                                   adminFeedback: selectedReport.adminFeedback,
                                   createdAt: selectedReport.createdAt,
                                   isPrimary: true
