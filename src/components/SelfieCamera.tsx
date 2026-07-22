@@ -28,16 +28,16 @@ export const SelfieCamera: React.FC<SelfieCameraProps> = ({ onCapture, onClose }
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
         video: {
-          facingMode: 'user',
-          width: { ideal: 640 },
-          height: { ideal: 640 }
+          facingMode: 'user'
         },
         audio: false
       });
       streamRef.current = stream;
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
-        await videoRef.current.play();
+        videoRef.current.onloadedmetadata = () => {
+          videoRef.current?.play().catch(console.error);
+        };
       }
       setIsLoading(false);
     } catch (err: any) {
@@ -180,12 +180,38 @@ export const SelfieCamera: React.FC<SelfieCameraProps> = ({ onCapture, onClose }
           {/* Action Buttons */}
           <div className="flex items-center gap-3 w-full">
             {error ? (
-              <button
-                onClick={startCamera}
-                className="flex-1 bg-school-blue hover:bg-blue-700 text-white py-3 rounded-2xl font-bold transition-all flex items-center justify-center gap-2"
-              >
-                <RotateCcw size={18} /> Coba Lagi
-              </button>
+              <div className="flex flex-col gap-2 w-full">
+                <button
+                  onClick={startCamera}
+                  className="w-full bg-school-blue hover:bg-blue-700 text-white py-3 rounded-2xl font-bold transition-all flex items-center justify-center gap-2"
+                >
+                  <RotateCcw size={18} /> Coba Lagi
+                </button>
+                
+                {/* Tombol Bypass khusus untuk tahap testing/development */}
+                {import.meta.env.DEV && (
+                  <button
+                    onClick={() => {
+                      const canvas = document.createElement('canvas');
+                      canvas.width = 640;
+                      canvas.height = 640;
+                      const ctx = canvas.getContext('2d');
+                      if (ctx) {
+                        ctx.fillStyle = '#e2e8f0';
+                        ctx.fillRect(0, 0, 640, 640);
+                        ctx.fillStyle = '#64748b';
+                        ctx.font = 'bold 32px system-ui';
+                        ctx.textAlign = 'center';
+                        ctx.fillText('FOTO DUMMY (TESTING)', 320, 320);
+                        canvas.toBlob((blob) => { if (blob) onCapture(blob); }, 'image/jpeg');
+                      }
+                    }}
+                    className="w-full bg-slate-100 hover:bg-slate-200 text-slate-600 py-3 rounded-2xl font-bold transition-all flex items-center justify-center gap-2 text-sm"
+                  >
+                    Bypass Tanpa Kamera (Testing)
+                  </button>
+                )}
+              </div>
             ) : capturedImage ? (
               <>
                 <button
