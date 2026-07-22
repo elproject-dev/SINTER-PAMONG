@@ -141,36 +141,41 @@ export const SelfieCamera: React.FC<SelfieCameraProps> = ({ onCapture, onClose }
 
         {/* Camera / Preview Area */}
         <div className="p-5 flex flex-col items-center">
-          <div className="relative w-64 h-64 rounded-full overflow-hidden border-4 border-school-blue/20 shadow-lg shadow-blue-500/10 mb-5">
-            {error ? (
-              <div className="w-full h-full bg-slate-100 flex items-center justify-center p-6">
-                <p className="text-sm text-rose-500 font-medium text-center">{error}</p>
-              </div>
-            ) : isLoading ? (
-              <div className="w-full h-full bg-slate-100 flex flex-col items-center justify-center gap-3">
-                <Loader2 size={32} className="text-school-blue animate-spin" />
-                <p className="text-sm text-slate-500 font-medium">Memuat kamera...</p>
-              </div>
-            ) : capturedImage ? (
+          <div className="relative w-64 h-64 rounded-full overflow-hidden border-4 border-school-blue/20 shadow-lg shadow-blue-500/10 mb-5 bg-slate-100">
+            {/* Selalu render video agar referensi (ref) tidak null saat stream siap */}
+            <video
+              ref={videoRef}
+              autoPlay
+              playsInline
+              muted
+              className={`w-full h-full object-cover ${(!error && !isLoading && !capturedImage) ? 'block' : 'hidden'}`}
+              style={{ transform: 'scaleX(-1)' }}
+            />
+            
+            {capturedImage && (
               <img
                 src={capturedImage}
                 alt="Selfie Preview"
-                className="w-full h-full object-cover"
+                className="absolute inset-0 w-full h-full object-cover"
               />
-            ) : (
-              <video
-                ref={videoRef}
-                autoPlay
-                playsInline
-                muted
-                className="w-full h-full object-cover"
-                style={{ transform: 'scaleX(-1)' }}
-              />
+            )}
+
+            {isLoading && (
+              <div className="absolute inset-0 w-full h-full bg-slate-100 flex flex-col items-center justify-center gap-3 z-10">
+                <Loader2 size={32} className="text-school-blue animate-spin" />
+                <p className="text-sm text-slate-500 font-medium">Memuat kamera...</p>
+              </div>
+            )}
+
+            {error && (
+              <div className="absolute inset-0 w-full h-full bg-slate-100 flex items-center justify-center p-6 z-20">
+                <p className="text-sm text-rose-500 font-medium text-center">{error}</p>
+              </div>
             )}
 
             {/* Overlay ring effect */}
             {!error && !isLoading && !capturedImage && (
-              <div className="absolute inset-0 rounded-full border-4 border-white/20 pointer-events-none" />
+              <div className="absolute inset-0 rounded-full border-4 border-white/20 pointer-events-none z-30" />
             )}
           </div>
 
