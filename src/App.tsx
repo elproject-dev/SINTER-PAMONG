@@ -83,7 +83,7 @@ function App() {
           <Route path="penilaian-tugas" element={<AdminReviewLaporanTugas />} />
           <Route path="tugas-staff" element={<AdminTugasStaff />} />
           <Route path="settings" element={<AdminSettings user={user!} onUserUpdate={handleUpdateUser} />} />
-          <Route path="buku-saku" element={<BukuSaku />} />
+          <Route path="buku-saku" element={<BukuSaku user={user!} />} />
         </Route>
 
         {/* Staff Routes */}
@@ -93,7 +93,7 @@ function App() {
           <Route path="daftar-tugas" element={<DaftarTugas user={user!} />} />
           <Route path="nilai-kpi" element={<KPI user={user!} />} />
           <Route path="settings" element={<Settings user={user!} onUserUpdate={handleUpdateUser} />} />
-          <Route path="buku-saku" element={<BukuSaku />} />
+          <Route path="buku-saku" element={<BukuSaku user={user!} />} />
         </Route>
 
         <Route path="*" element={<Navigate to="/" replace />} />

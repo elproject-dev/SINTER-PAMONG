@@ -1,4 +1,5 @@
 import { User, AttendanceRecord, KPIEvaluation, TaskReport, SchoolSettings, MasterJabatan, StaffTask, TaskAttachment } from './types';
+import { format } from 'date-fns';
 import { supabase } from './supabase';
 
 export const initializeDB = async () => {
@@ -526,11 +527,12 @@ export const updatePosition = async (id: string, namaJabatan: string) => {
 
 // ================= TUGAS STAFF =================
 
-export const uploadTaskAttachment = async (file: File): Promise<string> => {
-  const filePath = file.name;
+export const uploadTaskAttachment = async (file: File, taskName: string): Promise<string> => {
+  const safeTaskName = taskName.replace(/[^a-zA-Z0-9_-]/g, '_');
+  const filePath = `${safeTaskName}/${file.name}`;
 
   const { error: uploadError } = await supabase.storage
-    .from('tugas_staff_attachments')
+    .from('lampiran_tugas_admin')
     .upload(filePath, file, { upsert: true });
 
   if (uploadError) {
@@ -539,13 +541,13 @@ export const uploadTaskAttachment = async (file: File): Promise<string> => {
   }
 
   const { data } = supabase.storage
-    .from('tugas_staff_attachments')
+    .from('lampiran_tugas_admin')
     .getPublicUrl(filePath);
 
   return data.publicUrl;
 };
 
-export const uploadProfilePicture = async (file: File): Promise<string> => {
+export const uploadProfilePicture = async (file: File, staffName: string, oldUrl?: string | null): Promise<string> => {
   // Kompresi ke format WebP
   const compressedFile = await new Promise<File>((resolve, reject) => {
     const img = new Image();
@@ -603,7 +605,52 @@ export const uploadProfilePicture = async (file: File): Promise<string> => {
     reader.readAsDataURL(file);
   });
 
-  const filePath = compressedFile.name;
+  const safeStaffName = staffName.replace(/[^a-zA-Z0-9_-]/g, '_');
+  const timestamp = new Date().getTime();
+  const filePath = `${safeStaffName}/profile_${timestamp}.webp`;
+
+  // Kumpulkan semua file yang mungkin perlu dihapus
+  const filesToDelete = new Set<string>();
+
+  if (oldUrl) {
+    try {
+      const urlObj = new URL(oldUrl);
+      const pathParts = urlObj.pathname.split('/');
+      const bucketIndex = pathParts.indexOf('profile_pictures');
+      if (bucketIndex !== -1 && pathParts.length > bucketIndex + 1) {
+        const oldFilePath = pathParts.slice(bucketIndex + 1).join('/');
+        filesToDelete.add(oldFilePath);
+      }
+    } catch (e) {
+      console.error('Failed to parse old photo url:', e);
+    }
+  }
+
+  // Juga hapus via list (pembersihan ekstra semua file di folder user)
+  try {
+    const { data: existingFiles } = await supabase.storage
+      .from('profile_pictures')
+      .list(safeStaffName);
+    
+    if (existingFiles && existingFiles.length > 0) {
+      existingFiles.forEach(f => {
+        // Jangan hapus .emptyFolderPlaceholder
+        if (f.name !== '.emptyFolderPlaceholder') {
+          filesToDelete.add(`${safeStaffName}/${f.name}`);
+        }
+      });
+    }
+  } catch (e) {
+    console.error('List failed:', e);
+  }
+
+  // Eksekusi penghapusan semua file lama sebelum upload baru
+  if (filesToDelete.size > 0) {
+    const { error: removeError } = await supabase.storage.from('profile_pictures').remove(Array.from(filesToDelete));
+    if (removeError) {
+      console.error('Warning: Failed to delete old profile pictures (RLS issue?):', removeError);
+    }
+  }
 
   const { error: uploadError } = await supabase.storage
     .from('profile_pictures')
@@ -793,4 +840,112 @@ export const getUserMonthlyAttendance = async (userId: string): Promise<Attendan
     longitude: d.longitude,
     selfieUrl: d.selfie_url
   }));
+};
+
+// ================= BUKU SAKU =================
+
+export const getMediaBukuSaku = async (): Promise<any[]> => {
+  const { data, error } = await supabase
+    .from('media_buku_saku')
+    .select(`
+      *,
+      uploader:uploader_id(name, position),
+      targetUser:target_user_id(name, position)
+    `)
+    .order('created_at', { ascending: false });
+
+  if (error) {
+    console.error('Error fetching media:', error);
+    return [];
+  }
+
+  return data.map((item: any) => ({
+    id: item.id,
+    judul: item.judul,
+    deskripsi: item.deskripsi,
+    fileUrl: item.file_url,
+    fileType: item.file_type,
+    uploaderId: item.uploader_id,
+    targetUserId: item.target_user_id,
+    createdAt: item.created_at,
+    uploaderName: item.uploader?.name || 'Admin',
+    uploaderPosition: item.uploader?.position,
+    targetUserName: item.targetUser?.name,
+    targetUserPosition: item.targetUser?.position
+  }));
+};
+
+export const uploadMediaFile = async (file: File, folderName?: string): Promise<string> => {
+  const dateStr = format(new Date(), 'ddMMMyyyy').toUpperCase();
+  const safeName = file.name.replace(/[^a-zA-Z0-9.-]/g, '_');
+  const fileName = `${dateStr}_${safeName}`;
+  const path = folderName ? `${folderName}/${fileName}` : `Global/${fileName}`;
+
+  const { error: uploadError } = await supabase.storage
+    .from('buku_saku_media')
+    .upload(path, file, { upsert: true });
+
+  if (uploadError) throw uploadError;
+
+  const { data } = supabase.storage
+    .from('buku_saku_media')
+    .getPublicUrl(path);
+
+  return data.publicUrl;
+};
+
+export const addMediaBukuSaku = async (media: any) => {
+  const { error } = await supabase
+    .from('media_buku_saku')
+    .insert([{
+      judul: media.judul,
+      deskripsi: media.deskripsi,
+      file_url: media.fileUrl,
+      uploader_id: media.uploaderId,
+      target_user_id: media.targetUserId || null
+    }]);
+  if (error) throw error;
+};
+
+export const updateMediaBukuSaku = async (id: string, media: any) => {
+  const updateData: any = {
+    judul: media.judul,
+    deskripsi: media.deskripsi,
+    target_user_id: media.targetUserId || null
+  };
+  if (media.fileUrl) {
+    updateData.file_url = media.fileUrl;
+  }
+  
+  const { error } = await supabase
+    .from('media_buku_saku')
+    .update(updateData)
+    .eq('id', id);
+    
+  if (error) throw error;
+};
+
+export const deleteMediaBukuSaku = async (id: string, fileUrl: string) => {
+  // Extract path from URL for storage deletion
+  const urlParts = fileUrl.split('/buku_saku_media/');
+  if (urlParts.length > 1) {
+    const path = urlParts[1];
+    await supabase.storage.from('buku_saku_media').remove([path]);
+  }
+
+  const { error } = await supabase
+    .from('media_buku_saku')
+    .delete()
+    .eq('id', id);
+  if (error) throw error;
+};
+
+export const getStaffList = async () => {
+  const { data, error } = await supabase
+    .from('profil_pengguna')
+    .select('id, name, position')
+    .eq('role', 'staff')
+    .order('name');
+  if (error) throw error;
+  return data;
 };

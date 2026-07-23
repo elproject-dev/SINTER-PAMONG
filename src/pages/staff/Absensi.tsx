@@ -54,15 +54,13 @@ export const Absensi: React.FC<AbsensiProps> = ({ user }) => {
   useRealtimeSubscription(['data_absensi'], fetchAttendance);
 
   const uploadSelfie = async (blob: Blob): Promise<string | null> => {
-    // Format tanggal menjadi DDMMMYYYY (contoh: 22JUN2026)
+
     const dateStr = format(new Date(), 'ddMMMyyyy').toUpperCase();
-
-    // Bersihkan spasi dan karakter khusus dari nama user
     const safeName = user.name.replace(/[^a-zA-Z0-9]/g, '_');
-
-    // Format nama folder: 22JUN2026_selfie_Budi_Santoso
-    const folderName = `${dateStr}_selfie_${safeName}`;
-    const fileName = `foto_${Date.now()}.jpg`;
+    
+    // Format nama folder: Hanya nama staff saja
+    const folderName = safeName;
+    const fileName = `selfie_${dateStr}_${safeName}.JPG`;
     const filePath = `${folderName}/${fileName}`;
 
     const { error } = await supabase.storage

@@ -94,3 +94,17 @@ export interface TaskAttachment {
   createdAt: string;
   isPrimary?: boolean;
 }
+
+export interface MediaBukuSaku {
+  id: string;
+  judul: string;
+  deskripsi?: string;
+  fileUrl: string;
+  uploaderId: string;
+  uploaderName?: string;
+  uploaderPosition?: string;
+  targetUserId?: string | null;
+  targetUserName?: string | null;
+  targetUserPosition?: string | null;
+  createdAt: string;
+}

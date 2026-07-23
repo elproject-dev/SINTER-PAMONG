@@ -83,7 +83,7 @@ export const AdminTugasStaff: React.FC = () => {
       let lampiranUrl: string | undefined = undefined;
 
       if (newMedia) {
-        lampiranUrl = await uploadTaskAttachment(newMedia);
+        lampiranUrl = await uploadTaskAttachment(newMedia, newTaskName.trim());
       }
 
       if (editingTaskId) {
