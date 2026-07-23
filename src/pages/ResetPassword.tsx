@@ -76,7 +76,7 @@ export const ResetPassword: React.FC = () => {
         background: `linear-gradient(135deg, ${primaryDarker} 0%, ${primaryDark} 50%, ${primaryColor} 100%)`
       }}
     >
-      <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-white dark:bg-slate-800/5 blur-[100px] pointer-events-none"></div>
+      
       <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-black/20 blur-[100px] pointer-events-none"></div>
 
       <div className="w-full max-w-[420px] relative z-10">
@@ -87,7 +87,7 @@ export const ResetPassword: React.FC = () => {
         <div className="relative group">
           <div className="absolute -inset-1 bg-gradient-to-r from-white/20 to-white/0 rounded-[2rem] blur opacity-30 transition duration-1000"></div>
 
-          <div className="relative bg-white dark:bg-slate-800/10 backdrop-blur-2xl rounded-[2rem] border border-white/20 shadow-[0_8px_32px_0_rgba(0,0,0,0.3)] p-8 sm:p-10 flex flex-col items-center">
+          <div className="relative bg-white/10 dark:bg-slate-800/10 backdrop-blur-2xl rounded-[2rem] border border-white/20 shadow-[0_8px_32px_0_rgba(0,0,0,0.3)] p-8 sm:p-10 flex flex-col items-center">
             
             <div className="w-full mb-6">
               <h2 className="text-xl font-bold text-white mb-2">Buat Kata Sandi Baru</h2>
@@ -159,6 +159,8 @@ export const ResetPassword: React.FC = () => {
     </div>
   );
 };
+
+
 
 
 
