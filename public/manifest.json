@@ -1,11 +1,11 @@
 {
   "name": "SINTER PAMONG",
-  "short_name": "SINTER",
+  "short_name": "SINTER-PAMONG",
+  "version": "1.0.0",
   "description": "Sistem Informasi Tenaga Pendidik Pamong - Manajemen absensi, tugas, dan penilaian kinerja.",
   "start_url": "/SINTER-PAMONG/",
   "scope": "/SINTER-PAMONG/",
   "display": "standalone",
-  "orientation": "any",
   "theme_color": "#000000",
   "background_color": "#ffffff",
   "icons": [
@@ -28,6 +28,9 @@
       "purpose": "any maskable"
     }
   ],
-  "categories": ["education", "productivity"],
+  "categories": [
+    "education",
+    "productivity"
+  ],
   "lang": "id"
 }

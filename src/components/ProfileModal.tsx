@@ -34,7 +34,7 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
       } else {
         await supabase.auth.signOut();
         localStorage.removeItem('hr_current_user');
-        window.location.href = '/';
+        window.location.href = import.meta.env.BASE_URL || '/';
       }
     }
   };
