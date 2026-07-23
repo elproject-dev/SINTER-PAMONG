@@ -20,7 +20,7 @@ export const Layout: React.FC<LayoutProps> = ({ user, onLogout, allowedRole }) =
   }
 
   return (
-    <div className="flex h-screen bg-slate-50 font-sans overflow-hidden">
+    <div className="flex h-screen bg-slate-50 dark:bg-slate-900 font-sans overflow-hidden">
       <Sidebar 
         user={user} 
         onLogout={onLogout} 
@@ -37,3 +37,19 @@ export const Layout: React.FC<LayoutProps> = ({ user, onLogout, allowedRole }) =
     </div>
   );
 };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

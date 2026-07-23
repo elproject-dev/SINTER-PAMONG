@@ -160,11 +160,11 @@ export const AdminStaffList: React.FC = () => {
     <div className="w-full space-y-8">
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div>
-          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-slate-800 mb-1 sm:mb-2 tracking-tight">Daftar Staf & Guru</h1>
-          <p className="text-slate-500 text-sm sm:text-base lg:text-lg">Kelola dan lihat profil seluruh pegawai sekolah</p>
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-slate-800 dark:text-slate-50 mb-1 sm:mb-2 tracking-tight">Daftar Staf & Guru</h1>
+          <p className="text-slate-500 dark:text-slate-400 text-sm sm:text-base lg:text-lg">Kelola dan lihat profil seluruh pegawai sekolah</p>
         </div>
 
-        <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto shrink-0 bg-white md:bg-transparent p-4 md:p-0 rounded-2xl md:rounded-none shadow-sm md:shadow-none border border-slate-100 md:border-none">
+        <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto shrink-0 bg-white dark:bg-slate-800 md:bg-transparent p-4 md:p-0 rounded-2xl md:rounded-none shadow-sm md:shadow-none border border-slate-100 dark:border-slate-700 md:border-none">
           <div className="relative w-full sm:w-64 shrink-0">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
               <Search size={20} />
@@ -174,7 +174,7 @@ export const AdminStaffList: React.FC = () => {
               placeholder="Cari nama atau jabatan..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full bg-white border border-slate-200 rounded-xl py-2 pr-4 pl-10 text-slate-700 focus:ring-4 focus:ring-school-blue/10 focus:border-school-blue outline-none transition-all shadow-sm font-medium text-sm"
+              className="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl py-2 pr-4 pl-10 text-slate-700 dark:text-slate-200 focus:ring-4 focus:ring-school-blue/10 focus:border-school-blue outline-none transition-all shadow-sm font-medium text-sm"
             />
           </div>
 
@@ -195,15 +195,15 @@ export const AdminStaffList: React.FC = () => {
 
       {/* Form Tambah Jabatan */}
       {showJabatanForm && (
-        <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 animate-in slide-in-from-top-4 fade-in duration-300">
-          <h2 className="font-bold text-slate-800 text-lg mb-4 flex items-center gap-2 border-b border-slate-100 pb-3">
-            <Plus size={20} className="text-school-blue" />
+        <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-6 animate-in slide-in-from-top-4 fade-in duration-300">
+          <h2 className="font-bold text-slate-800 dark:text-slate-50 text-lg mb-4 flex items-center gap-2 border-b border-slate-100 dark:border-slate-700 pb-3">
+            <Plus size={20} className="text-school-blue dark:text-white" />
             Tambah Jabatan Baru
           </h2>
 
           <form onSubmit={handleAddJabatan} className="flex flex-col sm:flex-row gap-4 items-end">
             <div className="w-full space-y-1">
-              <label className="text-sm font-bold text-slate-700">Nama Jabatan <span className="text-rose-500">*</span></label>
+              <label className="text-sm font-bold text-slate-700 dark:text-slate-200">Nama Jabatan <span className="text-rose-500">*</span></label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
                   <Briefcase size={18} />
@@ -214,7 +214,7 @@ export const AdminStaffList: React.FC = () => {
                   placeholder="Contoh: Guru Matematika"
                   value={newJabatanName}
                   onChange={(e) => setNewJabatanName(e.target.value)}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl py-2 pr-4 pl-10 text-slate-700 focus:ring-4 focus:ring-school-blue/10 focus:border-school-blue outline-none transition-all shadow-sm font-medium text-sm"
+                  className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl py-2 pr-4 pl-10 text-slate-700 dark:text-slate-200 focus:ring-4 focus:ring-school-blue/10 focus:border-school-blue outline-none transition-all shadow-sm font-medium text-sm"
                 />
               </div>
             </div>
@@ -229,12 +229,12 @@ export const AdminStaffList: React.FC = () => {
           </form>
 
           {/* Daftar Jabatan Saat Ini */}
-          <div className="mt-8 pt-6 border-t border-slate-100">
-            <h3 className="font-bold text-slate-800 text-sm mb-3">Daftar Jabatan Saat Ini</h3>
+          <div className="mt-8 pt-6 border-t border-slate-100 dark:border-slate-700">
+            <h3 className="font-bold text-slate-800 dark:text-slate-50 text-sm mb-3">Daftar Jabatan Saat Ini</h3>
             {availablePositions.length > 0 ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                 {availablePositions.map(pos => (
-                  <div key={pos.id} className="flex items-center justify-between p-3 rounded-xl border border-slate-200 bg-slate-50 hover:bg-white hover:shadow-sm transition-all group">
+                  <div key={pos.id} className="flex items-center justify-between p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 hover:bg-white dark:bg-slate-800 hover:shadow-sm transition-all group">
                     {editingJabatanId === pos.id ? (
                       <form onSubmit={handleUpdateJabatan} className="flex flex-1 items-center gap-2">
                         <input
@@ -243,7 +243,7 @@ export const AdminStaffList: React.FC = () => {
                           required
                           value={editJabatanName}
                           onChange={(e) => setEditJabatanName(e.target.value)}
-                          className="w-full bg-white border border-school-blue rounded-lg px-2.5 py-1.5 text-sm font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-school-blue/20"
+                          className="w-full bg-white dark:bg-slate-800 border border-school-blue rounded-lg px-2.5 py-1.5 text-sm font-semibold text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-school-blue/20"
                         />
                         <button
                           type="submit"
@@ -255,25 +255,25 @@ export const AdminStaffList: React.FC = () => {
                         <button
                           type="button"
                           onClick={() => { setEditingJabatanId(null); setEditJabatanName(''); }}
-                          className="p-1.5 rounded-lg bg-slate-200 text-slate-700 hover:bg-slate-300 transition-colors"
+                          className="p-1.5 rounded-lg bg-slate-200 text-slate-700 dark:text-slate-200 hover:bg-slate-300 transition-colors"
                         >
                           <X size={16} />
                         </button>
                       </form>
                     ) : (
                       <>
-                        <span className="font-semibold text-slate-700 text-sm truncate pr-2">{pos.nama_jabatan}</span>
+                        <span className="font-semibold text-slate-700 dark:text-slate-200 text-sm truncate pr-2">{pos.nama_jabatan}</span>
                         <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                           <button
                             onClick={() => { setEditingJabatanId(pos.id); setEditJabatanName(pos.nama_jabatan); }}
-                            className="p-1.5 rounded-lg text-school-blue hover:bg-blue-50 transition-colors"
+                            className="p-1.5 rounded-lg text-school-blue dark:text-white hover:bg-blue-50 dark:bg-slate-800 dark:hover:bg-slate-700 transition-colors"
                             title="Edit Jabatan"
                           >
                             <Edit size={14} />
                           </button>
                           <button
                             onClick={() => handleDeleteJabatan(pos.id)}
-                            className="p-1.5 rounded-lg text-rose-500 hover:bg-rose-50 transition-colors"
+                            className="p-1.5 rounded-lg text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-900/50 transition-colors"
                             title="Hapus Jabatan"
                           >
                             <Trash2 size={14} />
@@ -285,7 +285,7 @@ export const AdminStaffList: React.FC = () => {
                 ))}
               </div>
             ) : (
-              <p className="text-sm text-slate-500 italic text-center py-4 border border-dashed border-slate-200 rounded-xl">Belum ada jabatan yang ditambahkan.</p>
+              <p className="text-sm text-slate-500 dark:text-slate-400 italic text-center py-4 border border-dashed border-slate-200 dark:border-slate-700 rounded-xl">Belum ada jabatan yang ditambahkan.</p>
             )}
           </div>
         </div>
@@ -293,19 +293,19 @@ export const AdminStaffList: React.FC = () => {
 
       {/* Form Penugasan Inline */}
       {isModalOpen && selectedUser && (
-        <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 animate-in slide-in-from-top-4 fade-in duration-300">
-          <div className="flex items-start justify-between mb-4 border-b border-slate-100 pb-3 gap-3">
-            <h2 className="font-bold text-slate-800 text-base sm:text-lg flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 flex-1 min-w-0">
+        <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-6 animate-in slide-in-from-top-4 fade-in duration-300">
+          <div className="flex items-start justify-between mb-4 border-b border-slate-100 dark:border-slate-700 pb-3 gap-3">
+            <h2 className="font-bold text-slate-800 dark:text-slate-50 text-base sm:text-lg flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 flex-1 min-w-0">
               <span className="leading-tight">
                 Penugasan / Edit Profil
               </span>
-              <span className="text-school-blue sm:text-slate-800 leading-tight">
+              <span className="text-school-blue dark:text-white sm:text-slate-800 dark:text-slate-50 leading-tight">
                 {selectedUser.name}
               </span>
             </h2>
             <button
               onClick={() => setIsModalOpen(false)}
-              className="text-slate-400 hover:text-slate-600 transition-colors p-1.5 sm:p-2 rounded-full hover:bg-slate-100 shrink-0 -mt-1 sm:mt-0"
+              className="text-slate-400 hover:text-slate-600 dark:text-slate-300 transition-colors p-1.5 sm:p-2 rounded-full hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700 shrink-0 -mt-1 sm:mt-0"
               title="Tutup Form"
             >
               <X size={20} />
@@ -315,9 +315,9 @@ export const AdminStaffList: React.FC = () => {
           <form onSubmit={handleAssignSave} className="space-y-5">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
               <div className="relative">
-                <label className="block text-sm font-bold text-slate-700 mb-2">Hak Akses Sistem <span className="text-rose-500">*</span></label>
+                <label className="block text-sm font-bold text-slate-700 dark:text-slate-200 mb-2">Hak Akses Sistem <span className="text-rose-500">*</span></label>
                 <div
-                  className="w-full bg-white border border-slate-200 text-slate-800 rounded-xl px-4 py-3 flex justify-between items-center cursor-pointer hover:border-school-blue/50 transition-all"
+                  className="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-50 rounded-xl px-4 py-3 flex justify-between items-center cursor-pointer hover:border-school-blue/50 transition-all"
                   onClick={() => setIsRoleDropdownOpen(!isRoleDropdownOpen)}
                 >
                   <span className="font-medium text-sm">
@@ -327,39 +327,39 @@ export const AdminStaffList: React.FC = () => {
                 </div>
 
                 {isRoleDropdownOpen && (
-                  <div className="absolute z-20 w-full mt-2 bg-white border border-slate-200 rounded-xl shadow-xl max-h-56 overflow-auto py-2 animate-in fade-in slide-in-from-top-2">
+                  <div className="absolute z-20 w-full mt-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-xl max-h-56 overflow-auto py-2 animate-in fade-in slide-in-from-top-2">
                     <div
-                      className="px-4 py-2.5 hover:bg-slate-50 cursor-pointer flex justify-between items-center transition-colors"
+                      className="px-4 py-2.5 hover:bg-slate-50 dark:hover:bg-slate-700 cursor-pointer flex justify-between items-center transition-colors"
                       onClick={() => {
                         setAssignRole('staff');
                         setIsRoleDropdownOpen(false);
                       }}
                     >
-                      <span className={`font-medium text-sm ${assignRole === 'staff' ? 'text-school-blue' : 'text-slate-700'}`}>
+                      <span className={`font-medium text-sm ${assignRole === 'staff' ? 'text-school-blue dark:text-white' : 'text-slate-700 dark:text-slate-200'}`}>
                         Staf / Guru / Pegawai
                       </span>
-                      {assignRole === 'staff' && <Check size={16} className="text-school-blue" />}
+                      {assignRole === 'staff' && <Check size={16} className="text-school-blue dark:text-white" />}
                     </div>
                     <div
-                      className="px-4 py-2.5 hover:bg-slate-50 cursor-pointer flex justify-between items-center transition-colors"
+                      className="px-4 py-2.5 hover:bg-slate-50 dark:hover:bg-slate-700 cursor-pointer flex justify-between items-center transition-colors"
                       onClick={() => {
                         setAssignRole('admin');
                         setIsRoleDropdownOpen(false);
                       }}
                     >
-                      <span className={`font-medium text-sm ${assignRole === 'admin' ? 'text-school-blue' : 'text-slate-700'}`}>
+                      <span className={`font-medium text-sm ${assignRole === 'admin' ? 'text-school-blue dark:text-white' : 'text-slate-700 dark:text-slate-200'}`}>
                         Admin / Manajemen
                       </span>
-                      {assignRole === 'admin' && <Check size={16} className="text-school-blue" />}
+                      {assignRole === 'admin' && <Check size={16} className="text-school-blue dark:text-white" />}
                     </div>
                   </div>
                 )}
               </div>
 
               <div className="relative">
-                <label className="block text-sm font-bold text-slate-700 mb-2">Jabatan Utama</label>
+                <label className="block text-sm font-bold text-slate-700 dark:text-slate-200 mb-2">Jabatan Utama</label>
                 <div
-                  className="w-full bg-white border border-slate-200 text-slate-800 rounded-xl px-4 py-3 flex justify-between items-center cursor-pointer hover:border-school-blue/50 transition-all"
+                  className="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-50 rounded-xl px-4 py-3 flex justify-between items-center cursor-pointer hover:border-school-blue/50 transition-all"
                   onClick={() => setIsPositionDropdownOpen(!isPositionDropdownOpen)}
                 >
                   <span className={`text-sm ${assignPosition ? 'font-medium' : 'text-slate-400'}`}>
@@ -369,20 +369,20 @@ export const AdminStaffList: React.FC = () => {
                 </div>
 
                 {isPositionDropdownOpen && (
-                  <div className="absolute z-10 w-full mt-2 bg-white border border-slate-200 rounded-xl shadow-xl max-h-56 overflow-auto py-2 animate-in fade-in slide-in-from-top-2">
+                  <div className="absolute z-10 w-full mt-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-xl max-h-56 overflow-auto py-2 animate-in fade-in slide-in-from-top-2">
                     {availablePositions.map(pos => (
                       <div
                         key={pos.id}
-                        className="px-4 py-2.5 hover:bg-slate-50 cursor-pointer flex justify-between items-center transition-colors"
+                        className="px-4 py-2.5 hover:bg-slate-50 dark:hover:bg-slate-700 cursor-pointer flex justify-between items-center transition-colors"
                         onClick={() => {
                           setAssignPosition(pos.nama_jabatan);
                           setIsPositionDropdownOpen(false);
                         }}
                       >
-                        <span className={`font-medium text-sm ${assignPosition === pos.nama_jabatan ? 'text-school-blue' : 'text-slate-700'}`}>
+                        <span className={`font-medium text-sm ${assignPosition === pos.nama_jabatan ? 'text-school-blue dark:text-white' : 'text-slate-700 dark:text-slate-200'}`}>
                           {pos.nama_jabatan}
                         </span>
-                        {assignPosition === pos.nama_jabatan && <Check size={16} className="text-school-blue" />}
+                        {assignPosition === pos.nama_jabatan && <Check size={16} className="text-school-blue dark:text-white" />}
                       </div>
                     ))}
                   </div>
@@ -392,20 +392,20 @@ export const AdminStaffList: React.FC = () => {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5 items-end">
               <div>
-                <label className="block text-sm font-bold text-slate-700 mb-2">Kontak / No Telp</label>
+                <label className="block text-sm font-bold text-slate-700 dark:text-slate-200 mb-2">Kontak / No Telp</label>
                 <input
                   type="text"
                   value={assignPhone}
                   onChange={(e) => setAssignPhone(e.target.value)}
                   placeholder="Contoh: 081234567890"
-                  className="w-full bg-slate-50 border border-slate-200 text-slate-800 placeholder:text-slate-400 rounded-xl px-4 py-3 focus:border-school-blue outline-none focus:ring-4 focus:ring-school-blue/10 transition-all text-sm font-medium"
+                  className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-50 placeholder:text-slate-400 rounded-xl px-4 py-3 focus:border-school-blue outline-none focus:ring-4 focus:ring-school-blue/10 transition-all text-sm font-medium"
                 />
               </div>
 
-              <div className="flex items-center justify-between p-3.5 bg-slate-50 rounded-xl border border-slate-200">
+              <div className="flex items-center justify-between p-3.5 bg-slate-50 dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700">
                 <div>
-                  <label className="block text-sm font-bold text-slate-700">Status Akun</label>
-                  <p className="text-xs text-slate-500 mt-0.5">Berikan akses masuk ke sistem.</p>
+                  <label className="block text-sm font-bold text-slate-700 dark:text-slate-200">Status Akun</label>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Berikan akses masuk ke sistem.</p>
                 </div>
                 <button
                   type="button"
@@ -418,7 +418,7 @@ export const AdminStaffList: React.FC = () => {
                 >
                   <span
                     aria-hidden="true"
-                    className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
+                    className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white dark:bg-slate-800 shadow ring-0 transition duration-200 ease-in-out ${
                       assignIsApproved ? 'translate-x-5' : 'translate-x-0'
                     }`}
                   />
@@ -426,11 +426,11 @@ export const AdminStaffList: React.FC = () => {
               </div>
             </div>
 
-            <div className="flex flex-col sm:flex-row justify-end gap-3 pt-4 mt-2 border-t border-slate-100">
+            <div className="flex flex-col sm:flex-row justify-end gap-3 pt-4 mt-2 border-t border-slate-100 dark:border-slate-700">
               <button
                 type="button"
                 onClick={() => setIsModalOpen(false)}
-                className="w-full sm:w-auto px-6 py-2 rounded-xl border-2 border-slate-200 text-slate-600 font-bold hover:bg-slate-50 hover:text-slate-700 hover:border-slate-300 transition-all text-sm flex items-center justify-center gap-2"
+                className="w-full sm:w-auto px-6 py-2 rounded-xl border-2 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 font-bold hover:bg-slate-50 dark:hover:bg-slate-700 hover:text-slate-700 dark:text-slate-200 hover:border-slate-300 transition-all text-sm flex items-center justify-center gap-2"
               >
                 <X size={18} /> Tutup Form
               </button>
@@ -450,54 +450,54 @@ export const AdminStaffList: React.FC = () => {
         </div>
       )}
 
-      <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-        <div className="p-4 border-b border-slate-200 flex items-center space-x-2 bg-white">
-          <Users size={20} className="text-slate-600" />
-          <h2 className="font-bold text-slate-800 text-lg">Data Staf & Guru</h2>
+      <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
+        <div className="p-4 border-b border-slate-200 dark:border-slate-700 flex items-center space-x-2 bg-white dark:bg-slate-800">
+          <Users size={20} className="text-slate-600 dark:text-slate-300" />
+          <h2 className="font-bold text-slate-800 dark:text-slate-50 text-lg">Data Staf & Guru</h2>
         </div>
         <div className="overflow-x-auto">
           {/* Desktop Table View */}
           <table className="w-full text-left border-collapse min-w-[800px] hidden lg:table">
             <thead>
-              <tr className="bg-slate-50 text-slate-500 text-xs uppercase tracking-wider">
-                <th className="px-4 py-3 font-bold border border-slate-200 w-12 text-center">NO</th>
-                <th className="px-4 py-3 font-bold border border-slate-200">NAMA LENGKAP</th>
-                <th className="px-4 py-3 font-bold border border-slate-200">EMAIL</th>
-                <th className="px-4 py-3 font-bold border border-slate-200">PROFESI / JABATAN</th>
-                <th className="px-4 py-3 font-bold border border-slate-200">NO TELP</th>
-                <th className="px-4 py-3 font-bold border border-slate-200 text-center">STATUS</th>
-                <th className="px-4 py-3 font-bold border border-slate-200 text-center w-24">AKSI</th>
+              <tr className="bg-slate-50 dark:bg-slate-900 text-slate-500 dark:text-slate-400 text-xs uppercase tracking-wider">
+                <th className="px-4 py-3 font-bold border border-slate-200 dark:border-slate-700 w-12 text-center">NO</th>
+                <th className="px-4 py-3 font-bold border border-slate-200 dark:border-slate-700">NAMA LENGKAP</th>
+                <th className="px-4 py-3 font-bold border border-slate-200 dark:border-slate-700">EMAIL</th>
+                <th className="px-4 py-3 font-bold border border-slate-200 dark:border-slate-700">PROFESI / JABATAN</th>
+                <th className="px-4 py-3 font-bold border border-slate-200 dark:border-slate-700">NO TELP</th>
+                <th className="px-4 py-3 font-bold border border-slate-200 dark:border-slate-700 text-center">STATUS</th>
+                <th className="px-4 py-3 font-bold border border-slate-200 dark:border-slate-700 text-center w-24">AKSI</th>
               </tr>
             </thead>
             <tbody>
               {isLoading ? (
                 <tr>
-                  <td colSpan={7} className="p-12 text-center text-slate-500 border border-slate-200">
-                    <div className="flex justify-center mb-3 text-school-blue">
+                  <td colSpan={7} className="p-12 text-center text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-700">
+                    <div className="flex justify-center mb-3 text-school-blue dark:text-white">
                       <Loader2 size={32} className="animate-spin" />
                     </div>
-                    <p className="font-bold text-lg text-slate-600 mb-1">Memuat Data...</p>
+                    <p className="font-bold text-lg text-slate-600 dark:text-slate-300 mb-1">Memuat Data...</p>
                   </td>
                 </tr>
               ) : filteredStaff.length > 0 ? (
                 filteredStaff.map((user, index) => (
-                  <tr key={user.id} className="hover:bg-slate-50 transition-colors">
-                    <td className="px-4 py-3 border border-slate-200 text-center text-sm font-medium text-slate-500">
+                  <tr key={user.id} className="hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
+                    <td className="px-4 py-3 border border-slate-200 dark:border-slate-700 text-center text-sm font-medium text-slate-500 dark:text-slate-400">
                       {index + 1}
                     </td>
-                    <td className="px-4 py-3 border border-slate-200 text-sm font-bold text-slate-800">
+                    <td className="px-4 py-3 border border-slate-200 dark:border-slate-700 text-sm font-bold text-slate-800 dark:text-slate-50">
                       {user.name}
                     </td>
-                    <td className="px-4 py-3 border border-slate-200 text-sm text-slate-700">
+                    <td className="px-4 py-3 border border-slate-200 dark:border-slate-700 text-sm text-slate-700 dark:text-slate-200">
                       {user.email || '-'}
                     </td>
-                    <td className="px-4 py-3 border border-slate-200 text-sm text-slate-700">
+                    <td className="px-4 py-3 border border-slate-200 dark:border-slate-700 text-sm text-slate-700 dark:text-slate-200">
                       {user.position}
                     </td>
-                    <td className="px-4 py-3 border border-slate-200 text-sm text-slate-700">
+                    <td className="px-4 py-3 border border-slate-200 dark:border-slate-700 text-sm text-slate-700 dark:text-slate-200">
                       {user.phone || '-'}
                     </td>
-                    <td className="px-4 py-3 border border-slate-200 text-center text-sm">
+                    <td className="px-4 py-3 border border-slate-200 dark:border-slate-700 text-center text-sm">
                       {user.isApproved ? (
                         <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-500 text-white shadow-sm border border-emerald-600">
                           <CheckCircle size={12} className="mr-1" /> Aktif
@@ -508,15 +508,15 @@ export const AdminStaffList: React.FC = () => {
                         </span>
                       )}
                     </td>
-                    <td className="px-4 py-3 border border-slate-200">
+                    <td className="px-4 py-3 border border-slate-200 dark:border-slate-700">
                       <div className="flex items-center justify-end gap-1">
                         <button
                           onClick={() => openAssignModal(user)}
                           title={!user.isApproved ? 'Tugaskan' : 'Edit'}
                           className={`p-2 rounded-full transition-colors ${
                             !user.isApproved 
-                              ? 'text-amber-500 hover:bg-amber-50 hover:text-amber-600' 
-                              : 'text-school-blue hover:bg-blue-50 hover:text-blue-700'
+                              ? 'text-amber-500 hover:bg-amber-50 dark:hover:bg-amber-900/50 hover:text-amber-600' 
+                              : 'text-school-blue dark:text-white hover:bg-blue-50 dark:bg-slate-800 dark:hover:bg-slate-700 hover:text-blue-700 dark:hover:text-slate-300'
                           }`}
                         >
                           {!user.isApproved ? <Settings size={18} /> : <Edit size={18} />}
@@ -524,7 +524,7 @@ export const AdminStaffList: React.FC = () => {
                         <button
                           onClick={() => handleDeleteUser(user.id)}
                           title="Hapus"
-                          className="p-2 rounded-full text-red-500 hover:bg-red-50 hover:text-red-600 transition-colors"
+                          className="p-2 rounded-full text-red-500 hover:bg-red-50 dark:hover:bg-red-900/50 hover:text-red-600 transition-colors"
                         >
                           <Trash2 size={18} />
                         </button>
@@ -534,7 +534,7 @@ export const AdminStaffList: React.FC = () => {
                 ))
               ) : (
                 <tr>
-                  <td colSpan={7} className="p-8 text-center text-slate-500 border border-slate-200">
+                  <td colSpan={7} className="p-8 text-center text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-700">
                     <div className="flex justify-center mb-2 text-slate-300">
                       <Users size={32} />
                     </div>
@@ -548,19 +548,19 @@ export const AdminStaffList: React.FC = () => {
           {/* Mobile Card View */}
           <div className="lg:hidden flex flex-col divide-y divide-slate-100">
             {isLoading ? (
-              <div className="p-12 text-center text-slate-500">
-                <div className="flex justify-center mb-3 text-school-blue">
+              <div className="p-12 text-center text-slate-500 dark:text-slate-400">
+                <div className="flex justify-center mb-3 text-school-blue dark:text-white">
                   <Loader2 size={32} className="animate-spin" />
                 </div>
-                <p className="font-bold text-lg text-slate-600 mb-1">Memuat Data...</p>
+                <p className="font-bold text-lg text-slate-600 dark:text-slate-300 mb-1">Memuat Data...</p>
               </div>
             ) : filteredStaff.length > 0 ? (
               filteredStaff.map(user => (
-                <div key={user.id} className="p-4 hover:bg-slate-50 transition-colors flex flex-col gap-3">
+                <div key={user.id} className="p-4 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors flex flex-col gap-3">
                   <div className="flex justify-between items-start">
                     <div className="flex flex-col">
-                      <h3 className="font-extrabold text-slate-800 text-base">{user.name}</h3>
-                      <p className="text-sm font-medium text-school-blue">{user.position}</p>
+                      <h3 className="font-extrabold text-slate-800 dark:text-slate-50 text-base">{user.name}</h3>
+                      <p className="text-sm font-medium text-school-blue dark:text-white">{user.position}</p>
                     </div>
                     <div>
                       {user.isApproved ? (
@@ -578,18 +578,18 @@ export const AdminStaffList: React.FC = () => {
                   <div className="text-sm flex flex-col gap-1.5 mt-1">
                     <div className="flex items-center justify-between">
                       <span className="text-slate-400 text-xs font-bold uppercase tracking-wider">Email</span>
-                      <span className="font-semibold text-slate-700">{user.email || '-'}</span>
+                      <span className="font-semibold text-slate-700 dark:text-slate-200">{user.email || '-'}</span>
                     </div>
                     <div className="flex items-center justify-between">
                       <span className="text-slate-400 text-xs font-bold uppercase tracking-wider">No Telp</span>
-                      <span className="font-semibold text-slate-700">{user.phone || '-'}</span>
+                      <span className="font-semibold text-slate-700 dark:text-slate-200">{user.phone || '-'}</span>
                     </div>
                   </div>
                   
                   <div className="flex items-center justify-end gap-1 mt-1">
                     <button
                       onClick={() => openAssignModal(user)}
-                      className={`p-2 transition-colors rounded-full ${!user.isApproved ? 'text-amber-500 hover:text-amber-600' : 'text-slate-400 hover:text-school-blue'}`}
+                      className={`p-2 transition-colors rounded-full ${!user.isApproved ? 'text-amber-500 hover:text-amber-600' : 'text-slate-400 hover:text-school-blue dark:text-white'}`}
                       title={!user.isApproved ? 'Tugaskan' : 'Edit Profil'}
                     >
                       {!user.isApproved ? <Settings size={18}/> : <Edit size={18}/>}
@@ -605,7 +605,7 @@ export const AdminStaffList: React.FC = () => {
                 </div>
               ))
             ) : (
-              <div className="p-8 text-center text-slate-500">
+              <div className="p-8 text-center text-slate-500 dark:text-slate-400">
                 <div className="flex justify-center mb-2 text-slate-300">
                   <Users size={32} />
                 </div>
@@ -619,3 +619,19 @@ export const AdminStaffList: React.FC = () => {
     </div>
   );
 };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

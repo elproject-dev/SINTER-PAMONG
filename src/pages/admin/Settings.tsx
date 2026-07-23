@@ -16,6 +16,8 @@ export const AdminSettings: React.FC<AdminSettingsProps> = ({ user, onUserUpdate
   const [passwordInput, setPasswordInput] = useState('');
   const [confirmPasswordInput, setConfirmPasswordInput] = useState('');
   const [isSavingProfile, setIsSavingProfile] = useState(false);
+  const [fontSize, setFontSize] = useState(() => localStorage.getItem('hr_font_size') || 'normal');
+  const [isDarkMode, setIsDarkMode] = useState(() => localStorage.getItem('hr_dark_mode') === 'true');
 
   useEffect(() => {
     setNameInput(user.name);
@@ -72,6 +74,23 @@ export const AdminSettings: React.FC<AdminSettingsProps> = ({ user, onUserUpdate
     }
   };
 
+  const handleFontSizeChange = (newSize: string) => {
+    setFontSize(newSize);
+    localStorage.setItem('hr_font_size', newSize);
+    document.documentElement.setAttribute('data-font-size', newSize);
+  };
+
+  const handleDarkModeToggle = () => {
+    const newVal = !isDarkMode;
+    setIsDarkMode(newVal);
+    localStorage.setItem('hr_dark_mode', String(newVal));
+    if (newVal) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  };
+
   const handleCoordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value;
     setCoordsInput(val);
@@ -118,59 +137,59 @@ export const AdminSettings: React.FC<AdminSettingsProps> = ({ user, onUserUpdate
   return (
     <div className="w-full space-y-6 sm:space-y-8">
       <div className="mb-8">
-        <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-slate-800 mb-1 sm:mb-2 tracking-tight">Pengaturan Admin</h1>
-        <p className="text-slate-500 text-sm sm:text-base lg:text-lg">Kelola profil, preferensi GPS, dan sistem aplikasi</p>
+        <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-slate-800 dark:text-slate-50 mb-1 sm:mb-2 tracking-tight">Pengaturan Admin</h1>
+        <p className="text-slate-500 dark:text-slate-400 text-sm sm:text-base lg:text-lg">Kelola profil, preferensi GPS, dan sistem aplikasi</p>
       </div>
 
-      <div className="bg-white rounded-3xl shadow-sm border border-slate-100 p-6 sm:p-8">
-        <h3 className="font-bold text-slate-800 text-lg mb-6 flex items-center">
-          <Shield className="mr-2 text-school-blue" size={20} />
+      <div className="bg-white dark:bg-slate-800 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-700 p-6 sm:p-8">
+        <h3 className="font-bold text-slate-800 dark:text-slate-50 text-lg mb-6 flex items-center">
+          <Shield className="mr-2 text-school-blue dark:text-white" size={20} />
           Profil & Keamanan
         </h3>
 
         <div className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <label className="block text-sm font-bold text-slate-700 mb-2">Nama Lengkap</label>
+              <label className="block text-sm font-bold text-slate-700 dark:text-slate-200 mb-2">Nama Lengkap</label>
               <input
                 type="text"
                 value={nameInput}
                 onChange={e => setNameInput(e.target.value)}
-                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-slate-700 text-sm focus:ring-4 focus:ring-school-blue/10 focus:border-school-blue outline-none transition-all shadow-sm"
+                className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2 text-slate-700 dark:text-slate-200 text-sm focus:ring-4 focus:ring-school-blue/10 focus:border-school-blue outline-none transition-all shadow-sm"
               />
             </div>
             <div>
-              <label className="block text-sm font-bold text-slate-700 mb-2">ID Admin</label>
+              <label className="block text-sm font-bold text-slate-700 dark:text-slate-200 mb-2">ID Admin</label>
               <input
                 type="text"
                 value={user.id ? (user.id.includes('-') ? user.id.split('-')[0] : user.id.slice(0, 8)) : ''}
                 disabled
-                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-slate-500 text-sm font-medium cursor-not-allowed shadow-sm"
+                className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2 text-slate-500 dark:text-slate-400 text-sm font-medium cursor-not-allowed shadow-sm"
               />
             </div>
             <div>
-              <label className="block text-sm font-bold text-slate-700 mb-2">Kata Sandi Baru</label>
+              <label className="block text-sm font-bold text-slate-700 dark:text-slate-200 mb-2">Kata Sandi Baru</label>
               <input
                 type="password"
                 value={passwordInput}
                 onChange={e => setPasswordInput(e.target.value)}
                 placeholder="Kosongkan jika tidak ingin diubah"
-                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-slate-700 text-sm focus:ring-4 focus:ring-school-blue/10 focus:border-school-blue outline-none transition-all shadow-sm"
+                className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2 text-slate-700 dark:text-slate-200 text-sm focus:ring-4 focus:ring-school-blue/10 focus:border-school-blue outline-none transition-all shadow-sm"
               />
             </div>
             <div>
-              <label className="block text-sm font-bold text-slate-700 mb-2">Konfirmasi Kata Sandi Baru</label>
+              <label className="block text-sm font-bold text-slate-700 dark:text-slate-200 mb-2">Konfirmasi Kata Sandi Baru</label>
               <input
                 type="password"
                 value={confirmPasswordInput}
                 onChange={e => setConfirmPasswordInput(e.target.value)}
                 placeholder="Kosongkan jika tidak ingin diubah"
-                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-slate-700 text-sm focus:ring-4 focus:ring-school-blue/10 focus:border-school-blue outline-none transition-all shadow-sm"
+                className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2 text-slate-700 dark:text-slate-200 text-sm focus:ring-4 focus:ring-school-blue/10 focus:border-school-blue outline-none transition-all shadow-sm"
               />
             </div>
           </div>
 
-          <div className="pt-4 border-t border-slate-100 flex flex-wrap gap-4">
+          <div className="pt-4 border-t border-slate-100 dark:border-slate-700 flex flex-wrap gap-4">
             <button
               onClick={handleSaveProfile}
               disabled={isSavingProfile}
@@ -182,9 +201,9 @@ export const AdminSettings: React.FC<AdminSettingsProps> = ({ user, onUserUpdate
         </div>
       </div>
 
-      <div className="bg-white rounded-3xl shadow-sm border border-slate-100 p-6 sm:p-8">
-        <h3 className="font-bold text-slate-800 text-lg mb-6 flex items-center">
-          <Map className="mr-2 text-school-blue" size={20} />
+      <div className="bg-white dark:bg-slate-800 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-700 p-6 sm:p-8">
+        <h3 className="font-bold text-slate-800 dark:text-slate-50 text-lg mb-6 flex items-center">
+          <Map className="mr-2 text-school-blue dark:text-white" size={20} />
           Pengaturan Lokasi Absensi (GPS)
         </h3>
 
@@ -192,20 +211,20 @@ export const AdminSettings: React.FC<AdminSettingsProps> = ({ user, onUserUpdate
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="flex flex-col gap-4">
               <div>
-                <label className="block text-sm font-bold text-slate-700 mb-2">Koordinat (Latitude, Longitude)</label>
+                <label className="block text-sm font-bold text-slate-700 dark:text-slate-200 mb-2">Koordinat (Latitude, Longitude)</label>
                 <input
                   type="text"
                   value={coordsInput}
                   onChange={handleCoordChange}
                   placeholder="Contoh: -6.1751, 106.8271"
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-slate-700 text-sm focus:ring-4 focus:ring-school-blue/10 focus:border-school-blue outline-none transition-all shadow-sm"
+                  className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2 text-slate-700 dark:text-slate-200 text-sm focus:ring-4 focus:ring-school-blue/10 focus:border-school-blue outline-none transition-all shadow-sm"
                 />
               </div>
               <div className="flex flex-row w-full gap-3">
                 <button
                   onClick={handleGetCurrentLocation}
                   disabled={isLocating}
-                  className="flex-1 py-2 border border-slate-200 bg-white text-school-blue hover:bg-slate-50 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center justify-center disabled:opacity-50 px-2 gap-1.5"
+                  className="flex-1 py-2 border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-school-blue dark:text-white hover:bg-slate-50 dark:hover:bg-slate-700 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center justify-center disabled:opacity-50 px-2 gap-1.5"
                 >
                   <MapPin size={16} className="shrink-0" />
                   <span className="truncate">{isLocating ? 'Mencari...' : 'Ambil Lokasi Saat Ini'}</span>
@@ -222,7 +241,7 @@ export const AdminSettings: React.FC<AdminSettingsProps> = ({ user, onUserUpdate
               </div>
             </div>
             <div>
-              <label className="block text-sm font-bold text-slate-700 mb-2">Radius Maksimal (Meter)</label>
+              <label className="block text-sm font-bold text-slate-700 dark:text-slate-200 mb-2">Radius Maksimal (Meter)</label>
               <input
                 type="number"
                 value={gpsSettings.maxRadius}
@@ -232,53 +251,101 @@ export const AdminSettings: React.FC<AdminSettingsProps> = ({ user, onUserUpdate
                   setGpsSettings(newSettings);
                   saveSchoolSettings(newSettings);
                 }}
-                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-slate-700 text-sm focus:ring-4 focus:ring-school-blue/10 focus:border-school-blue outline-none transition-all shadow-sm"
+                className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2 text-slate-700 dark:text-slate-200 text-sm focus:ring-4 focus:ring-school-blue/10 focus:border-school-blue outline-none transition-all shadow-sm"
               />
             </div>
           </div>
         </div>
       </div>
 
-      <div className="bg-white rounded-3xl shadow-sm border border-slate-100 p-6 sm:p-8">
-        <h3 className="font-bold text-slate-800 text-lg mb-6 flex items-center">
-          <Bell className="mr-2 text-school-blue" size={20} />
+      <div className="bg-white dark:bg-slate-800 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-700 p-6 sm:p-8">
+        <h3 className="font-bold text-slate-800 dark:text-slate-50 text-lg mb-6 flex items-center">
+          <Bell className="mr-2 text-school-blue dark:text-white" size={20} />
           Notifikasi Sistem
         </h3>
 
         <div className="space-y-4">
-          <label className="flex items-center justify-between p-4 border border-slate-100 rounded-2xl hover:bg-slate-50 cursor-pointer transition-colors">
+          <label className="flex items-center justify-between p-4 border border-slate-100 dark:border-slate-700 rounded-2xl hover:bg-slate-50 dark:hover:bg-slate-700 cursor-pointer transition-colors">
             <div>
-              <p className="font-bold text-slate-800">Laporan Kehadiran Harian</p>
-              <p className="text-sm text-slate-500">Terima ringkasan absensi seluruh staf setiap hari.</p>
+              <p className="font-bold text-slate-800 dark:text-slate-50">Laporan Kehadiran Harian</p>
+              <p className="text-sm text-slate-500 dark:text-slate-400">Terima ringkasan absensi seluruh staf setiap hari.</p>
             </div>
             <input type="checkbox" defaultChecked className="w-5 h-5 accent-school-blue" />
           </label>
-          <label className="flex items-center justify-between p-4 border border-slate-100 rounded-2xl hover:bg-slate-50 cursor-pointer transition-colors">
+          <label className="flex items-center justify-between p-4 border border-slate-100 dark:border-slate-700 rounded-2xl hover:bg-slate-50 dark:hover:bg-slate-700 cursor-pointer transition-colors">
             <div>
-              <p className="font-bold text-slate-800">Penilaian KPI Baru</p>
-              <p className="text-sm text-slate-500">Pemberitahuan saat data KPI baru ditambahkan atau diperbarui.</p>
+              <p className="font-bold text-slate-800 dark:text-slate-50">Penilaian KPI Baru</p>
+              <p className="text-sm text-slate-500 dark:text-slate-400">Pemberitahuan saat data KPI baru ditambahkan atau diperbarui.</p>
             </div>
             <input type="checkbox" defaultChecked className="w-5 h-5 accent-school-blue" />
           </label>
         </div>
       </div>
 
-      <div className="bg-white rounded-3xl shadow-sm border border-slate-100 p-6 sm:p-8">
-        <h3 className="font-bold text-slate-800 text-lg mb-6 flex items-center">
-          <Smartphone className="mr-2 text-school-blue" size={20} />
+      <div className="bg-white dark:bg-slate-800 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-700 p-6 sm:p-8">
+        <h3 className="font-bold text-slate-800 dark:text-slate-50 text-lg mb-6 flex items-center">
+          <Smartphone className="mr-2 text-school-blue dark:text-white" size={20} />
           Tampilan Aplikasi
         </h3>
 
         <div className="space-y-4">
-          <label className="flex items-center justify-between p-4 border border-slate-100 rounded-2xl hover:bg-slate-50 cursor-pointer transition-colors">
+          <div className="flex items-center justify-between p-4 border border-slate-100 dark:border-slate-700 rounded-2xl hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
             <div>
-              <p className="font-bold text-slate-800">Mode Gelap (Dark Mode)</p>
-              <p className="text-sm text-slate-500">Ubah tema aplikasi menjadi gelap (Segera Hadir).</p>
+              <p className="font-bold text-slate-800 dark:text-slate-50">Mode Gelap (Dark Mode)</p>
+              <p className="text-sm text-slate-500 dark:text-slate-400">Ubah tema aplikasi menjadi gelap.</p>
             </div>
-            <input type="checkbox" disabled className="w-5 h-5 accent-school-blue cursor-not-allowed" />
-          </label>
+            <button
+              onClick={handleDarkModeToggle}
+              className={`w-12 h-6 rounded-full transition-colors relative flex items-center px-1 ${
+                isDarkMode ? 'bg-school-blue dark:bg-blue-600' : 'bg-slate-300'
+              }`}
+            >
+              <span
+                className={`bg-white dark:bg-slate-800 w-4 h-4 rounded-full transition-transform ${
+                  isDarkMode ? 'translate-x-6' : ''
+                }`}
+              />
+            </button>
+          </div>
+          <div className="flex items-center justify-between p-4 border border-slate-100 dark:border-slate-700 rounded-2xl hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
+            <div>
+              <p className="font-bold text-slate-800 dark:text-slate-50">Ukuran Font</p>
+              <p className="text-sm text-slate-500 dark:text-slate-400">Sesuaikan ukuran teks aplikasi.</p>
+            </div>
+            <div className="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-xl">
+              {(['small', 'normal', 'large'] as const).map((size) => (
+                <button
+                  key={size}
+                  onClick={() => handleFontSizeChange(size)}
+                  className={`px-3 sm:px-4 py-1.5 text-xs sm:text-sm font-bold rounded-lg transition-all ${
+                    fontSize === size
+                      ? 'bg-white dark:bg-slate-800 text-school-blue dark:text-white shadow-sm'
+                      : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:text-slate-200'
+                  }`}
+                >
+                  {size === 'small' ? 'Kecil' : size === 'normal' ? 'Normal' : 'Besar'}
+                </button>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
     </div>
   );
 };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

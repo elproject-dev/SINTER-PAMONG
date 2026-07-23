@@ -31,6 +31,22 @@ function App() {
     // Initialize mock data in local storage
     initializeDB();
 
+    // Init font size
+    const storedFontSize = localStorage.getItem('hr_font_size');
+    if (storedFontSize) {
+      document.documentElement.setAttribute('data-font-size', storedFontSize);
+    } else {
+      document.documentElement.setAttribute('data-font-size', 'normal');
+    }
+
+    // Init dark mode
+    const storedDarkMode = localStorage.getItem('hr_dark_mode');
+    if (storedDarkMode === 'true') {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+
     // Check if user is logged in
     const storedUser = localStorage.getItem('hr_current_user');
     if (storedUser) {
@@ -57,7 +73,7 @@ function App() {
 
   if (isLoading) {
     return (
-      <div className="h-screen w-screen flex items-center justify-center bg-slate-50">
+      <div className="h-screen w-screen flex items-center justify-center bg-slate-50 dark:bg-slate-900">
         <div className="w-10 h-10 border-4 border-school-blue border-t-transparent rounded-full animate-spin"></div>
       </div>
     );
@@ -106,3 +122,19 @@ function App() {
 }
 
 export default App;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

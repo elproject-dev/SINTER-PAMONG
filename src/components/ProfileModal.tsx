@@ -45,19 +45,19 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
       <div className="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity" onClick={onClose} />
 
       {/* Dialog Content */}
-      <div className="bg-white rounded-2xl shadow-2xl w-[90%] max-w-2xl max-h-[90vh] overflow-y-auto relative z-10 animate-in zoom-in-95 duration-200">
+      <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl w-[90%] max-w-2xl max-h-[90vh] overflow-y-auto relative z-10 animate-in zoom-in-95 duration-200">
         <div className="p-4 sm:p-6">
           {/* Header */}
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-school-blue/10 rounded-full flex items-center justify-center text-school-blue shrink-0">
+              <div className="w-10 h-10 bg-school-blue/10 rounded-full flex items-center justify-center text-school-blue dark:text-white shrink-0">
                 <UserIcon className="w-5 h-5" />
               </div>
-              <h2 className="text-xl font-bold text-slate-800">Profil Pengguna</h2>
+              <h2 className="text-xl font-bold text-slate-800 dark:text-slate-50">Profil Pengguna</h2>
             </div>
             <button
               onClick={onClose}
-              className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-full transition-colors"
+              className="p-2 text-slate-400 hover:text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700 rounded-full transition-colors"
               title="Tutup Popup"
             >
               <X className="w-5 h-5" />
@@ -65,32 +65,32 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
           </div>
 
           {/* Content Area */}
-          <div className="bg-slate-50 p-5 sm:p-6 rounded-xl border border-slate-100 flex flex-col sm:flex-row gap-6 items-start justify-between text-left">
+          <div className="bg-slate-50 dark:bg-slate-900 p-5 sm:p-6 rounded-xl border border-slate-100 dark:border-slate-700 flex flex-col sm:flex-row gap-6 items-start justify-between text-left">
             {/* Info list (left) */}
             <div className="flex-1 space-y-4 w-full">
               <div>
-                <p className="text-xs text-slate-500 uppercase tracking-wider font-semibold mb-1">Nama Lengkap</p>
+                <p className="text-xs text-slate-500 dark:text-slate-400 uppercase tracking-wider font-semibold mb-1">Nama Lengkap</p>
                 <p className="font-medium text-slate-900 text-base">{user.name || 'Admin'}</p>
               </div>
               
               {user.email && (
                 <div>
-                  <p className="text-xs text-slate-500 uppercase tracking-wider font-semibold mb-1">Email</p>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 uppercase tracking-wider font-semibold mb-1">Email</p>
                   <p className="font-medium text-slate-900 text-base">{user.email}</p>
                 </div>
               )}
               
               <div className="flex flex-col items-start">
-                <p className="text-xs text-slate-500 uppercase tracking-wider font-semibold mb-1">Peran</p>
-                <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-school-blue text-white capitalize shadow-sm -ml-2.5">
+                <p className="text-xs text-slate-500 dark:text-slate-400 uppercase tracking-wider font-semibold mb-1">Peran</p>
+                <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-school-blue dark:bg-blue-600 text-white capitalize shadow-sm -ml-2.5">
                   {user.jobRoles && user.jobRoles.length > 0 ? user.jobRoles.join(', ') : user.role}
                 </span>
               </div>
 
               {user.role !== 'admin' && (
                 <div className="flex flex-col items-start">
-                  <p className="text-xs text-slate-500 uppercase tracking-wider font-semibold mb-1">Jabatan Utama</p>
-                  <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-bold capitalize shadow-sm -ml-2.5 ${user.position && user.position !== 'Belum Ditugaskan' ? 'bg-emerald-500 text-white' : 'bg-slate-200 text-slate-600'}`}>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 uppercase tracking-wider font-semibold mb-1">Jabatan Utama</p>
+                  <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-bold capitalize shadow-sm -ml-2.5 ${user.position && user.position !== 'Belum Ditugaskan' ? 'bg-emerald-500 text-white' : 'bg-slate-200 text-slate-600 dark:text-slate-300'}`}>
                     {user.position || 'Belum Ditugaskan'}
                   </span>
                 </div>
@@ -140,3 +140,19 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
     </div>
   );
 };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

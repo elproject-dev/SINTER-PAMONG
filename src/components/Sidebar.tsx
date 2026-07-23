@@ -46,9 +46,9 @@ export const Sidebar: React.FC<SidebarProps> = ({ user, onLogout }) => {
   const links = user.role === 'admin' ? adminLinks : staffLinks;
 
   return (
-    <aside className="w-16 bg-white text-slate-700 border-r border-slate-200 hidden xl:flex flex-col flex-shrink-0 transition-all duration-300 fixed top-0 left-0 h-screen z-40">
-      <div className="h-16 flex items-center justify-center border-b border-slate-200">
-        <GraduationCap className="h-8 w-8 text-school-blue" />
+    <aside className="w-16 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 border-r border-slate-200 dark:border-slate-700 hidden xl:flex flex-col flex-shrink-0 transition-all duration-300 fixed top-0 left-0 h-screen z-40">
+      <div className="h-16 flex items-center justify-center border-b border-slate-200 dark:border-slate-700">
+        <GraduationCap className="h-8 w-8 text-school-blue dark:text-white" />
       </div>
 
       <nav className="flex-1 py-4 px-2 space-y-1">
@@ -63,8 +63,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ user, onLogout }) => {
               title={link.label}
               className={({ isActive }) =>
                 `flex items-center p-3 rounded-md text-sm font-medium transition-colors justify-center relative ${isActive
-                  ? 'bg-school-blue text-white shadow-sm'
-                  : 'text-slate-500 hover:bg-slate-100 hover:text-slate-900'
+                  ? 'bg-school-blue dark:bg-blue-600 text-white shadow-sm'
+                  : 'text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700 hover:text-slate-900'
                 }`
               }
             >
@@ -74,13 +74,13 @@ export const Sidebar: React.FC<SidebarProps> = ({ user, onLogout }) => {
         })}
       </nav>
 
-      <div className="p-2 border-t border-slate-200 relative">
+      <div className="p-2 border-t border-slate-200 dark:border-slate-700 relative">
         <div
           className="flex items-center justify-center cursor-pointer transition-transform hover:scale-105"
           title={user.name}
           onClick={() => setIsProfileOpen(!isProfileOpen)}
         >
-          <div className="w-8 h-8 rounded-full bg-slate-50 border border-slate-200 flex items-center justify-center flex-shrink-0 shadow-sm overflow-hidden">
+          <div className="w-8 h-8 rounded-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 flex items-center justify-center flex-shrink-0 shadow-sm overflow-hidden">
             <img src={profilePic || `${import.meta.env.BASE_URL}check.png`} alt="Profile" className="w-full h-full object-cover" onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = `${import.meta.env.BASE_URL}check.png`; }} />
           </div>
         </div>
@@ -98,3 +98,19 @@ export const Sidebar: React.FC<SidebarProps> = ({ user, onLogout }) => {
     </aside>
   );
 };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

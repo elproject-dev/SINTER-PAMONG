@@ -69,8 +69,8 @@ export const BottomNavigation: React.FC<BottomNavigationProps> = ({ user, onLogo
         />
       )}
 
-      <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 xl:hidden z-50 shadow-[0_-4px_20px_-10px_rgba(0,0,0,0.1)] transition-all duration-300 rounded-t-2xl">
-        <div className="flex items-center justify-around py-2 px-1 relative z-10 bg-white rounded-t-2xl">
+      <nav className="fixed bottom-0 left-0 right-0 bg-white dark:bg-slate-800 border-t border-slate-200 dark:border-slate-700 xl:hidden z-50 shadow-[0_-4px_20px_-10px_rgba(0,0,0,0.1)] transition-all duration-300 rounded-t-2xl">
+        <div className="flex items-center justify-around py-2 px-1 relative z-10 bg-white dark:bg-slate-800 rounded-t-2xl">
           {mainLinks.map((link) => {
             const Icon = link.icon;
             const isActive = location.pathname === link.href;
@@ -80,13 +80,13 @@ export const BottomNavigation: React.FC<BottomNavigationProps> = ({ user, onLogo
                 to={link.href}
                 className={`flex flex-col items-center justify-center w-16 py-1 rounded-xl transition-all duration-200 relative ${
                   isActive
-                    ? "text-school-blue"
-                    : "text-slate-400 hover:text-slate-600"
+                    ? "text-school-blue dark:text-white"
+                    : "text-slate-400 hover:text-slate-600 dark:text-slate-300"
                 }`}
               >
-                <Icon className={`w-5 h-5 mb-1 ${isActive ? "text-school-blue" : "text-slate-400"}`} />
+                <Icon className={`w-5 h-5 mb-1 ${isActive ? "text-school-blue dark:text-white" : "text-slate-400"}`} />
                 <span className={`text-[9px] font-medium text-center leading-tight ${
-                  isActive ? "text-school-blue font-bold" : "text-slate-400"
+                  isActive ? "text-school-blue dark:text-white font-bold" : "text-slate-400"
                 }`}>
                   {link.label}
                 </span>
@@ -98,24 +98,24 @@ export const BottomNavigation: React.FC<BottomNavigationProps> = ({ user, onLogo
             onClick={() => setShowMore(!showMore)}
             className={`flex flex-col items-center justify-center w-16 py-1 rounded-xl transition-all duration-200 ${
               showMore
-                ? "text-school-blue"
-                : "text-slate-400 hover:text-slate-600"
+                ? "text-school-blue dark:text-white"
+                : "text-slate-400 hover:text-slate-600 dark:text-slate-300"
             }`}
           >
             <Menu className="w-5 h-5 mb-1" />
             <span className={`text-[9px] font-medium text-center leading-tight ${
-              showMore ? "text-school-blue font-bold" : "text-slate-400"
+              showMore ? "text-school-blue dark:text-white font-bold" : "text-slate-400"
             }`}>
               Lainnya
             </span>
           </button>
         </div>
 
-        <div className={`grid transition-all duration-300 ease-in-out bg-white ${
+        <div className={`grid transition-all duration-300 ease-in-out bg-white dark:bg-slate-800 ${
           showMore ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
         }`}>
           <div className="overflow-hidden">
-            <div className="flex items-center justify-around py-3 px-1 flex-wrap gap-y-3 border-t border-slate-100">
+            <div className="flex items-center justify-around py-3 px-1 flex-wrap gap-y-3 border-t border-slate-100 dark:border-slate-700">
               {moreLinks.map((link) => {
                 const Icon = link.icon;
                 const isActive = location.pathname === link.href;
@@ -141,13 +141,13 @@ export const BottomNavigation: React.FC<BottomNavigationProps> = ({ user, onLogo
                     onClick={() => setShowMore(false)}
                     className={`flex flex-col items-center justify-center w-16 py-1 rounded-xl transition-all duration-200 ${
                       isActive
-                        ? "text-school-blue"
-                        : "text-slate-400 hover:text-slate-600"
+                        ? "text-school-blue dark:text-white"
+                        : "text-slate-400 hover:text-slate-600 dark:text-slate-300"
                     }`}
                   >
-                    <Icon className={`w-5 h-5 mb-1 ${isActive ? "text-school-blue" : "text-slate-400"}`} />
+                    <Icon className={`w-5 h-5 mb-1 ${isActive ? "text-school-blue dark:text-white" : "text-slate-400"}`} />
                     <span className={`text-[9px] font-medium text-center leading-tight ${
-                      isActive ? "text-school-blue font-bold" : "text-slate-400"
+                      isActive ? "text-school-blue dark:text-white font-bold" : "text-slate-400"
                     }`}>
                       {link.label}
                     </span>
@@ -161,3 +161,19 @@ export const BottomNavigation: React.FC<BottomNavigationProps> = ({ user, onLogo
     </>
   );
 };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

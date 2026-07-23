@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
+@variant dark (&:where(.dark, .dark *));
+
 @theme {
   --color-school-blue: #1E3A8A;
   --color-navy: #0F172A;
@@ -9,9 +11,26 @@ html {
   font-size: 14px;
 }
 
+html[data-font-size="small"] {
+  font-size: 12px;
+}
+
+html[data-font-size="normal"] {
+  font-size: 14px;
+}
+
+html[data-font-size="large"] {
+  font-size: 16px;
+}
+
 body {
   background-color: #f8fafc;
   color: #0f172a;
+}
+
+.dark body {
+  background-color: #0f172a; /* navy */
+  color: #f8fafc; /* slate-50 */
 }
 
 @utility scrollbar-none {
@@ -21,3 +40,17 @@ body {
     display: none;
   }
 }
+
+:root {
+  --chart-tooltip-bg: #ffffff;
+  --chart-tooltip-text: #1e293b;
+  --chart-tooltip-cursor: #f8fafc;
+}
+.dark {
+  --chart-tooltip-bg: #1e293b;
+  --chart-tooltip-text: #f8fafc;
+  --chart-tooltip-cursor: #334155;
+}
+
+
+

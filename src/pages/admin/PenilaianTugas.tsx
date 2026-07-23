@@ -229,8 +229,8 @@ export const AdminReviewLaporanTugas: React.FC = () => {
     <div className="w-full space-y-8 animate-in fade-in duration-300 pb-10">
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div>
-          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-slate-800 mb-1 sm:mb-2 tracking-tight">Penilaian Tugas</h1>
-          <p className="text-slate-500 text-sm sm:text-base lg:text-lg">Berikan penilaian dan verifikasi laporan kegiatan harian staf</p>
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-slate-800 dark:text-slate-50 mb-1 sm:mb-2 tracking-tight">Penilaian Tugas</h1>
+          <p className="text-slate-500 dark:text-slate-400 text-sm sm:text-base lg:text-lg">Berikan penilaian dan verifikasi laporan kegiatan harian staf</p>
         </div>
 
         <div className="relative w-full md:w-72 shrink-0">
@@ -242,7 +242,7 @@ export const AdminReviewLaporanTugas: React.FC = () => {
             placeholder="Cari nama staf atau tugas..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full bg-white border border-slate-200 rounded-xl py-2 pr-4 pl-10 text-slate-700 focus:ring-4 focus:ring-school-blue/10 focus:border-school-blue outline-none transition-all shadow-sm font-medium text-sm"
+            className="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl py-2 pr-4 pl-10 text-slate-700 dark:text-slate-200 focus:ring-4 focus:ring-school-blue/10 focus:border-school-blue outline-none transition-all shadow-sm font-medium text-sm"
           />
         </div>
       </div>
@@ -251,17 +251,17 @@ export const AdminReviewLaporanTugas: React.FC = () => {
       {selectedReport && (
         <>
           {/* Tabel Riwayat Lampiran - Card Terpisah */}
-          <div className="bg-white rounded-xl shadow-sm border border-slate-200 mb-6 animate-in slide-in-from-top-4 fade-in duration-300">
-            <div className="p-4 border-b border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-4 bg-white rounded-t-xl">
+          <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 mb-6 animate-in slide-in-from-top-4 fade-in duration-300">
+            <div className="p-4 border-b border-slate-200 dark:border-slate-700 flex flex-col sm:flex-row items-center justify-between gap-4 bg-white dark:bg-slate-800 rounded-t-xl">
               <div className="flex items-center space-x-2 w-full sm:w-auto">
-                <Paperclip size={20} className="text-slate-600" />
-                <h2 className="font-bold text-slate-800 text-lg">Riwayat Lampiran ({(selectedReport.link ? 1 : 0) + attachments.length})</h2>
+                <Paperclip size={20} className="text-slate-600 dark:text-slate-300" />
+                <h2 className="font-bold text-slate-800 dark:text-slate-50 text-lg">Riwayat Lampiran ({(selectedReport.link ? 1 : 0) + attachments.length})</h2>
               </div>
               <button
                 onClick={() => {
                   setSelectedReportId(null);
                 }}
-                className="w-full sm:w-auto text-sm font-bold text-slate-500 hover:text-slate-700 transition-colors bg-slate-100 hover:bg-slate-200 px-3 py-1.5 rounded-lg text-center"
+                className="w-full sm:w-auto text-sm font-bold text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:text-slate-200 transition-colors bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-600 px-3 py-1.5 rounded-lg text-center"
               >
                 Tutup Form
               </button>
@@ -272,12 +272,12 @@ export const AdminReviewLaporanTugas: React.FC = () => {
               <div id="panel-penilaian" className="bg-amber-50/30 p-6 border-b border-amber-100 animate-in fade-in slide-in-from-top-2 relative">
                 <div className="mb-4 flex flex-col items-start gap-3 sm:flex-row sm:justify-between sm:gap-4">
                   <div className="flex-1 min-w-0">
-                    <h3 className="font-bold text-slate-800 flex items-center gap-2 text-base sm:text-lg mb-1">
+                    <h3 className="font-bold text-slate-800 dark:text-slate-50 flex items-center gap-2 text-base sm:text-lg mb-1">
                       <Edit size={20} className="text-amber-500 shrink-0" />
                       <span className="truncate">Panel Penilaian Lampiran</span>
                     </h3>
-                    <p className="text-xs sm:text-sm text-slate-500 leading-relaxed">
-                      Beri nilai dan tanggapan untuk pembaruan tanggal <span className="font-bold text-slate-700">{format(new Date(selectedAttachmentForReview.createdAt), 'dd MMMM yyyy, HH:mm', { locale: id })}</span>
+                    <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
+                      Beri nilai dan tanggapan untuk pembaruan tanggal <span className="font-bold text-slate-700 dark:text-slate-200">{format(new Date(selectedAttachmentForReview.createdAt), 'dd MMMM yyyy, HH:mm', { locale: id })}</span>
                     </p>
                   </div>
                   
@@ -287,7 +287,7 @@ export const AdminReviewLaporanTugas: React.FC = () => {
                         href={selectedAttachmentForReview.link} 
                         target="_blank" 
                         rel="noopener noreferrer" 
-                        className="p-2 bg-white border border-slate-200 text-school-blue hover:text-blue-700 hover:bg-blue-50 transition-colors rounded-xl shadow-sm flex items-center justify-center" 
+                        className="p-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-school-blue dark:text-white hover:text-blue-700 dark:hover:text-slate-300 hover:bg-blue-50 dark:bg-slate-800 dark:hover:bg-slate-700 transition-colors rounded-xl shadow-sm flex items-center justify-center" 
                         title="Lihat Lampiran"
                       >
                         <Paperclip size={18} />
@@ -300,7 +300,7 @@ export const AdminReviewLaporanTugas: React.FC = () => {
                           handleDownload(link, fileName);
                         }}
                         disabled={downloadingUrl === selectedAttachmentForReview.link}
-                        className={`p-2 bg-white border border-slate-200 transition-colors rounded-xl shadow-sm flex items-center justify-center ${downloadingUrl === selectedAttachmentForReview.link ? 'text-school-blue cursor-wait' : 'text-slate-500 hover:text-slate-700 hover:bg-slate-100'}`}
+                        className={`p-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 transition-colors rounded-xl shadow-sm flex items-center justify-center ${downloadingUrl === selectedAttachmentForReview.link ? 'text-school-blue dark:text-white cursor-wait' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700'}`}
                         title="Unduh Lampiran"
                       >
                         {downloadingUrl === selectedAttachmentForReview.link ? <Loader2 size={18} className="animate-spin" /> : <Download size={18} />}
@@ -311,11 +311,11 @@ export const AdminReviewLaporanTugas: React.FC = () => {
                 
                 <div className="flex flex-col md:flex-row gap-4 mb-5">
                   {/* Kolom Kiri: Catatan Guru */}
-                  <div className="flex-1 bg-slate-50 p-4 rounded-xl border border-slate-200 flex flex-col justify-center">
+                  <div className="flex-1 bg-slate-50 dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-700 flex flex-col justify-center">
                     <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 flex items-center gap-1.5">
                       Catatan Guru
                     </p>
-                    <p className="text-sm text-slate-700 leading-relaxed font-medium">
+                    <p className="text-sm text-slate-700 dark:text-slate-200 leading-relaxed font-medium">
                       {selectedAttachmentForReview.catatan || '-'}
                     </p>
                   </div>
@@ -347,12 +347,12 @@ export const AdminReviewLaporanTugas: React.FC = () => {
                     placeholder="Tuliskan alasan penolakan atau tanggapan Anda di sini..."
                     value={modalFeedback}
                     onChange={(e) => setModalFeedback(e.target.value)}
-                    className="w-full text-sm bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 outline-none focus:bg-white focus:ring-4 focus:ring-school-blue/10 focus:border-school-blue transition-all resize-none"
+                    className="w-full text-sm bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 outline-none focus:bg-white dark:bg-slate-800 focus:ring-4 focus:ring-school-blue/10 focus:border-school-blue transition-all resize-none"
                     rows={3}
                   />
                 </div>
 
-                <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-100">
+                <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-100 dark:border-slate-700">
                   <button
                     onClick={() => handleSaveAttachmentStatus('rejected')}
                     disabled={isSavingAttachment}
@@ -376,38 +376,38 @@ export const AdminReviewLaporanTugas: React.FC = () => {
             <div className="overflow-x-auto hidden lg:block">
               <table className="w-full text-left border-collapse text-sm min-w-[600px]">
                 <thead>
-                  <tr className="bg-slate-50 text-slate-500 text-xs uppercase tracking-wider">
-                    <th className="px-4 py-3 font-bold border border-slate-200 w-12 text-center">NO</th>
-                    <th className="px-4 py-3 font-bold border border-slate-200 text-center w-36">TANGGAL</th>
-                    <th className="px-4 py-3 font-bold border border-slate-200 text-center w-28">JAM</th>
-                    <th className="px-4 py-3 font-bold border border-slate-200">NAMA TUGAS</th>
-                    <th className="px-4 py-3 font-bold border border-slate-200 w-80">CATATAN</th>
-                    <th className="px-4 py-3 font-bold border border-slate-200 text-center w-28">STATUS</th>
-                    <th className="px-4 py-3 font-bold border border-slate-200 text-center w-32">NILAI</th>
-                    <th className="px-4 py-3 font-bold border border-slate-200 text-center w-16">SKOR</th>
-                    <th className="px-4 py-3 font-bold border border-slate-200 text-center w-24">AKSI</th>
+                  <tr className="bg-slate-50 dark:bg-slate-900 text-slate-500 dark:text-slate-400 text-xs uppercase tracking-wider">
+                    <th className="px-4 py-3 font-bold border border-slate-200 dark:border-slate-700 w-12 text-center">NO</th>
+                    <th className="px-4 py-3 font-bold border border-slate-200 dark:border-slate-700 text-center w-36">TANGGAL</th>
+                    <th className="px-4 py-3 font-bold border border-slate-200 dark:border-slate-700 text-center w-28">JAM</th>
+                    <th className="px-4 py-3 font-bold border border-slate-200 dark:border-slate-700">NAMA TUGAS</th>
+                    <th className="px-4 py-3 font-bold border border-slate-200 dark:border-slate-700 w-80">CATATAN</th>
+                    <th className="px-4 py-3 font-bold border border-slate-200 dark:border-slate-700 text-center w-28">STATUS</th>
+                    <th className="px-4 py-3 font-bold border border-slate-200 dark:border-slate-700 text-center w-32">NILAI</th>
+                    <th className="px-4 py-3 font-bold border border-slate-200 dark:border-slate-700 text-center w-16">SKOR</th>
+                    <th className="px-4 py-3 font-bold border border-slate-200 dark:border-slate-700 text-center w-24">AKSI</th>
                   </tr>
                 </thead>
                 <tbody>
                   {isAttachmentsLoading ? (
                     <tr>
-                      <td colSpan={9} className="p-12 text-center text-slate-500 border border-slate-200">
-                        <div className="flex justify-center mb-3 text-school-blue">
+                      <td colSpan={9} className="p-12 text-center text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-700">
+                        <div className="flex justify-center mb-3 text-school-blue dark:text-white">
                           <Loader2 size={32} className="animate-spin" />
                         </div>
-                        <p className="font-bold text-lg text-slate-600 mb-1">Memuat Lampiran...</p>
+                        <p className="font-bold text-lg text-slate-600 dark:text-slate-300 mb-1">Memuat Lampiran...</p>
                       </td>
                     </tr>
                   ) : (
                     <>
                       {selectedReport.link && (
-                        <tr className={`transition-all ${selectedAttachmentForReview?.isPrimary ? 'bg-amber-50/80 border-l-4 border-l-amber-500' : 'hover:bg-slate-50 bg-white'}`}>
-                          <td className="px-4 py-3 border border-slate-200 text-center text-sm font-medium text-slate-500">1</td>
-                          <td className="px-4 py-3 border border-slate-200 text-center text-sm text-slate-700">{format(new Date(selectedReport.createdAt), 'dd MMM yyyy', { locale: id })}</td>
-                          <td className="px-4 py-3 border border-slate-200 text-center text-sm font-bold text-slate-600">{format(new Date(selectedReport.createdAt), 'HH:mm', { locale: id })}</td>
-                          <td className="px-4 py-3 border border-slate-200 text-sm font-bold text-slate-800">{selectedReport.taskName}</td>
-                          <td className="px-4 py-3 border border-slate-200 text-slate-700 text-sm w-80 text-center">-</td>
-                          <td className="px-4 py-3 border border-slate-200 text-center">
+                        <tr className={`transition-all ${selectedAttachmentForReview?.isPrimary ? 'bg-blue-50/80 dark:bg-blue-900/40 border-l-4 border-l-blue-500' : 'hover:bg-slate-50 dark:hover:bg-slate-700 bg-white dark:bg-slate-800'}`}>
+                          <td className="px-4 py-3 border border-slate-200 dark:border-slate-700 text-center text-sm font-medium text-slate-500 dark:text-slate-400">1</td>
+                          <td className="px-4 py-3 border border-slate-200 dark:border-slate-700 text-center text-sm text-slate-700 dark:text-slate-200">{format(new Date(selectedReport.createdAt), 'dd MMM yyyy', { locale: id })}</td>
+                          <td className="px-4 py-3 border border-slate-200 dark:border-slate-700 text-center text-sm font-bold text-slate-600 dark:text-slate-300">{format(new Date(selectedReport.createdAt), 'HH:mm', { locale: id })}</td>
+                          <td className="px-4 py-3 border border-slate-200 dark:border-slate-700 text-sm font-bold text-slate-800 dark:text-slate-50">{selectedReport.taskName}</td>
+                          <td className="px-4 py-3 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 text-sm w-80 text-center">-</td>
+                          <td className="px-4 py-3 border border-slate-200 dark:border-slate-700 text-center">
                             <div className="flex items-center justify-center">
                               {selectedReport.status === 'reviewed' ? (
                                 <span title="Disetujui"><CheckCircle2 size={20} className="fill-emerald-500 text-white" /></span>
@@ -418,15 +418,15 @@ export const AdminReviewLaporanTugas: React.FC = () => {
                               )}
                             </div>
                           </td>
-                          <td className="px-4 py-3 border border-slate-200 text-center">
+                          <td className="px-4 py-3 border border-slate-200 dark:border-slate-700 text-center">
                             <div className="flex items-center justify-center gap-0.5">
                               <StarRating score={selectedReport.score} size={16} className="flex items-center gap-0.5" />
                             </div>
                           </td>
-                          <td className="px-4 py-3 border border-slate-200 text-center font-bold text-amber-500">
+                          <td className="px-4 py-3 border border-slate-200 dark:border-slate-700 text-center font-bold text-amber-500">
                             {selectedReport.score ? Number(selectedReport.score).toFixed(1) : '-'}
                           </td>
-                          <td className="px-4 py-3 border border-slate-200 text-center">
+                          <td className="px-4 py-3 border border-slate-200 dark:border-slate-700 text-center">
                             <button
                               type="button"
                               onClick={() => {
@@ -454,13 +454,13 @@ export const AdminReviewLaporanTugas: React.FC = () => {
                         </tr>
                       )}
                       {attachments.map((att, idx) => (
-                        <tr key={att.id} className={`transition-all ${(!selectedAttachmentForReview?.isPrimary && selectedAttachmentForReview?.id === att.id) ? 'bg-amber-50/80 border-l-4 border-l-amber-500' : 'hover:bg-slate-50 bg-white'}`}>
-                          <td className="px-4 py-3 border border-slate-200 text-center text-sm font-medium text-slate-500">{(selectedReport.link ? 1 : 0) + idx + 1}</td>
-                          <td className="px-4 py-3 border border-slate-200 text-center text-sm text-slate-700">{format(new Date(att.createdAt), 'dd MMM yyyy', { locale: id })}</td>
-                          <td className="px-4 py-3 border border-slate-200 text-center text-sm font-bold text-slate-600">{format(new Date(att.createdAt), 'HH:mm', { locale: id })}</td>
-                          <td className="px-4 py-3 border border-slate-200 text-sm font-bold text-slate-800">{selectedReport.taskName}</td>
-                          <td className="px-4 py-3 border border-slate-200 text-slate-700 text-sm w-80 max-w-[320px] truncate" title={att.catatan}>{att.catatan || '-'}</td>
-                          <td className="px-4 py-3 border border-slate-200 text-center">
+                        <tr key={att.id} className={`transition-all ${(!selectedAttachmentForReview?.isPrimary && selectedAttachmentForReview?.id === att.id) ? 'bg-blue-50/80 dark:bg-blue-900/40 border-l-4 border-l-blue-500' : 'hover:bg-slate-50 dark:hover:bg-slate-700 bg-white dark:bg-slate-800'}`}>
+                          <td className="px-4 py-3 border border-slate-200 dark:border-slate-700 text-center text-sm font-medium text-slate-500 dark:text-slate-400">{(selectedReport.link ? 1 : 0) + idx + 1}</td>
+                          <td className="px-4 py-3 border border-slate-200 dark:border-slate-700 text-center text-sm text-slate-700 dark:text-slate-200">{format(new Date(att.createdAt), 'dd MMM yyyy', { locale: id })}</td>
+                          <td className="px-4 py-3 border border-slate-200 dark:border-slate-700 text-center text-sm font-bold text-slate-600 dark:text-slate-300">{format(new Date(att.createdAt), 'HH:mm', { locale: id })}</td>
+                          <td className="px-4 py-3 border border-slate-200 dark:border-slate-700 text-sm font-bold text-slate-800 dark:text-slate-50">{selectedReport.taskName}</td>
+                          <td className="px-4 py-3 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 text-sm w-80 max-w-[320px] truncate" title={att.catatan}>{att.catatan || '-'}</td>
+                          <td className="px-4 py-3 border border-slate-200 dark:border-slate-700 text-center">
                             <div className="flex items-center justify-center">
                               {att.status === 'reviewed' ? (
                                 <span title="Disetujui"><CheckCircle2 size={20} className="fill-emerald-500 text-white" /></span>
@@ -471,15 +471,15 @@ export const AdminReviewLaporanTugas: React.FC = () => {
                               )}
                             </div>
                           </td>
-                          <td className="px-4 py-3 border border-slate-200 text-center">
+                          <td className="px-4 py-3 border border-slate-200 dark:border-slate-700 text-center">
                             <div className="flex items-center justify-center gap-0.5">
                               <StarRating score={att.score} size={16} className="flex items-center gap-0.5" />
                             </div>
                           </td>
-                          <td className="px-4 py-3 border border-slate-200 text-center font-bold text-amber-500">
+                          <td className="px-4 py-3 border border-slate-200 dark:border-slate-700 text-center font-bold text-amber-500">
                             {att.score ? Number(att.score).toFixed(1) : '-'}
                           </td>
-                          <td className="px-4 py-3 border border-slate-200 text-center">
+                          <td className="px-4 py-3 border border-slate-200 dark:border-slate-700 text-center">
                             <div className="flex items-center justify-center">
                               <button
                                 type="button"
@@ -503,7 +503,7 @@ export const AdminReviewLaporanTugas: React.FC = () => {
                       ))}
                       {!selectedReport.link && attachments.length === 0 && (
                         <tr>
-                          <td colSpan={10} className="p-8 text-center text-slate-500 border border-slate-200">
+                          <td colSpan={10} className="p-8 text-center text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-700">
                             Belum ada lampiran.
                           </td>
                         </tr>
@@ -517,22 +517,22 @@ export const AdminReviewLaporanTugas: React.FC = () => {
             {/* Mobile Card View for Lampiran */}
             <div className="lg:hidden flex flex-col divide-y divide-slate-100">
               {isAttachmentsLoading ? (
-                <div className="p-12 text-center text-slate-500">
-                  <div className="flex justify-center mb-3 text-school-blue">
+                <div className="p-12 text-center text-slate-500 dark:text-slate-400">
+                  <div className="flex justify-center mb-3 text-school-blue dark:text-white">
                     <Loader2 size={32} className="animate-spin" />
                   </div>
-                  <p className="font-bold text-lg text-slate-600 mb-1">Memuat Lampiran...</p>
+                  <p className="font-bold text-lg text-slate-600 dark:text-slate-300 mb-1">Memuat Lampiran...</p>
                 </div>
               ) : (
                 <>
                   {selectedReport.link && (
-                    <div className={`p-4 transition-colors flex flex-col gap-3 ${selectedAttachmentForReview?.isPrimary ? 'bg-amber-50/80 border-l-4 border-l-amber-500' : 'hover:bg-slate-50 bg-white'}`}>
+                    <div className={`p-4 transition-colors flex flex-col gap-3 ${selectedAttachmentForReview?.isPrimary ? 'bg-blue-50/80 dark:bg-blue-900/40 border-l-4 border-l-blue-500' : 'hover:bg-slate-50 dark:hover:bg-slate-700 bg-white dark:bg-slate-800'}`}>
                       <div className="flex justify-between items-start gap-2">
                         <div className="flex flex-col min-w-0">
                           <p className="text-xs font-bold text-slate-400 truncate">
                             {format(new Date(selectedReport.createdAt), 'dd MMM yyyy, HH:mm', { locale: id })}
                           </p>
-                          <h3 className="font-extrabold text-slate-800 text-sm mt-1 leading-snug">{selectedReport.taskName}</h3>
+                          <h3 className="font-extrabold text-slate-800 dark:text-slate-50 text-sm mt-1 leading-snug">{selectedReport.taskName}</h3>
                         </div>
                         <div className="shrink-0 flex items-center justify-center">
                           {selectedReport.status === 'reviewed' ? (
@@ -545,13 +545,13 @@ export const AdminReviewLaporanTugas: React.FC = () => {
                         </div>
                       </div>
 
-                      <div className="mt-1 border-b border-slate-100 pb-2">
-                         <p className="text-sm text-slate-700 italic">-</p>
+                      <div className="mt-1 border-b border-slate-100 dark:border-slate-700 pb-2">
+                         <p className="text-sm text-slate-700 dark:text-slate-200 italic">-</p>
                       </div>
 
                       <div className="flex items-center justify-between gap-2 mt-1">
                         <div className="flex items-center gap-2">
-                          <span className="text-xs font-bold text-slate-500 uppercase">Penilaian</span>
+                          <span className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase">Penilaian</span>
                           <div className="flex items-center gap-0.5 text-slate-300">
                             {selectedReport.score ? (
                               <>
@@ -559,7 +559,7 @@ export const AdminReviewLaporanTugas: React.FC = () => {
                                 <span className="ml-1 text-xs font-bold text-amber-500">{Number(selectedReport.score).toFixed(1)}</span>
                               </>
                             ) : (
-                              <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider bg-slate-100 px-2 py-0.5 rounded-md border border-slate-200/50">Belum Dinilai</span>
+                              <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-md border border-slate-200 dark:border-slate-700/50">Belum Dinilai</span>
                             )}
                           </div>
                         </div>
@@ -582,7 +582,7 @@ export const AdminReviewLaporanTugas: React.FC = () => {
                             setModalFeedback(selectedReport.adminFeedback || '');
                             setTimeout(() => document.getElementById('panel-penilaian')?.scrollIntoView({ behavior: 'smooth', block: 'center' }), 50);
                           }}
-                          className="p-2 transition-colors rounded-full text-amber-500 hover:text-amber-600 hover:bg-amber-50 bg-slate-50 border border-slate-200"
+                          className="p-2 transition-colors rounded-full text-amber-500 hover:text-amber-600 hover:bg-amber-50 dark:hover:bg-amber-900/50 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700"
                           title="Beri Penilaian"
                         >
                           <Edit size={16} />
@@ -592,13 +592,13 @@ export const AdminReviewLaporanTugas: React.FC = () => {
                   )}
 
                   {attachments.map((att) => (
-                    <div key={att.id} className={`p-4 transition-colors flex flex-col gap-3 ${(!selectedAttachmentForReview?.isPrimary && selectedAttachmentForReview?.id === att.id) ? 'bg-amber-50/80 border-l-4 border-l-amber-500' : 'hover:bg-slate-50 bg-white'}`}>
+                    <div key={att.id} className={`p-4 transition-colors flex flex-col gap-3 ${(!selectedAttachmentForReview?.isPrimary && selectedAttachmentForReview?.id === att.id) ? 'bg-blue-50/80 dark:bg-blue-900/40 border-l-4 border-l-blue-500' : 'hover:bg-slate-50 dark:hover:bg-slate-700 bg-white dark:bg-slate-800'}`}>
                       <div className="flex justify-between items-start gap-2">
                         <div className="flex flex-col min-w-0">
                           <p className="text-xs font-bold text-slate-400 truncate">
                             {format(new Date(att.createdAt), 'dd MMM yyyy, HH:mm', { locale: id })}
                           </p>
-                          <h3 className="font-extrabold text-slate-800 text-sm mt-1 leading-snug">{selectedReport.taskName}</h3>
+                          <h3 className="font-extrabold text-slate-800 dark:text-slate-50 text-sm mt-1 leading-snug">{selectedReport.taskName}</h3>
                         </div>
                         <div className="shrink-0 flex items-center justify-center">
                           {att.status === 'reviewed' ? (
@@ -611,13 +611,13 @@ export const AdminReviewLaporanTugas: React.FC = () => {
                         </div>
                       </div>
 
-                      <div className="mt-1 border-b border-slate-100 pb-2">
-                         <p className="text-sm text-slate-700">{att.catatan || '-'}</p>
+                      <div className="mt-1 border-b border-slate-100 dark:border-slate-700 pb-2">
+                         <p className="text-sm text-slate-700 dark:text-slate-200">{att.catatan || '-'}</p>
                       </div>
 
                       <div className="flex items-center justify-between gap-2 mt-1">
                         <div className="flex items-center gap-2">
-                          <span className="text-xs font-bold text-slate-500 uppercase">Penilaian</span>
+                          <span className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase">Penilaian</span>
                           <div className="flex items-center gap-0.5 text-slate-300">
                             {att.score ? (
                               <>
@@ -625,7 +625,7 @@ export const AdminReviewLaporanTugas: React.FC = () => {
                                 <span className="ml-1 text-xs font-bold text-amber-500">{Number(att.score).toFixed(1)}</span>
                               </>
                             ) : (
-                              <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider bg-slate-100 px-2 py-0.5 rounded-md border border-slate-200/50">Belum Dinilai</span>
+                              <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-md border border-slate-200 dark:border-slate-700/50">Belum Dinilai</span>
                             )}
                           </div>
                         </div>
@@ -641,7 +641,7 @@ export const AdminReviewLaporanTugas: React.FC = () => {
                             setModalFeedback(att.adminFeedback || '');
                             setTimeout(() => document.getElementById('panel-penilaian')?.scrollIntoView({ behavior: 'smooth', block: 'center' }), 50);
                           }}
-                          className="p-2 transition-colors rounded-full text-amber-500 hover:text-amber-600 hover:bg-amber-50 bg-slate-50 border border-slate-200"
+                          className="p-2 transition-colors rounded-full text-amber-500 hover:text-amber-600 hover:bg-amber-50 dark:hover:bg-amber-900/50 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700"
                           title="Beri Penilaian"
                         >
                           <Edit size={16} />
@@ -651,7 +651,7 @@ export const AdminReviewLaporanTugas: React.FC = () => {
                   ))}
 
                   {!selectedReport.link && attachments.length === 0 && (
-                    <div className="p-8 text-center text-slate-500">
+                    <div className="p-8 text-center text-slate-500 dark:text-slate-400">
                       Belum ada lampiran.
                     </div>
                   )}
@@ -663,19 +663,19 @@ export const AdminReviewLaporanTugas: React.FC = () => {
       )}
 
       {!selectedReport && (
-        <div className="bg-white rounded-xl shadow-sm border border-slate-200">
-          <div className="p-4 border-b border-slate-200 flex flex-row items-center justify-between gap-4 bg-white">
+        <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700">
+          <div className="p-4 border-b border-slate-200 dark:border-slate-700 flex flex-row items-center justify-between gap-4 bg-white dark:bg-slate-800">
             <div className="flex items-center space-x-2 truncate">
-              <BookOpen size={20} className="text-slate-600 shrink-0" />
-              <h2 className="font-bold text-slate-800 text-lg">Daftar Laporan</h2>
+              <BookOpen size={20} className="text-slate-600 dark:text-slate-300 shrink-0" />
+              <h2 className="font-bold text-slate-800 dark:text-slate-50 text-lg">Daftar Laporan</h2>
             </div>
 
             <div className="flex items-center gap-2 relative" ref={filterPopupRef}>
               <button
                 onClick={() => setShowFilterPopup(!showFilterPopup)}
                 className={`flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-bold border transition-all ${showFilterPopup || filterStartDate || filterEndDate
-                  ? 'bg-school-blue/10 border-school-blue text-school-blue shadow-sm'
-                  : 'bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100 shadow-sm'
+                  ? 'bg-school-blue/10 border-school-blue text-school-blue dark:text-white shadow-sm'
+                  : 'bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700 shadow-sm'
                   }`}
               >
                 <SlidersHorizontal size={16} />
@@ -684,12 +684,12 @@ export const AdminReviewLaporanTugas: React.FC = () => {
 
               {/* Pop-up Filter */}
               {showFilterPopup && (
-                <div className="absolute right-0 top-full mt-2 w-72 bg-white rounded-xl shadow-xl border border-slate-200 p-4 z-50 animate-in fade-in slide-in-from-top-2">
+                <div className="absolute right-0 top-full mt-2 w-72 bg-white dark:bg-slate-800 rounded-xl shadow-xl border border-slate-200 dark:border-slate-700 p-4 z-50 animate-in fade-in slide-in-from-top-2">
                   <div className="flex justify-between items-center mb-4">
-                    <h3 className="font-bold text-slate-800 text-sm">
+                    <h3 className="font-bold text-slate-800 dark:text-slate-50 text-sm">
                       Filter Data
                     </h3>
-                    <button onClick={() => setShowFilterPopup(false)} className="text-slate-400 hover:text-slate-600 bg-slate-50 hover:bg-slate-100 p-1 rounded-md transition-colors">
+                    <button onClick={() => setShowFilterPopup(false)} className="text-slate-400 hover:text-slate-600 dark:text-slate-300 bg-slate-50 dark:bg-slate-900 hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700 p-1 rounded-md transition-colors">
                       <X size={16} />
                     </button>
                   </div>
@@ -710,7 +710,7 @@ export const AdminReviewLaporanTugas: React.FC = () => {
                         }}
                         value={filterStartDate}
                         onChange={(e) => setFilterStartDate(e.target.value)}
-                        className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-school-blue/20 outline-none text-slate-700 font-bold text-center cursor-pointer transition-all hover:bg-slate-100"
+                        className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-school-blue/20 outline-none text-slate-700 dark:text-slate-200 font-bold text-center cursor-pointer transition-all hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700"
                       />
                     </div>
                     <div>
@@ -729,26 +729,26 @@ export const AdminReviewLaporanTugas: React.FC = () => {
                         value={filterEndDate}
                         onChange={(e) => setFilterEndDate(e.target.value)}
                         min={filterStartDate}
-                        className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-school-blue/20 outline-none text-slate-700 font-bold text-center cursor-pointer transition-all hover:bg-slate-100"
+                        className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-school-blue/20 outline-none text-slate-700 dark:text-slate-200 font-bold text-center cursor-pointer transition-all hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700"
                       />
                     </div>
 
 
                   </div>
 
-                  <div className="flex justify-between items-center mt-5 pt-3 border-t border-slate-100">
+                  <div className="flex justify-between items-center mt-5 pt-3 border-t border-slate-100 dark:border-slate-700">
                     <button
                       onClick={() => {
                         setFilterStartDate('');
                         setFilterEndDate('');
                       }}
-                      className="text-xs font-bold text-rose-500 hover:text-rose-600 px-2 py-1.5 rounded-md hover:bg-rose-50 transition-colors"
+                      className="text-xs font-bold text-rose-500 hover:text-rose-600 px-2 py-1.5 rounded-md hover:bg-rose-50 dark:hover:bg-rose-900/50 transition-colors"
                     >
                       Reset Filter
                     </button>
                     <button
                       onClick={() => setShowFilterPopup(false)}
-                      className="bg-school-blue text-white text-xs font-bold px-4 py-2 rounded-lg shadow-sm hover:bg-blue-700 transition-colors"
+                      className="bg-school-blue dark:bg-blue-600 text-white text-xs font-bold px-4 py-2 rounded-lg shadow-sm hover:bg-blue-700 dark:hover:bg-blue-500 dark:hover:bg-slate-600 transition-colors"
                     >
                       Terapkan
                     </button>
@@ -762,82 +762,82 @@ export const AdminReviewLaporanTugas: React.FC = () => {
             {/* Desktop Table View */}
             <table className="w-full text-left border-collapse min-w-[900px] hidden lg:table">
               <thead>
-                <tr className="bg-slate-50 text-slate-500 text-xs uppercase tracking-wider">
-                  <th className="px-4 py-3 font-bold border border-slate-200 w-12 text-center">NO</th>
-                  <th className="px-4 py-3 font-bold border border-slate-200 text-center w-36">TANGGAL</th>
-                  <th className="px-4 py-3 font-bold border border-slate-200">NAMA TUGAS</th>
-                  <th className="px-4 py-3 font-bold border border-slate-200 w-1/4">DITUGASKAN UNTUK</th>
-                  <th className="px-4 py-3 font-bold border border-slate-200 text-center w-32 whitespace-nowrap">TOTAL TUGAS</th>
-                  <th className="px-4 py-3 font-bold border border-slate-200 text-center w-24">MENUNGGU</th>
-                  <th className="px-4 py-3 font-bold border border-slate-200 text-center w-[120px]">PENILAIAN</th>
-                  <th className="px-4 py-3 font-bold border border-slate-200 text-center w-20">SKOR</th>
-                  <th className="px-4 py-3 font-bold border border-slate-200 text-center w-20">PERIKSA</th>
-                  <th className="px-4 py-3 font-bold border border-slate-200 text-center w-20">AKSI</th>
+                <tr className="bg-slate-50 dark:bg-slate-900 text-slate-500 dark:text-slate-400 text-xs uppercase tracking-wider">
+                  <th className="px-4 py-3 font-bold border border-slate-200 dark:border-slate-700 w-12 text-center">NO</th>
+                  <th className="px-4 py-3 font-bold border border-slate-200 dark:border-slate-700 text-center w-36">TANGGAL</th>
+                  <th className="px-4 py-3 font-bold border border-slate-200 dark:border-slate-700">NAMA TUGAS</th>
+                  <th className="px-4 py-3 font-bold border border-slate-200 dark:border-slate-700 w-1/4">DITUGASKAN UNTUK</th>
+                  <th className="px-4 py-3 font-bold border border-slate-200 dark:border-slate-700 text-center w-32 whitespace-nowrap">TOTAL TUGAS</th>
+                  <th className="px-4 py-3 font-bold border border-slate-200 dark:border-slate-700 text-center w-24">MENUNGGU</th>
+                  <th className="px-4 py-3 font-bold border border-slate-200 dark:border-slate-700 text-center w-[120px]">PENILAIAN</th>
+                  <th className="px-4 py-3 font-bold border border-slate-200 dark:border-slate-700 text-center w-20">SKOR</th>
+                  <th className="px-4 py-3 font-bold border border-slate-200 dark:border-slate-700 text-center w-20">PERIKSA</th>
+                  <th className="px-4 py-3 font-bold border border-slate-200 dark:border-slate-700 text-center w-20">AKSI</th>
                 </tr>
               </thead>
               <tbody>
                 {isLoading ? (
                   <tr>
-                    <td colSpan={10} className="p-12 text-center text-slate-500 border border-slate-200">
-                      <div className="flex justify-center mb-3 text-school-blue">
+                    <td colSpan={10} className="p-12 text-center text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-700">
+                      <div className="flex justify-center mb-3 text-school-blue dark:text-white">
                         <Loader2 size={32} className="animate-spin" />
                       </div>
-                      <p className="font-bold text-lg text-slate-600 mb-1">Memuat Data...</p>
+                      <p className="font-bold text-lg text-slate-600 dark:text-slate-300 mb-1">Memuat Data...</p>
                     </td>
                   </tr>
                 ) : filteredReports.length > 0 ? (
                   filteredReports.map((report, index) => (
                     <tr
                       key={report.id}
-                      className={`transition-colors ${selectedReportId === report.id ? 'bg-amber-50' : 'hover:bg-slate-50'}`}
+                      className={`transition-colors ${selectedReportId === report.id ? 'bg-blue-50 dark:bg-blue-900/30' : 'hover:bg-slate-50 dark:hover:bg-slate-700'}`}
                     >
-                      <td className="px-4 py-3 border border-slate-200 text-center text-sm font-medium text-slate-500">
+                      <td className="px-4 py-3 border border-slate-200 dark:border-slate-700 text-center text-sm font-medium text-slate-500 dark:text-slate-400">
                         {index + 1}
                       </td>
-                      <td className="px-4 py-3 border border-slate-200 text-center text-sm text-slate-700">
+                      <td className="px-4 py-3 border border-slate-200 dark:border-slate-700 text-center text-sm text-slate-700 dark:text-slate-200">
                         {format(new Date(report.date), 'dd MMM yyyy', { locale: id })}
                       </td>
-                      <td className="px-4 py-3 border border-slate-200 text-sm font-bold text-slate-800 max-w-md truncate" title={report.taskName}>
+                      <td className="px-4 py-3 border border-slate-200 dark:border-slate-700 text-sm font-bold text-slate-800 dark:text-slate-50 max-w-md truncate" title={report.taskName}>
                         {report.taskName}
                       </td>
-                      <td className="px-4 py-3 border border-slate-200 text-sm text-slate-800">
-                        <div className="font-bold text-school-blue">{report.user?.name || 'Staf Tidak Dikenal'}</div>
-                        <div className="text-xs text-slate-500 font-medium">{report.user?.position || 'Belum ada jabatan'}</div>
+                      <td className="px-4 py-3 border border-slate-200 dark:border-slate-700 text-sm text-slate-800 dark:text-slate-50">
+                        <div className="font-bold text-school-blue dark:text-white">{report.user?.name || 'Staf Tidak Dikenal'}</div>
+                        <div className="text-xs text-slate-500 dark:text-slate-400 font-medium">{report.user?.position || 'Belum ada jabatan'}</div>
                       </td>
-                      <td className="px-4 py-3 border border-slate-200 text-center">
-                        <span className="font-bold text-school-blue text-sm">
+                      <td className="px-4 py-3 border border-slate-200 dark:border-slate-700 text-center">
+                        <span className="font-bold text-school-blue dark:text-white text-sm">
                           {report.totalUpdates || 1}
                         </span>
                       </td>
-                      <td className="px-4 py-3 border border-slate-200 text-center">
+                      <td className="px-4 py-3 border border-slate-200 dark:border-slate-700 text-center">
                         <span className="font-bold text-orange-500 text-sm">
                           {report.totalMenunggu || 0}
                         </span>
                       </td>
-                      <td className="px-4 py-3 border border-slate-200 text-center">
+                      <td className="px-4 py-3 border border-slate-200 dark:border-slate-700 text-center">
                         <StarRating score={report.averageScore ?? report.score} />
                       </td>
-                      <td className="px-4 py-3 border border-slate-200 text-center font-bold text-amber-500">
+                      <td className="px-4 py-3 border border-slate-200 dark:border-slate-700 text-center font-bold text-amber-500">
                         {(report.averageScore ?? report.score) ? Number(report.averageScore ?? report.score).toFixed(1) : '-'}
                       </td>
-                      <td className="px-4 py-3 border border-slate-200 text-center">
+                      <td className="px-4 py-3 border border-slate-200 dark:border-slate-700 text-center">
                         <button
                           onClick={() => handleReviewClick(report)}
                           title="Periksa Lampiran"
                           className={`p-1.5 rounded-lg transition-colors inline-block ${selectedReportId === report.id
-                            ? 'bg-amber-100 text-amber-700'
-                            : 'text-amber-500 hover:text-amber-600 hover:bg-amber-50'
+                            ? 'bg-amber-100 dark:bg-amber-900/60 text-amber-700'
+                            : 'text-amber-500 hover:text-amber-600 hover:bg-amber-50 dark:hover:bg-amber-900/50'
                             }`}
                         >
                           <Eye size={18} />
                         </button>
                       </td>
-                      <td className="px-4 py-3 border border-slate-200 text-center">
+                      <td className="px-4 py-3 border border-slate-200 dark:border-slate-700 text-center">
                         <div className="flex items-center justify-center gap-2">
                           <button
                             onClick={() => handleDeleteReport(report.id)}
                             title="Hapus Laporan"
-                            className="p-1.5 text-rose-500 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
+                            className="p-1.5 text-rose-500 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-900/50 rounded-lg transition-colors"
                           >
                             <Trash2 size={16} />
                           </button>
@@ -847,11 +847,11 @@ export const AdminReviewLaporanTugas: React.FC = () => {
                   ))
                 ) : (
                   <tr>
-                    <td colSpan={10} className="p-12 text-center text-slate-500 border border-slate-200">
+                    <td colSpan={10} className="p-12 text-center text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-700">
                       <div className="flex justify-center mb-3 text-slate-300">
                         <BookOpen size={48} strokeWidth={1} />
                       </div>
-                      <p className="font-bold text-lg text-slate-600 mb-1">Tidak Ada Laporan</p>
+                      <p className="font-bold text-lg text-slate-600 dark:text-slate-300 mb-1">Tidak Ada Laporan</p>
                       <p className="text-sm">Tidak ada laporan yang ditemukan berdasarkan pencarian atau filter.</p>
                     </td>
                   </tr>
@@ -862,18 +862,18 @@ export const AdminReviewLaporanTugas: React.FC = () => {
             {/* Mobile Card View */}
             <div className="lg:hidden flex flex-col divide-y divide-slate-100">
               {isLoading ? (
-                <div className="p-12 text-center text-slate-500">
-                  <div className="flex justify-center mb-3 text-school-blue">
+                <div className="p-12 text-center text-slate-500 dark:text-slate-400">
+                  <div className="flex justify-center mb-3 text-school-blue dark:text-white">
                     <Loader2 size={32} className="animate-spin" />
                   </div>
-                  <p className="font-bold text-lg text-slate-600 mb-1">Memuat Data...</p>
+                  <p className="font-bold text-lg text-slate-600 dark:text-slate-300 mb-1">Memuat Data...</p>
                 </div>
               ) : filteredReports.length > 0 ? (
                 filteredReports.map(report => (
-                  <div key={report.id} className={`p-4 transition-colors flex flex-col gap-3 ${selectedReportId === report.id ? 'bg-amber-50' : 'hover:bg-slate-50'}`}>
+                  <div key={report.id} className={`p-4 transition-colors flex flex-col gap-3 ${selectedReportId === report.id ? 'bg-blue-50 dark:bg-blue-900/30' : 'hover:bg-slate-50 dark:hover:bg-slate-700'}`}>
                     <div className="flex justify-between items-start gap-2">
                       <div className="flex flex-col min-w-0">
-                        <h3 className="font-extrabold text-slate-800 text-base leading-snug truncate">{report.taskName}</h3>
+                        <h3 className="font-extrabold text-slate-800 dark:text-slate-50 text-base leading-snug truncate">{report.taskName}</h3>
                         <p className="text-xs font-bold text-slate-400 mt-1 truncate">
                           {format(new Date(report.date), 'dd MMM yyyy', { locale: id })}
                         </p>
@@ -881,27 +881,27 @@ export const AdminReviewLaporanTugas: React.FC = () => {
                     </div>
 
                     <div className="flex items-center justify-between gap-2 mt-1">
-                      <span className="text-xs font-bold text-slate-500 uppercase">Total Tugas:</span>
-                      <span className="font-bold text-school-blue text-sm">
+                      <span className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase">Total Tugas:</span>
+                      <span className="font-bold text-school-blue dark:text-white text-sm">
                         {report.totalUpdates || 1}
                       </span>
                     </div>
 
                     <div className="flex items-center justify-between gap-2 mt-1">
-                      <span className="text-xs font-bold text-slate-500 uppercase">Menunggu:</span>
+                      <span className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase">Menunggu:</span>
                       <span className="font-bold text-orange-500 text-sm">
                         {report.totalMenunggu || 0}
                       </span>
                     </div>
 
-                      <div className="mt-1 border-b border-slate-100 pb-2">
-                        <p className="text-sm font-bold text-school-blue leading-tight">{report.user?.name || 'Staf Tidak Dikenal'}</p>
-                        <p className="text-xs text-slate-500">{report.user?.position || 'Belum ada jabatan'}</p>
+                      <div className="mt-1 border-b border-slate-100 dark:border-slate-700 pb-2">
+                        <p className="text-sm font-bold text-school-blue dark:text-white leading-tight">{report.user?.name || 'Staf Tidak Dikenal'}</p>
+                        <p className="text-xs text-slate-500 dark:text-slate-400">{report.user?.position || 'Belum ada jabatan'}</p>
                       </div>
 
                     <div className="flex items-center justify-between gap-2 mt-1">
                       <div className="flex items-center gap-2">
-                        <span className="text-xs font-bold text-slate-500 uppercase">Penilaian</span>
+                        <span className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase">Penilaian</span>
                         <div className="flex items-center gap-0.5 text-slate-300">
                           {(report.averageScore || report.score) ? (
                             <>
@@ -909,7 +909,7 @@ export const AdminReviewLaporanTugas: React.FC = () => {
                               <span className="ml-1 text-xs font-bold text-amber-500">{Number(report.averageScore ?? report.score).toFixed(1)}</span>
                             </>
                           ) : (
-                            <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider bg-slate-100 px-2 py-0.5 rounded-md border border-slate-200/50">Belum Dinilai</span>
+                            <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-md border border-slate-200 dark:border-slate-700/50">Belum Dinilai</span>
                           )}
                         </div>
                       </div>
@@ -918,14 +918,14 @@ export const AdminReviewLaporanTugas: React.FC = () => {
                       <div className="flex items-center shrink-0">
                         <button
                           onClick={() => handleReviewClick(report)}
-                          className={`p-2 transition-colors rounded-full mr-1 ${selectedReportId === report.id ? 'bg-amber-100 text-amber-700' : 'text-amber-500 hover:text-amber-600 hover:bg-amber-50 bg-slate-50'}`}
+                          className={`p-2 transition-colors rounded-full mr-1 ${selectedReportId === report.id ? 'bg-amber-100 dark:bg-amber-900/60 text-amber-700' : 'text-amber-500 hover:text-amber-600 hover:bg-amber-50 dark:hover:bg-amber-900/50 bg-slate-50 dark:bg-slate-900'}`}
                           title="Periksa Lampiran"
                         >
                           <Eye size={16} />
                         </button>
                         <button
                           onClick={() => handleDeleteReport(report.id)}
-                          className="p-2 text-slate-400 hover:text-rose-500 transition-colors rounded-full bg-slate-50 ml-1"
+                          className="p-2 text-slate-400 hover:text-rose-500 transition-colors rounded-full bg-slate-50 dark:bg-slate-900 ml-1"
                           title="Hapus Laporan"
                         >
                           <Trash2 size={16} />
@@ -935,7 +935,7 @@ export const AdminReviewLaporanTugas: React.FC = () => {
                   </div>
                 ))
               ) : (
-                <div className="p-8 text-center text-slate-500">
+                <div className="p-8 text-center text-slate-500 dark:text-slate-400">
                   <div className="flex justify-center mb-2 text-slate-300">
                     <BookOpen size={32} />
                   </div>
@@ -950,3 +950,19 @@ export const AdminReviewLaporanTugas: React.FC = () => {
     </div>
   );
 };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

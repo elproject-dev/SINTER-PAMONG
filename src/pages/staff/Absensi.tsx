@@ -203,29 +203,29 @@ export const Absensi: React.FC<AbsensiProps> = ({ user }) => {
   return (
     <div className="w-full space-y-4 sm:space-y-6">
       <div className="mb-6 sm:mb-8">
-        <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-slate-800 tracking-tight mb-1 sm:mb-2">Absensi</h1>
-        <p className="text-slate-500 text-sm sm:text-base lg:text-lg">Catat absensi harian dan ajukan perizinan</p>
+        <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-slate-800 dark:text-slate-50 tracking-tight mb-1 sm:mb-2">Absensi</h1>
+        <p className="text-slate-500 dark:text-slate-400 text-sm sm:text-base lg:text-lg">Catat absensi harian dan ajukan perizinan</p>
       </div>
 
-      <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-4 sm:p-6 hover:shadow-md transition-all duration-300">
+      <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-100 dark:border-slate-700 p-4 sm:p-6 hover:shadow-md transition-all duration-300">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-3">
-          <h2 className="text-xl font-bold text-slate-800 tracking-tight">Status Kehadiran</h2>
-          <p className="text-xs sm:text-sm text-slate-500 flex items-center font-medium bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-100">
-            <Calendar className="mr-1.5 text-school-blue" size={16} />
+          <h2 className="text-xl font-bold text-slate-800 dark:text-slate-50 tracking-tight">Status Kehadiran</h2>
+          <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 flex items-center font-medium bg-slate-50 dark:bg-slate-900 px-3 py-1.5 rounded-lg border border-slate-100 dark:border-slate-700">
+            <Calendar className="mr-1.5 text-school-blue dark:text-white" size={16} />
             {format(new Date(), 'EEEE, d MMMM yyyy', { locale: id })}
           </p>
         </div>
 
         {isLoading ? (
           <div className="flex flex-col items-center justify-center py-12 space-y-4">
-            <Loader2 size={40} className="text-school-blue animate-spin" />
-            <p className="text-slate-500 font-medium animate-pulse">Memeriksa status kehadiran Anda...</p>
+            <Loader2 size={40} className="text-school-blue dark:text-white animate-spin" />
+            <p className="text-slate-500 dark:text-slate-400 font-medium animate-pulse">Memeriksa status kehadiran Anda...</p>
           </div>
         ) : !attendance ? (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="bg-gradient-to-br from-blue-50 to-indigo-50 p-4 rounded-xl border border-blue-100 shadow-sm relative overflow-hidden">
-              <div className="absolute top-0 right-0 -mt-2 -mr-2 w-24 h-24 bg-white opacity-40 rounded-full blur-xl"></div>
-              <h3 className="font-bold text-slate-800 text-base mb-3 relative z-10">Absen Reguler</h3>
+              <div className="absolute top-0 right-0 -mt-2 -mr-2 w-24 h-24 bg-white dark:bg-slate-800 opacity-40 rounded-full blur-xl"></div>
+              <h3 className="font-bold text-slate-800 dark:text-slate-50 text-base mb-3 relative z-10">Absen Reguler</h3>
 
               {locationError && (
                 <div className="bg-rose-50 border border-rose-200 text-rose-700 px-3 py-2 rounded-lg mb-3 text-xs flex items-start relative z-10">
@@ -246,7 +246,7 @@ export const Absensi: React.FC<AbsensiProps> = ({ user }) => {
                   </div>
                   <button
                     onClick={() => { setSelfieBlob(null); if (selfiePreview) URL.revokeObjectURL(selfiePreview); setSelfiePreview(null); setShowCamera(true); }}
-                    className="text-[10px] font-semibold text-school-blue hover:text-blue-700 underline underline-offset-2 transition-colors"
+                    className="text-[10px] font-semibold text-school-blue dark:text-white hover:text-blue-700 dark:hover:text-slate-300 underline underline-offset-2 transition-colors"
                   >
                     Ulang
                   </button>
@@ -277,19 +277,19 @@ export const Absensi: React.FC<AbsensiProps> = ({ user }) => {
               </button>
             </div>
 
-            <div className="bg-gradient-to-br from-slate-50 to-slate-100 p-4 rounded-xl border border-slate-200 shadow-sm">
-              <h3 className="font-bold text-slate-800 text-base mb-3">Pengajuan Izin/Sakit</h3>
+            <div className="bg-gradient-to-br from-slate-50 to-slate-100 p-4 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm">
+              <h3 className="font-bold text-slate-800 dark:text-slate-50 text-base mb-3">Pengajuan Izin/Sakit</h3>
               <form onSubmit={handleLeaveRequest} className="space-y-3">
                 <textarea
                   value={leaveNote}
                   onChange={(e) => setLeaveNote(e.target.value)}
                   placeholder="Tulis alasan singkat..."
-                  className="w-full bg-white border border-slate-300 rounded-lg p-3 h-20 text-sm resize-none focus:ring-1 focus:ring-school-blue focus:border-school-blue outline-none shadow-sm transition-all text-slate-700"
+                  className="w-full bg-white dark:bg-slate-800 border border-slate-300 rounded-lg p-3 h-20 text-sm resize-none focus:ring-1 focus:ring-school-blue focus:border-school-blue outline-none shadow-sm transition-all text-slate-700 dark:text-slate-200"
                   required
                 />
                 <button
                   type="submit"
-                  className="w-full bg-white border border-slate-200 hover:border-amber-400 hover:text-amber-600 hover:bg-amber-50 text-slate-600 py-2.5 rounded-lg text-sm font-semibold transition-all shadow-sm"
+                  className="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-amber-400 hover:text-amber-600 hover:bg-amber-50 dark:hover:bg-amber-900/50 text-slate-600 dark:text-slate-300 py-2.5 rounded-lg text-sm font-semibold transition-all shadow-sm"
                 >
                   Ajukan
                 </button>
@@ -298,7 +298,7 @@ export const Absensi: React.FC<AbsensiProps> = ({ user }) => {
           </div>
         ) : (
           <div className="bg-gradient-to-br from-emerald-50 to-teal-50 rounded-xl p-4 sm:p-6 border border-emerald-100 shadow-sm relative overflow-hidden">
-            <div className="absolute top-0 right-0 -mt-2 -mr-2 w-24 h-24 bg-white opacity-40 rounded-full blur-xl"></div>
+            <div className="absolute top-0 right-0 -mt-2 -mr-2 w-24 h-24 bg-white dark:bg-slate-800 opacity-40 rounded-full blur-xl"></div>
             <div className="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between mb-5 gap-3 sm:gap-0">
               <div className="text-center sm:text-left">
                 <p className="text-xs font-semibold text-emerald-600/80 uppercase tracking-widest mb-1">Status Hari Ini</p>
@@ -312,11 +312,11 @@ export const Absensi: React.FC<AbsensiProps> = ({ user }) => {
                       <CheckCircle size={20} />
                     </div>
                   ) : (
-                    <div className="bg-amber-100 p-1.5 rounded-full text-amber-600">
+                    <div className="bg-amber-100 dark:bg-amber-900/60 p-1.5 rounded-full text-amber-600">
                       <XCircle size={20} />
                     </div>
                   )}
-                  <span className="text-xl font-bold capitalize text-slate-800">
+                  <span className="text-xl font-bold capitalize text-slate-800 dark:text-slate-50">
                     {attendance.status === 'present' ? 'Hadir & Aktif' : 'Izin/Sakit'}
                   </span>
                 </div>
@@ -331,7 +331,7 @@ export const Absensi: React.FC<AbsensiProps> = ({ user }) => {
               )}
             </div>
 
-            <div className="grid grid-cols-1 gap-3 text-xs sm:text-sm relative z-10 bg-white/50 p-3 rounded-lg border border-emerald-100/50">
+            <div className="grid grid-cols-1 gap-3 text-xs sm:text-sm relative z-10 bg-white dark:bg-slate-800/50 p-3 rounded-lg border border-emerald-100/50">
               {attendance.selfieUrl && (
                 <div className="flex justify-center pb-2 border-b border-emerald-100">
                   <div className="w-20 h-20 rounded-full overflow-hidden border-2 border-emerald-200 shadow-sm">
@@ -342,16 +342,16 @@ export const Absensi: React.FC<AbsensiProps> = ({ user }) => {
               <div className="flex justify-between items-start">
                 {attendance.checkIn && (
                   <div>
-                    <p className="text-slate-500 text-[11px] uppercase tracking-wider font-semibold">Waktu Masuk</p>
-                    <p className="font-semibold text-slate-800 mt-0.5">
+                    <p className="text-slate-500 dark:text-slate-400 text-[11px] uppercase tracking-wider font-semibold">Waktu Masuk</p>
+                    <p className="font-semibold text-slate-800 dark:text-slate-50 mt-0.5">
                       {format(new Date(attendance.checkIn), 'HH:mm')} WIB
                     </p>
                   </div>
                 )}
                 {attendance.checkOut && (
                   <div className="text-right">
-                    <p className="text-slate-500 text-[11px] uppercase tracking-wider font-semibold">Waktu Keluar</p>
-                    <p className="font-semibold text-slate-800 mt-0.5">
+                    <p className="text-slate-500 dark:text-slate-400 text-[11px] uppercase tracking-wider font-semibold">Waktu Keluar</p>
+                    <p className="font-semibold text-slate-800 dark:text-slate-50 mt-0.5">
                       {format(new Date(attendance.checkOut), 'HH:mm')} WIB
                     </p>
                   </div>
@@ -359,15 +359,15 @@ export const Absensi: React.FC<AbsensiProps> = ({ user }) => {
               </div>
               {attendance.note && (
                 <div>
-                  <p className="text-slate-500 text-[11px] uppercase tracking-wider font-semibold">Catatan</p>
-                  <p className="font-medium text-slate-800 mt-0.5">{attendance.note}</p>
+                  <p className="text-slate-500 dark:text-slate-400 text-[11px] uppercase tracking-wider font-semibold">Catatan</p>
+                  <p className="font-medium text-slate-800 dark:text-slate-50 mt-0.5">{attendance.note}</p>
                 </div>
               )}
               {attendance.latitude && attendance.longitude && (
                 <div className="flex items-center justify-between border-t border-emerald-100/60 pt-2 mt-1">
                   <div>
-                    <p className="text-slate-500 text-[10px] uppercase font-semibold">Lokasi</p>
-                    <p className="font-medium text-slate-700 text-[10px]">
+                    <p className="text-slate-500 dark:text-slate-400 text-[10px] uppercase font-semibold">Lokasi</p>
+                    <p className="font-medium text-slate-700 dark:text-slate-200 text-[10px]">
                       {attendance.latitude.toFixed(5)}, {attendance.longitude.toFixed(5)}
                     </p>
                   </div>
@@ -387,72 +387,72 @@ export const Absensi: React.FC<AbsensiProps> = ({ user }) => {
       </div>
 
       {/* History Table */}
-      <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden mt-8">
-        <div className="p-4 border-b border-slate-200 flex items-center space-x-2 bg-white">
-          <List size={20} className="text-slate-600" />
-          <h2 className="font-bold text-slate-800 text-lg">Riwayat Kehadiran Anda</h2>
+      <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden mt-8">
+        <div className="p-4 border-b border-slate-200 dark:border-slate-700 flex items-center space-x-2 bg-white dark:bg-slate-800">
+          <List size={20} className="text-slate-600 dark:text-slate-300" />
+          <h2 className="font-bold text-slate-800 dark:text-slate-50 text-lg">Riwayat Kehadiran Anda</h2>
         </div>
         <div className="overflow-x-auto">
           {/* Desktop Table View */}
           <table className="w-full text-left border-collapse min-w-[900px] hidden xl:table">
             <thead>
-              <tr className="bg-slate-50 text-slate-500 text-xs uppercase tracking-wider">
-                <th className="px-4 py-3 font-bold border border-slate-200 w-12 text-center">NO</th>
-                <th className="px-4 py-3 font-bold border border-slate-200 w-36 text-center">TANGGAL</th>
-                <th className="px-4 py-3 font-bold border border-slate-200">NAMA LENGKAP</th>
-                <th className="px-4 py-3 font-bold border border-slate-200">PROFESI / JABATAN</th>
-                <th className="px-4 py-3 font-bold border border-slate-200 text-center">STATUS</th>
-                <th className="px-4 py-3 font-bold border border-slate-200 text-center w-28">JAM MASUK</th>
-                <th className="px-4 py-3 font-bold border border-slate-200 text-center w-28">JAM KELUAR</th>
-                <th className="px-4 py-3 font-bold border border-slate-200 w-64">CATATAN</th>
-                <th className="px-4 py-3 font-bold border border-slate-200 text-center w-20">FOTO</th>
-                <th className="px-4 py-3 font-bold border border-slate-200 text-center">LOKASI (GPS)</th>
+              <tr className="bg-slate-50 dark:bg-slate-900 text-slate-500 dark:text-slate-400 text-xs uppercase tracking-wider">
+                <th className="px-4 py-3 font-bold border border-slate-200 dark:border-slate-700 w-12 text-center">NO</th>
+                <th className="px-4 py-3 font-bold border border-slate-200 dark:border-slate-700 w-36 text-center">TANGGAL</th>
+                <th className="px-4 py-3 font-bold border border-slate-200 dark:border-slate-700">NAMA LENGKAP</th>
+                <th className="px-4 py-3 font-bold border border-slate-200 dark:border-slate-700">PROFESI / JABATAN</th>
+                <th className="px-4 py-3 font-bold border border-slate-200 dark:border-slate-700 text-center">STATUS</th>
+                <th className="px-4 py-3 font-bold border border-slate-200 dark:border-slate-700 text-center w-28">JAM MASUK</th>
+                <th className="px-4 py-3 font-bold border border-slate-200 dark:border-slate-700 text-center w-28">JAM KELUAR</th>
+                <th className="px-4 py-3 font-bold border border-slate-200 dark:border-slate-700 w-64">CATATAN</th>
+                <th className="px-4 py-3 font-bold border border-slate-200 dark:border-slate-700 text-center w-20">FOTO</th>
+                <th className="px-4 py-3 font-bold border border-slate-200 dark:border-slate-700 text-center">LOKASI (GPS)</th>
               </tr>
             </thead>
             <tbody>
               {isLoading ? (
                 <tr>
-                  <td colSpan={10} className="p-12 text-center text-slate-500 border border-slate-200">
-                    <div className="flex justify-center mb-3 text-school-blue">
+                  <td colSpan={10} className="p-12 text-center text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-700">
+                    <div className="flex justify-center mb-3 text-school-blue dark:text-white">
                       <Loader2 size={32} className="animate-spin" />
                     </div>
-                    <p className="font-bold text-lg text-slate-600 mb-1">Memuat Data...</p>
+                    <p className="font-bold text-lg text-slate-600 dark:text-slate-300 mb-1">Memuat Data...</p>
                   </td>
                 </tr>
               ) : allRecords.length > 0 ? (
                 allRecords.map((record, index) => (
-                  <tr key={record.id} className="hover:bg-slate-50 transition-colors">
-                    <td className="px-4 py-3 border border-slate-200 text-center text-sm font-medium text-slate-500">
+                  <tr key={record.id} className="hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
+                    <td className="px-4 py-3 border border-slate-200 dark:border-slate-700 text-center text-sm font-medium text-slate-500 dark:text-slate-400">
                       {index + 1}
                     </td>
-                    <td className="px-4 py-3 border border-slate-200 text-sm text-slate-700 text-center">
+                    <td className="px-4 py-3 border border-slate-200 dark:border-slate-700 text-sm text-slate-700 dark:text-slate-200 text-center">
                       {format(new Date(record.date), 'dd MMM yyyy', { locale: id })}
                     </td>
-                    <td className="px-4 py-3 border border-slate-200 text-sm">
-                      <div className="font-bold text-school-blue">{user.name}</div>
+                    <td className="px-4 py-3 border border-slate-200 dark:border-slate-700 text-sm">
+                      <div className="font-bold text-school-blue dark:text-white">{user.name}</div>
                     </td>
-                    <td className="px-4 py-3 border border-slate-200 text-sm text-slate-600">
+                    <td className="px-4 py-3 border border-slate-200 dark:border-slate-700 text-sm text-slate-600 dark:text-slate-300">
                       {user.position || <span className="text-slate-300">-</span>}
                     </td>
-                    <td className="px-4 py-3 border border-slate-200 text-center">
+                    <td className="px-4 py-3 border border-slate-200 dark:border-slate-700 text-center">
                       {getStatusBadge(record.status)}
                     </td>
-                    <td className="px-4 py-3 border border-slate-200 text-center text-sm text-slate-600">
+                    <td className="px-4 py-3 border border-slate-200 dark:border-slate-700 text-center text-sm text-slate-600 dark:text-slate-300">
                       {record.checkIn ? format(new Date(record.checkIn), 'HH:mm') : '-'}
                     </td>
-                    <td className="px-4 py-3 border border-slate-200 text-center text-sm text-slate-600">
+                    <td className="px-4 py-3 border border-slate-200 dark:border-slate-700 text-center text-sm text-slate-600 dark:text-slate-300">
                       {record.checkOut ? format(new Date(record.checkOut), 'HH:mm') : '-'}
                     </td>
-                    <td className="px-4 py-3 border border-slate-200 text-sm text-slate-500 max-w-[200px] truncate" title={record.note}>
+                    <td className="px-4 py-3 border border-slate-200 dark:border-slate-700 text-sm text-slate-500 dark:text-slate-400 max-w-[200px] truncate" title={record.note}>
                       {record.note || '-'}
                     </td>
-                    <td className="px-4 py-3 border border-slate-200 text-center">
+                    <td className="px-4 py-3 border border-slate-200 dark:border-slate-700 text-center">
                       {record.selfieUrl ? (
                         <a
                           href={record.selfieUrl}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="text-school-blue hover:text-blue-700 hover:underline font-bold text-sm"
+                          className="text-school-blue dark:text-white hover:text-blue-700 dark:hover:text-slate-300 hover:underline font-bold text-sm"
                           title="Lihat Foto Selfie di Tab Baru"
                         >
                           Lihat
@@ -461,7 +461,7 @@ export const Absensi: React.FC<AbsensiProps> = ({ user }) => {
                         <span className="text-slate-400 text-xs">-</span>
                       )}
                     </td>
-                    <td className="px-4 py-3 border border-slate-200 text-center">
+                    <td className="px-4 py-3 border border-slate-200 dark:border-slate-700 text-center">
                       {record.latitude && record.longitude ? (
                         <a
                           href={`https://www.google.com/maps/search/?api=1&query=${record.latitude},${record.longitude}`}
@@ -479,7 +479,7 @@ export const Absensi: React.FC<AbsensiProps> = ({ user }) => {
                 ))
               ) : (
                 <tr>
-                  <td colSpan={10} className="p-8 text-center text-slate-500 border border-slate-200">
+                  <td colSpan={10} className="p-8 text-center text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-700">
                     Belum ada data riwayat absensi.
                   </td>
                 </tr>
@@ -490,22 +490,22 @@ export const Absensi: React.FC<AbsensiProps> = ({ user }) => {
           {/* Mobile Card View */}
           <div className="xl:hidden flex flex-col divide-y divide-slate-100">
             {isLoading ? (
-              <div className="p-8 text-center text-slate-500">
-                <div className="flex justify-center mb-3 text-school-blue">
+              <div className="p-8 text-center text-slate-500 dark:text-slate-400">
+                <div className="flex justify-center mb-3 text-school-blue dark:text-white">
                   <Loader2 size={32} className="animate-spin" />
                 </div>
-                <p className="font-bold text-lg text-slate-600 mb-1">Memuat Data...</p>
+                <p className="font-bold text-lg text-slate-600 dark:text-slate-300 mb-1">Memuat Data...</p>
               </div>
             ) : allRecords.length > 0 ? (
               allRecords.map(record => (
-                <div key={record.id} className="p-4 hover:bg-slate-50 transition-colors flex flex-col gap-3">
+                <div key={record.id} className="p-4 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors flex flex-col gap-3">
                   <div className="flex justify-between items-start">
                     <div className="flex items-center gap-3">
                       <div className="flex flex-col">
                         <span className="text-xs font-bold text-slate-400 mb-0.5">{format(new Date(record.date), 'dd MMM yyyy', { locale: id })}</span>
-                        <h3 className="font-extrabold text-school-blue text-base">{user.name}</h3>
+                        <h3 className="font-extrabold text-school-blue dark:text-white text-base">{user.name}</h3>
                         {user.position && (
-                          <span className="text-xs text-slate-500 font-medium">{user.position}</span>
+                          <span className="text-xs text-slate-500 dark:text-slate-400 font-medium">{user.position}</span>
                         )}
                       </div>
                     </div>
@@ -514,19 +514,19 @@ export const Absensi: React.FC<AbsensiProps> = ({ user }) => {
                     </div>
                   </div>
 
-                  <div className="text-sm flex flex-col gap-1.5 bg-slate-50/50 p-3 rounded-lg border border-slate-100">
+                  <div className="text-sm flex flex-col gap-1.5 bg-slate-50 dark:bg-slate-900/50 p-3 rounded-lg border border-slate-100 dark:border-slate-700">
                     <div className="flex items-center justify-between">
                       <span className="text-slate-400 text-xs font-bold uppercase tracking-wider">Jam Masuk</span>
-                      <span className="font-semibold text-slate-700">{record.checkIn ? format(new Date(record.checkIn), 'HH:mm') : '-'}</span>
+                      <span className="font-semibold text-slate-700 dark:text-slate-200">{record.checkIn ? format(new Date(record.checkIn), 'HH:mm') : '-'}</span>
                     </div>
                     <div className="flex items-center justify-between">
                       <span className="text-slate-400 text-xs font-bold uppercase tracking-wider">Jam Keluar</span>
-                      <span className="font-semibold text-slate-700">{record.checkOut ? format(new Date(record.checkOut), 'HH:mm') : '-'}</span>
+                      <span className="font-semibold text-slate-700 dark:text-slate-200">{record.checkOut ? format(new Date(record.checkOut), 'HH:mm') : '-'}</span>
                     </div>
                   </div>
 
                   <div className="pt-2 flex justify-between items-center mt-1">
-                    <div className="text-xs text-slate-500 italic max-w-[50%] truncate">
+                    <div className="text-xs text-slate-500 dark:text-slate-400 italic max-w-[50%] truncate">
                       {record.note ? `Catatan: ${record.note}` : 'Tidak ada catatan'}
                     </div>
                     <div className="flex items-center gap-3">
@@ -535,7 +535,7 @@ export const Absensi: React.FC<AbsensiProps> = ({ user }) => {
                           href={record.selfieUrl}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="text-school-blue hover:text-blue-700 hover:underline text-xs font-bold"
+                          className="text-school-blue dark:text-white hover:text-blue-700 dark:hover:text-slate-300 hover:underline text-xs font-bold"
                         >
                           Lihat Foto
                         </a>
@@ -557,7 +557,7 @@ export const Absensi: React.FC<AbsensiProps> = ({ user }) => {
                 </div>
               ))
             ) : (
-              <div className="p-8 text-center text-slate-500">
+              <div className="p-8 text-center text-slate-500 dark:text-slate-400">
                 <div className="flex justify-center mb-2 text-slate-300">
                   <List size={32} />
                 </div>
@@ -578,3 +578,19 @@ export const Absensi: React.FC<AbsensiProps> = ({ user }) => {
     </div>
   );
 };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

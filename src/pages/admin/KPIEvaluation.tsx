@@ -270,8 +270,8 @@ export const AdminKPIEvaluation: React.FC<KPIEvaluationProps> = ({ currentUser }
     <div className="w-full space-y-8 animate-in fade-in duration-300">
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div>
-          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-slate-800 mb-1 sm:mb-2 tracking-tight">Penilaian KPI</h1>
-          <p className="text-slate-500 text-sm sm:text-base lg:text-lg">Rekapitulasi evaluasi total kinerja secara keseluruhan</p>
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-slate-800 dark:text-slate-50 mb-1 sm:mb-2 tracking-tight">Penilaian KPI</h1>
+          <p className="text-slate-500 dark:text-slate-400 text-sm sm:text-base lg:text-lg">Rekapitulasi evaluasi total kinerja secara keseluruhan</p>
         </div>
 
         <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto shrink-0">
@@ -284,7 +284,7 @@ export const AdminKPIEvaluation: React.FC<KPIEvaluationProps> = ({ currentUser }
               placeholder="Cari nama staf..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full bg-white border border-slate-200 rounded-xl py-2 pr-4 pl-10 text-slate-700 focus:ring-4 focus:ring-school-blue/10 focus:border-school-blue outline-none transition-all shadow-sm font-medium text-sm"
+              className="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl py-2 pr-4 pl-10 text-slate-700 dark:text-slate-200 focus:ring-4 focus:ring-school-blue/10 focus:border-school-blue outline-none transition-all shadow-sm font-medium text-sm"
             />
           </div>
           <button
@@ -309,22 +309,22 @@ export const AdminKPIEvaluation: React.FC<KPIEvaluationProps> = ({ currentUser }
       </div>
 
       {showAddManualForm && (
-        <div ref={formRef} className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 animate-in slide-in-from-top-4 fade-in duration-300 scroll-mt-24">
-          <h2 className="font-bold text-slate-800 text-lg mb-4 flex items-center gap-2 border-b border-slate-100 pb-3">
-            <Plus size={20} className="text-school-blue" />
+        <div ref={formRef} className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-6 animate-in slide-in-from-top-4 fade-in duration-300 scroll-mt-24">
+          <h2 className="font-bold text-slate-800 dark:text-slate-50 text-lg mb-4 flex items-center gap-2 border-b border-slate-100 dark:border-slate-700 pb-3">
+            <Plus size={20} className="text-school-blue dark:text-white" />
             Tambah Penilaian Manual
           </h2>
 
           <div className="flex flex-col gap-6">
             <div className="grid grid-cols-1 lg:grid-cols-4 gap-5 items-end">
               <div className="lg:col-span-3 space-y-1.5">
-                <label className="text-sm font-bold text-slate-700">Nama Indikator / Tugas <span className="text-rose-500">*</span></label>
+                <label className="text-sm font-bold text-slate-700 dark:text-slate-200">Nama Indikator / Tugas <span className="text-rose-500">*</span></label>
                 <input
                   type="text"
                   value={manualIndicatorName}
                   onChange={(e) => setManualIndicatorName(e.target.value)}
                   placeholder="Masukkan indikator..."
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 h-[46px] text-sm text-slate-700 focus:ring-4 focus:ring-school-blue/10 focus:border-school-blue outline-none transition-all shadow-sm font-medium"
+                  className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 h-[46px] text-sm text-slate-700 dark:text-slate-200 focus:ring-4 focus:ring-school-blue/10 focus:border-school-blue outline-none transition-all shadow-sm font-medium"
                 />
               </div>
 
@@ -332,7 +332,7 @@ export const AdminKPIEvaluation: React.FC<KPIEvaluationProps> = ({ currentUser }
                 <label className="block text-right mr-2 text-lg font-black bg-gradient-to-r from-amber-500 to-orange-500 text-transparent bg-clip-text uppercase tracking-wider">
                   Beri Penilaian
                 </label>
-                <div className="w-full h-[46px] bg-slate-50 border border-slate-200 rounded-xl px-4 flex items-center justify-between shadow-sm">
+                <div className="w-full h-[46px] bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 flex items-center justify-between shadow-sm">
                   <div className={`font-black text-xl transition-colors ${manualIndicatorScore > 0 ? 'text-amber-500' : 'text-slate-300'}`}>
                     {manualIndicatorScore > 0 ? `${manualIndicatorScore}.0` : '0.0'}
                   </div>
@@ -354,9 +354,9 @@ export const AdminKPIEvaluation: React.FC<KPIEvaluationProps> = ({ currentUser }
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-              <div className="bg-slate-50/70 border border-slate-200 rounded-xl p-5 shadow-sm space-y-4">
-                <div className="flex items-center gap-2.5 text-slate-700 border-b border-slate-200/60 pb-3">
-                  <div className="bg-school-blue/10 p-2 rounded-lg text-school-blue">
+              <div className="bg-slate-50 dark:bg-slate-900/70 border border-slate-200 dark:border-slate-700 rounded-xl p-5 shadow-sm space-y-4">
+                <div className="flex items-center gap-2.5 text-slate-700 dark:text-slate-200 border-b border-slate-200 dark:border-slate-700/60 pb-3">
+                  <div className="bg-school-blue/10 p-2 rounded-lg text-school-blue dark:text-white">
                     <UserIcon size={18} />
                   </div>
                   <h3 className="font-bold text-sm">Ditugaskan Kepada <span className="text-rose-500">*</span></h3>
@@ -364,18 +364,18 @@ export const AdminKPIEvaluation: React.FC<KPIEvaluationProps> = ({ currentUser }
 
                 <div className="relative" ref={staffDropdownRef}>
                   <div
-                    className={`w-full h-[42px] bg-white border ${isStaffDropdownOpen ? 'border-school-blue ring-4 ring-school-blue/10' : 'border-slate-200 hover:border-slate-300'} rounded-xl px-3 text-slate-700 flex justify-between items-center cursor-pointer transition-all font-medium shadow-sm`}
+                    className={`w-full h-[42px] bg-white dark:bg-slate-800 border ${isStaffDropdownOpen ? 'border-school-blue ring-4 ring-school-blue/10' : 'border-slate-200 dark:border-slate-700 hover:border-slate-300'} rounded-xl px-3 text-slate-700 dark:text-slate-200 flex justify-between items-center cursor-pointer transition-all font-medium shadow-sm`}
                     onClick={() => setIsStaffDropdownOpen(!isStaffDropdownOpen)}
                   >
-                    <span className={manualStaffId ? 'text-slate-800 text-sm truncate pr-2' : 'text-slate-400 text-sm'}>
+                    <span className={manualStaffId ? 'text-slate-800 dark:text-slate-50 text-sm truncate pr-2' : 'text-slate-400 text-sm'}>
                       {manualStaffId ? staff.find(s => s.id === manualStaffId)?.name || 'Pilih Staf...' : '-- Pilih Staf --'}
                     </span>
                     <ChevronDown size={18} className={`text-slate-400 shrink-0 transition-transform duration-300 ${isStaffDropdownOpen ? 'rotate-180' : ''}`} />
                   </div>
 
                   {isStaffDropdownOpen && (
-                    <div className="absolute z-20 w-full mt-2 bg-white border border-slate-100 rounded-xl shadow-xl overflow-hidden animate-in fade-in slide-in-from-top-2">
-                      <div className="p-2 border-b border-slate-100 sticky top-0 bg-white z-10">
+                    <div className="absolute z-20 w-full mt-2 bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-xl shadow-xl overflow-hidden animate-in fade-in slide-in-from-top-2">
+                      <div className="p-2 border-b border-slate-100 dark:border-slate-700 sticky top-0 bg-white dark:bg-slate-800 z-10">
                         <div className="relative">
                           <div className="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none text-slate-400">
                             <Search size={14} />
@@ -385,7 +385,7 @@ export const AdminKPIEvaluation: React.FC<KPIEvaluationProps> = ({ currentUser }
                             placeholder="Cari nama staf..."
                             value={staffSearch}
                             onChange={(e) => setStaffSearch(e.target.value)}
-                            className="w-full bg-slate-50 border border-slate-200 rounded-lg py-2 pr-3 pl-8 text-slate-700 text-xs focus:ring-2 focus:ring-school-blue/20 focus:border-school-blue outline-none transition-all"
+                            className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg py-2 pr-3 pl-8 text-slate-700 dark:text-slate-200 text-xs focus:ring-2 focus:ring-school-blue/20 focus:border-school-blue outline-none transition-all"
                             autoFocus
                             onClick={(e) => e.stopPropagation()}
                           />
@@ -403,14 +403,14 @@ export const AdminKPIEvaluation: React.FC<KPIEvaluationProps> = ({ currentUser }
                             }}
                           >
                             <div className="flex items-center justify-between">
-                              <span className={`text-sm transition-colors truncate pr-2 ${manualStaffId === s.id ? 'font-bold text-school-blue' : 'text-slate-700 font-bold group-hover:text-school-blue'}`}>{s.name}</span>
-                              {manualStaffId === s.id && <Check size={16} className="text-school-blue shrink-0" />}
+                              <span className={`text-sm transition-colors truncate pr-2 ${manualStaffId === s.id ? 'font-bold text-school-blue dark:text-white' : 'text-slate-700 dark:text-slate-200 font-bold group-hover:text-school-blue dark:text-white'}`}>{s.name}</span>
+                              {manualStaffId === s.id && <Check size={16} className="text-school-blue dark:text-white shrink-0" />}
                             </div>
-                            <span className="text-xs text-slate-500 truncate">{s.position || 'Tidak ada jabatan'}</span>
+                            <span className="text-xs text-slate-500 dark:text-slate-400 truncate">{s.position || 'Tidak ada jabatan'}</span>
                           </div>
                         ))}
                         {staff.filter(s => s.name.toLowerCase().includes(staffSearch.toLowerCase()) || (s.position || '').toLowerCase().includes(staffSearch.toLowerCase())).length === 0 && (
-                          <div className="px-4 py-4 text-center text-slate-500 text-xs">
+                          <div className="px-4 py-4 text-center text-slate-500 dark:text-slate-400 text-xs">
                             Pencarian tidak ditemukan.
                           </div>
                         )}
@@ -420,9 +420,9 @@ export const AdminKPIEvaluation: React.FC<KPIEvaluationProps> = ({ currentUser }
                 </div>
               </div>
 
-              <div className="bg-slate-50/70 border border-slate-200 rounded-xl p-5 shadow-sm space-y-4">
-                <div className="flex items-center gap-2.5 text-slate-700 border-b border-slate-200/60 pb-3">
-                  <div className="bg-school-blue/10 p-2 rounded-lg text-school-blue">
+              <div className="bg-slate-50 dark:bg-slate-900/70 border border-slate-200 dark:border-slate-700 rounded-xl p-5 shadow-sm space-y-4">
+                <div className="flex items-center gap-2.5 text-slate-700 dark:text-slate-200 border-b border-slate-200 dark:border-slate-700/60 pb-3">
+                  <div className="bg-school-blue/10 p-2 rounded-lg text-school-blue dark:text-white">
                     <Layers size={18} />
                   </div>
                   <h3 className="font-bold text-sm">Kategori Penilaian <span className="text-rose-500">*</span></h3>
@@ -430,18 +430,18 @@ export const AdminKPIEvaluation: React.FC<KPIEvaluationProps> = ({ currentUser }
 
                 <div className="relative" ref={categoryDropdownRef}>
                   <div
-                    className={`w-full h-[42px] bg-white border ${isCategoryDropdownOpen ? 'border-school-blue ring-4 ring-school-blue/10' : 'border-slate-200 hover:border-slate-300'} rounded-xl px-3 text-slate-700 flex justify-between items-center cursor-pointer transition-all font-medium shadow-sm`}
+                    className={`w-full h-[42px] bg-white dark:bg-slate-800 border ${isCategoryDropdownOpen ? 'border-school-blue ring-4 ring-school-blue/10' : 'border-slate-200 dark:border-slate-700 hover:border-slate-300'} rounded-xl px-3 text-slate-700 dark:text-slate-200 flex justify-between items-center cursor-pointer transition-all font-medium shadow-sm`}
                     onClick={() => setIsCategoryDropdownOpen(!isCategoryDropdownOpen)}
                   >
-                    <span className={manualCategory ? 'text-slate-800 text-sm' : 'text-slate-400 text-sm'}>
+                    <span className={manualCategory ? 'text-slate-800 dark:text-slate-50 text-sm' : 'text-slate-400 text-sm'}>
                       {manualCategory || '-- Pilih Kategori --'}
                     </span>
                     <ChevronDown size={18} className={`text-slate-400 transition-transform duration-300 ${isCategoryDropdownOpen ? 'rotate-180' : ''}`} />
                   </div>
 
                   {isCategoryDropdownOpen && (
-                    <div className="absolute z-20 w-full mt-2 bg-white border border-slate-100 rounded-xl shadow-xl overflow-hidden animate-in fade-in slide-in-from-top-2">
-                      <div className="p-2 border-b border-slate-100 sticky top-0 bg-white z-10">
+                    <div className="absolute z-20 w-full mt-2 bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-xl shadow-xl overflow-hidden animate-in fade-in slide-in-from-top-2">
+                      <div className="p-2 border-b border-slate-100 dark:border-slate-700 sticky top-0 bg-white dark:bg-slate-800 z-10">
                         <div className="relative">
                           <div className="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none text-slate-400">
                             <Search size={14} />
@@ -451,7 +451,7 @@ export const AdminKPIEvaluation: React.FC<KPIEvaluationProps> = ({ currentUser }
                             placeholder="Cari atau tambah..."
                             value={categorySearch}
                             onChange={(e) => setCategorySearch(e.target.value)}
-                            className="w-full bg-slate-50 border border-slate-200 rounded-lg py-2 pr-3 pl-8 text-slate-700 text-xs focus:ring-2 focus:ring-school-blue/20 focus:border-school-blue outline-none transition-all"
+                            className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg py-2 pr-3 pl-8 text-slate-700 dark:text-slate-200 text-xs focus:ring-2 focus:ring-school-blue/20 focus:border-school-blue outline-none transition-all"
                             autoFocus
                             onClick={(e) => e.stopPropagation()}
                             onKeyDown={(e) => {
@@ -480,9 +480,9 @@ export const AdminKPIEvaluation: React.FC<KPIEvaluationProps> = ({ currentUser }
                               setCategorySearch('');
                             }}
                           >
-                            <span className={`text-sm transition-colors truncate pr-2 ${manualCategory === cat ? 'font-bold text-school-blue' : 'text-slate-700 font-bold group-hover:text-school-blue'}`}>{cat}</span>
+                            <span className={`text-sm transition-colors truncate pr-2 ${manualCategory === cat ? 'font-bold text-school-blue dark:text-white' : 'text-slate-700 dark:text-slate-200 font-bold group-hover:text-school-blue dark:text-white'}`}>{cat}</span>
                             <div className="flex items-center gap-1.5 shrink-0">
-                              {manualCategory === cat && <Check size={16} className="text-school-blue" />}
+                              {manualCategory === cat && <Check size={16} className="text-school-blue dark:text-white" />}
                               {!['Umum', 'Tugas', 'Absensi'].includes(cat) && (
                                 <button
                                   type="button"
@@ -491,7 +491,7 @@ export const AdminKPIEvaluation: React.FC<KPIEvaluationProps> = ({ currentUser }
                                     setCategories(categories.filter(c => c !== cat));
                                     if (manualCategory === cat) setManualCategory('');
                                   }}
-                                  className="p-1 rounded-md text-slate-300 hover:text-rose-500 hover:bg-rose-50 transition-all opacity-0 group-hover:opacity-100 focus:opacity-100"
+                                  className="p-1 rounded-md text-slate-300 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-900/50 transition-all opacity-0 group-hover:opacity-100 focus:opacity-100"
                                   title="Hapus kategori"
                                 >
                                   <X size={14} />
@@ -523,7 +523,7 @@ export const AdminKPIEvaluation: React.FC<KPIEvaluationProps> = ({ currentUser }
               </div>
             </div>
 
-            <div className="flex justify-end pt-5 mt-2 border-t border-slate-100">
+            <div className="flex justify-end pt-5 mt-2 border-t border-slate-100 dark:border-slate-700">
               <button
                 type="button"
                 onClick={async () => {
@@ -640,19 +640,19 @@ export const AdminKPIEvaluation: React.FC<KPIEvaluationProps> = ({ currentUser }
 
       {/* Main Table Container */}
       {!selectedStaff ? (
-        <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-visible animate-in fade-in slide-in-from-bottom-4">
-          <div className="p-4 border-b border-slate-200 flex flex-row items-center justify-between bg-white gap-3 relative">
+        <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-visible animate-in fade-in slide-in-from-bottom-4">
+          <div className="p-4 border-b border-slate-200 dark:border-slate-700 flex flex-row items-center justify-between bg-white dark:bg-slate-800 gap-3 relative">
             <div className="flex items-center space-x-2 truncate">
-              <Award size={20} className="text-slate-600 shrink-0" />
-              <h2 className="font-bold text-slate-800 text-lg truncate">Data Kinerja Staf & Guru</h2>
+              <Award size={20} className="text-slate-600 dark:text-slate-300 shrink-0" />
+              <h2 className="font-bold text-slate-800 dark:text-slate-50 text-lg truncate">Data Kinerja Staf & Guru</h2>
             </div>
 
             <div className="flex items-center gap-2 relative" ref={filterPopupRef}>
               <button
                 onClick={() => setShowFilterPopup(!showFilterPopup)}
                 className={`flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-bold border transition-all ${showFilterPopup || filterStartDate || filterEndDate
-                  ? 'bg-school-blue/10 border-school-blue text-school-blue shadow-sm'
-                  : 'bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100 shadow-sm'
+                  ? 'bg-school-blue/10 border-school-blue text-school-blue dark:text-white shadow-sm'
+                  : 'bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700 shadow-sm'
                   }`}
               >
                 <SlidersHorizontal size={16} />
@@ -661,17 +661,17 @@ export const AdminKPIEvaluation: React.FC<KPIEvaluationProps> = ({ currentUser }
 
               {/* Pop-up Filter */}
               {showFilterPopup && (
-                <div className="absolute right-0 top-full mt-2 w-64 bg-white rounded-xl shadow-xl border border-slate-200 p-4 z-[60] animate-in fade-in slide-in-from-top-2">
+                <div className="absolute right-0 top-full mt-2 w-64 bg-white dark:bg-slate-800 rounded-xl shadow-xl border border-slate-200 dark:border-slate-700 p-4 z-[60] animate-in fade-in slide-in-from-top-2">
                   <div className="flex justify-between items-center mb-4">
-                    <h3 className="font-bold text-slate-800 text-sm">Filter Data</h3>
-                    <button onClick={() => setShowFilterPopup(false)} className="text-slate-400 hover:text-slate-600 bg-slate-50 hover:bg-slate-100 p-1 rounded-md transition-colors">
+                    <h3 className="font-bold text-slate-800 dark:text-slate-50 text-sm">Filter Data</h3>
+                    <button onClick={() => setShowFilterPopup(false)} className="text-slate-400 hover:text-slate-600 dark:text-slate-300 bg-slate-50 dark:bg-slate-900 hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700 p-1 rounded-md transition-colors">
                       <X size={16} />
                     </button>
                   </div>
 
                   <div className="space-y-3">
                     <div>
-                      <label className="text-xs font-bold text-slate-500 mb-1 block">Tanggal Mulai</label>
+                      <label className="text-xs font-bold text-slate-500 dark:text-slate-400 mb-1 block">Tanggal Mulai</label>
                       <input
                         type={filterStartDate ? "date" : "text"}
                         placeholder="Tanggal Mulai"
@@ -684,11 +684,11 @@ export const AdminKPIEvaluation: React.FC<KPIEvaluationProps> = ({ currentUser }
                         }}
                         value={filterStartDate}
                         onChange={(e) => setFilterStartDate(e.target.value)}
-                        className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-school-blue/20 outline-none text-slate-700 font-bold text-center cursor-pointer transition-all hover:bg-slate-100"
+                        className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-school-blue/20 outline-none text-slate-700 dark:text-slate-200 font-bold text-center cursor-pointer transition-all hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700"
                       />
                     </div>
                     <div>
-                      <label className="text-xs font-bold text-slate-500 mb-1 block">Tanggal Akhir</label>
+                      <label className="text-xs font-bold text-slate-500 dark:text-slate-400 mb-1 block">Tanggal Akhir</label>
                       <input
                         type={filterEndDate ? "date" : "text"}
                         placeholder="Tanggal Akhir"
@@ -701,7 +701,7 @@ export const AdminKPIEvaluation: React.FC<KPIEvaluationProps> = ({ currentUser }
                         }}
                         value={filterEndDate}
                         onChange={(e) => setFilterEndDate(e.target.value)}
-                        className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-school-blue/20 outline-none text-slate-700 font-bold text-center cursor-pointer transition-all hover:bg-slate-100"
+                        className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-school-blue/20 outline-none text-slate-700 dark:text-slate-200 font-bold text-center cursor-pointer transition-all hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700"
                       />
                     </div>
                     {(filterStartDate || filterEndDate) && (
@@ -710,7 +710,7 @@ export const AdminKPIEvaluation: React.FC<KPIEvaluationProps> = ({ currentUser }
                           setFilterStartDate('');
                           setFilterEndDate('');
                         }}
-                        className="w-full mt-3 bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold py-2 rounded-lg text-sm transition-colors"
+                        className="w-full mt-3 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-600 dark:text-slate-300 font-bold py-2 rounded-lg text-sm transition-colors"
                       >
                         Reset Filter
                       </button>
@@ -724,58 +724,58 @@ export const AdminKPIEvaluation: React.FC<KPIEvaluationProps> = ({ currentUser }
             {/* Desktop Table View */}
             <table className="w-full text-left border-collapse min-w-[800px] hidden lg:table">
               <thead>
-                <tr className="bg-slate-50 text-slate-500 text-xs uppercase tracking-wider">
-                  <th className="px-4 py-3 font-bold border border-slate-200 w-12 text-center">NO</th>
-                  <th className="px-4 py-3 font-bold border border-slate-200">NAMA LENGKAP</th>
-                  <th className="px-4 py-3 font-bold border border-slate-200">PROFESI / JABATAN</th>
-                  <th className="px-4 py-3 font-bold border border-slate-200 text-center w-[180px]">PENILAIAN</th>
-                  <th className="px-4 py-3 font-bold border border-slate-200 text-center w-24">SKOR</th>
-                  <th className="px-4 py-3 font-bold border border-slate-200 text-center w-32">AKSI</th>
+                <tr className="bg-slate-50 dark:bg-slate-900 text-slate-500 dark:text-slate-400 text-xs uppercase tracking-wider">
+                  <th className="px-4 py-3 font-bold border border-slate-200 dark:border-slate-700 w-12 text-center">NO</th>
+                  <th className="px-4 py-3 font-bold border border-slate-200 dark:border-slate-700">NAMA LENGKAP</th>
+                  <th className="px-4 py-3 font-bold border border-slate-200 dark:border-slate-700">PROFESI / JABATAN</th>
+                  <th className="px-4 py-3 font-bold border border-slate-200 dark:border-slate-700 text-center w-[180px]">PENILAIAN</th>
+                  <th className="px-4 py-3 font-bold border border-slate-200 dark:border-slate-700 text-center w-24">SKOR</th>
+                  <th className="px-4 py-3 font-bold border border-slate-200 dark:border-slate-700 text-center w-32">AKSI</th>
                 </tr>
               </thead>
               <tbody>
                 {isLoading ? (
                   <tr>
-                    <td colSpan={6} className="p-8 text-center text-slate-500 border border-slate-200">
-                      <div className="flex justify-center mb-3 text-school-blue">
+                    <td colSpan={6} className="p-8 text-center text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-700">
+                      <div className="flex justify-center mb-3 text-school-blue dark:text-white">
                         <Loader2 size={32} className="animate-spin" />
                       </div>
-                      <p className="font-bold text-lg text-slate-600 mb-1">Memuat Data...</p>
+                      <p className="font-bold text-lg text-slate-600 dark:text-slate-300 mb-1">Memuat Data...</p>
                     </td>
                   </tr>
                 ) : filteredStaff.length > 0 ? (
                   filteredStaff.map((user, index) => {
                     const score = getSavedAverage(user.id);
                     return (
-                      <tr key={user.id} className="hover:bg-slate-50 transition-colors">
-                        <td className="px-4 py-3 border border-slate-200 text-center text-sm font-medium text-slate-500">
+                      <tr key={user.id} className="hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
+                        <td className="px-4 py-3 border border-slate-200 dark:border-slate-700 text-center text-sm font-medium text-slate-500 dark:text-slate-400">
                           {index + 1}
                         </td>
-                        <td className="px-4 py-3 border border-slate-200 text-sm font-bold text-slate-800">
+                        <td className="px-4 py-3 border border-slate-200 dark:border-slate-700 text-sm font-bold text-slate-800 dark:text-slate-50">
                           {user.name}
                         </td>
-                        <td className="px-4 py-3 border border-slate-200 text-sm text-slate-700">
+                        <td className="px-4 py-3 border border-slate-200 dark:border-slate-700 text-sm text-slate-700 dark:text-slate-200">
                           {user.position || 'Belum ada jabatan'}
                         </td>
-                        <td className="px-4 py-3 border border-slate-200 text-center">
+                        <td className="px-4 py-3 border border-slate-200 dark:border-slate-700 text-center">
                           {score ? (
                             <div className="flex justify-center">
                               <StarRating score={Number(score)} size={16} />
                             </div>
                           ) : (
-                            <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-medium bg-slate-100 text-slate-500 border border-slate-200">
+                            <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-medium bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-700">
                               Belum Dinilai
                             </span>
                           )}
                         </td>
-                        <td className="px-4 py-3 border border-slate-200 text-center font-bold text-amber-500">
+                        <td className="px-4 py-3 border border-slate-200 dark:border-slate-700 text-center font-bold text-amber-500">
                           {score ? score : '-'}
                         </td>
-                        <td className="px-4 py-3 border border-slate-200 text-center">
+                        <td className="px-4 py-3 border border-slate-200 dark:border-slate-700 text-center">
                           <button
                             onClick={() => openEvaluationPanel(user.id)}
                             title="Periksa / Beri Nilai"
-                            className="p-2 rounded-lg text-school-blue hover:bg-blue-50 transition-colors mx-auto flex items-center justify-center"
+                            className="p-2 rounded-lg text-school-blue dark:text-white hover:bg-blue-50 dark:bg-slate-800 dark:hover:bg-slate-700 transition-colors mx-auto flex items-center justify-center"
                           >
                             <Eye size={18} />
                           </button>
@@ -785,7 +785,7 @@ export const AdminKPIEvaluation: React.FC<KPIEvaluationProps> = ({ currentUser }
                   })
                 ) : (
                   <tr>
-                    <td colSpan={6} className="p-8 text-center text-slate-500 border border-slate-200">
+                    <td colSpan={6} className="p-8 text-center text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-700">
                       <div className="flex justify-center mb-2 text-slate-300">
                         <Award size={32} />
                       </div>
@@ -799,21 +799,21 @@ export const AdminKPIEvaluation: React.FC<KPIEvaluationProps> = ({ currentUser }
             {/* Mobile Card View */}
             <div className="lg:hidden flex flex-col divide-y divide-slate-100">
               {isLoading ? (
-                <div className="p-8 text-center text-slate-500">
-                  <div className="flex justify-center mb-3 text-school-blue">
+                <div className="p-8 text-center text-slate-500 dark:text-slate-400">
+                  <div className="flex justify-center mb-3 text-school-blue dark:text-white">
                     <Loader2 size={32} className="animate-spin" />
                   </div>
-                  <p className="font-bold text-lg text-slate-600 mb-1">Memuat Data...</p>
+                  <p className="font-bold text-lg text-slate-600 dark:text-slate-300 mb-1">Memuat Data...</p>
                 </div>
               ) : filteredStaff.length > 0 ? (
                 filteredStaff.map(user => {
                   const score = getSavedAverage(user.id);
                   return (
-                    <div key={user.id} className="p-4 hover:bg-slate-50 transition-colors flex flex-col gap-3">
+                    <div key={user.id} className="p-4 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors flex flex-col gap-3">
                       <div className="flex justify-between items-start">
                         <div className="flex flex-col">
-                          <h3 className="font-extrabold text-slate-800 text-base">{user.name}</h3>
-                          <p className="text-sm font-medium text-school-blue">{user.position || 'Belum ada jabatan'}</p>
+                          <h3 className="font-extrabold text-slate-800 dark:text-slate-50 text-base">{user.name}</h3>
+                          <p className="text-sm font-medium text-school-blue dark:text-white">{user.position || 'Belum ada jabatan'}</p>
                         </div>
                         <div>
                           {score ? (
@@ -822,7 +822,7 @@ export const AdminKPIEvaluation: React.FC<KPIEvaluationProps> = ({ currentUser }
                               <span className="text-sm font-bold text-amber-500">{score}</span>
                             </div>
                           ) : (
-                            <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-medium bg-slate-100 text-slate-500 border border-slate-200">
+                            <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-medium bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-700">
                               Belum Dinilai
                             </span>
                           )}
@@ -833,7 +833,7 @@ export const AdminKPIEvaluation: React.FC<KPIEvaluationProps> = ({ currentUser }
                         <button
                           onClick={() => openEvaluationPanel(user.id)}
                           title="Periksa / Beri Nilai"
-                          className="p-2 rounded-full bg-slate-50 text-slate-400 hover:text-school-blue transition-colors flex items-center justify-center"
+                          className="p-2 rounded-full bg-slate-50 dark:bg-slate-900 text-slate-400 hover:text-school-blue dark:text-white transition-colors flex items-center justify-center"
                         >
                           <Eye size={16} />
                         </button>
@@ -842,7 +842,7 @@ export const AdminKPIEvaluation: React.FC<KPIEvaluationProps> = ({ currentUser }
                   );
                 })
               ) : (
-                <div className="p-8 text-center text-slate-500">
+                <div className="p-8 text-center text-slate-500 dark:text-slate-400">
                   <div className="flex justify-center mb-2 text-slate-300">
                     <Award size={32} />
                   </div>
@@ -854,16 +854,16 @@ export const AdminKPIEvaluation: React.FC<KPIEvaluationProps> = ({ currentUser }
         </div>
       ) : (
         /* Inline Evaluation Panel (Table View) */
-        <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden animate-in fade-in slide-in-from-bottom-4">
-          <div className="p-4 border-b border-slate-200 flex items-center justify-between bg-white">
+        <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden animate-in fade-in slide-in-from-bottom-4">
+          <div className="p-4 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between bg-white dark:bg-slate-800">
             <div className="flex items-center space-x-2">
-              <Award size={20} className="text-slate-600" />
-              <h2 className="font-bold text-slate-800 text-lg">Detail Penilaian KPI</h2>
+              <Award size={20} className="text-slate-600 dark:text-slate-300" />
+              <h2 className="font-bold text-slate-800 dark:text-slate-50 text-lg">Detail Penilaian KPI</h2>
             </div>
             <button
               type="button"
               onClick={() => setSelectedStaff('')}
-              className="px-4 py-1.5 rounded-lg border border-slate-200 text-slate-600 text-sm font-bold hover:bg-slate-100 transition-colors"
+              className="px-4 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 text-sm font-bold hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700 transition-colors"
             >
               Tutup
             </button>
@@ -891,7 +891,7 @@ export const AdminKPIEvaluation: React.FC<KPIEvaluationProps> = ({ currentUser }
                 }
 
                 let categoryBadge = (
-                  <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-600">Umum</span>
+                  <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">Umum</span>
                 );
                 
                 let origCat = 'Umum';
@@ -909,7 +909,7 @@ export const AdminKPIEvaluation: React.FC<KPIEvaluationProps> = ({ currentUser }
                     const catName = scoreObj.category;
                     origCat = catName;
                     if (catName === 'Umum') {
-                      categoryBadge = <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-600">Umum</span>;
+                      categoryBadge = <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">Umum</span>;
                     } else if (catName === 'Tugas') {
                       categoryBadge = <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500 text-white shadow-sm">Tugas</span>;
                     } else if (catName.toLowerCase() === 'absensi') {
@@ -925,7 +925,7 @@ export const AdminKPIEvaluation: React.FC<KPIEvaluationProps> = ({ currentUser }
                           const catName = parsed[task];
                           origCat = catName;
                           if (catName === 'Umum') {
-                            categoryBadge = <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-600">Umum</span>;
+                            categoryBadge = <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">Umum</span>;
                           } else if (catName === 'Tugas') {
                             categoryBadge = <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500 text-white shadow-sm">Tugas</span>;
                           } else if (catName.toLowerCase() === 'absensi') {
@@ -947,38 +947,38 @@ export const AdminKPIEvaluation: React.FC<KPIEvaluationProps> = ({ currentUser }
                   <div className="overflow-x-auto hidden xl:block">
                     <table className="w-full text-left border-collapse min-w-[700px]">
                       <thead>
-                        <tr className="bg-slate-50 text-slate-500 text-xs uppercase tracking-wider">
-                          <th className="px-4 py-3 font-bold border border-slate-200 w-12 text-center">NO</th>
-                          <th className="px-4 py-3 font-bold border border-slate-200 w-64">NAMA LENGKAP</th>
-                          <th className="px-4 py-3 font-bold border border-slate-200 w-72">PROFESI / JABATAN</th>
-                          <th className="px-4 py-3 font-bold border border-slate-200 uppercase">Indikator tugas / kinerja</th>
-                          <th className="px-4 py-3 font-bold border border-slate-200 text-center w-32">KATEGORI</th>
-                          <th className="px-4 py-3 font-bold border border-slate-200 text-center w-32">SKOR</th>
-                          <th className="px-4 py-3 font-bold border border-slate-200 text-center w-[180px]">PENILAIAN</th>
-                          <th className="px-4 py-3 font-bold border border-slate-200 text-center w-16">AKSI</th>
+                        <tr className="bg-slate-50 dark:bg-slate-900 text-slate-500 dark:text-slate-400 text-xs uppercase tracking-wider">
+                          <th className="px-4 py-3 font-bold border border-slate-200 dark:border-slate-700 w-12 text-center">NO</th>
+                          <th className="px-4 py-3 font-bold border border-slate-200 dark:border-slate-700 w-64">NAMA LENGKAP</th>
+                          <th className="px-4 py-3 font-bold border border-slate-200 dark:border-slate-700 w-72">PROFESI / JABATAN</th>
+                          <th className="px-4 py-3 font-bold border border-slate-200 dark:border-slate-700 uppercase">Indikator tugas / kinerja</th>
+                          <th className="px-4 py-3 font-bold border border-slate-200 dark:border-slate-700 text-center w-32">KATEGORI</th>
+                          <th className="px-4 py-3 font-bold border border-slate-200 dark:border-slate-700 text-center w-32">SKOR</th>
+                          <th className="px-4 py-3 font-bold border border-slate-200 dark:border-slate-700 text-center w-[180px]">PENILAIAN</th>
+                          <th className="px-4 py-3 font-bold border border-slate-200 dark:border-slate-700 text-center w-16">AKSI</th>
                         </tr>
                       </thead>
                       <tbody>
                         {rowData.map((row) => (
-                          <tr key={row.idx} className="hover:bg-slate-50 transition-colors">
-                            <td className="px-4 py-3 border border-slate-200 text-center text-sm font-medium text-slate-500">{row.idx + 1}</td>
-                            <td className="px-4 py-3 border border-slate-200 text-sm font-bold text-slate-800">{selectedUser?.name}</td>
-                            <td className="px-4 py-3 border border-slate-200 text-sm text-slate-700">{selectedUser?.position || 'Belum ada jabatan'}</td>
-                            <td className="px-4 py-3 border border-slate-200 text-sm font-bold text-slate-800">
+                          <tr key={row.idx} className="hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
+                            <td className="px-4 py-3 border border-slate-200 dark:border-slate-700 text-center text-sm font-medium text-slate-500 dark:text-slate-400">{row.idx + 1}</td>
+                            <td className="px-4 py-3 border border-slate-200 dark:border-slate-700 text-sm font-bold text-slate-800 dark:text-slate-50">{selectedUser?.name}</td>
+                            <td className="px-4 py-3 border border-slate-200 dark:border-slate-700 text-sm text-slate-700 dark:text-slate-200">{selectedUser?.position || 'Belum ada jabatan'}</td>
+                            <td className="px-4 py-3 border border-slate-200 dark:border-slate-700 text-sm font-bold text-slate-800 dark:text-slate-50">
                               <div className="line-clamp-2" title={row.task}>
                                 {row.task}
                               </div>
                             </td>
-                            <td className="px-4 py-3 border border-slate-200 text-center">
+                            <td className="px-4 py-3 border border-slate-200 dark:border-slate-700 text-center">
                               {row.categoryBadge}
                             </td>
-                            <td className="px-4 py-3 border border-slate-200 text-center font-bold text-amber-500">
+                            <td className="px-4 py-3 border border-slate-200 dark:border-slate-700 text-center font-bold text-amber-500">
                               {row.val > 0 ? row.val.toFixed(1) : "-"}
                             </td>
-                            <td className="px-4 py-3 border border-slate-200 text-center">
+                            <td className="px-4 py-3 border border-slate-200 dark:border-slate-700 text-center">
                               <StarRating score={row.val} />
                             </td>
-                            <td className="px-4 py-3 border border-slate-200 text-center">
+                            <td className="px-4 py-3 border border-slate-200 dark:border-slate-700 text-center">
                               {row.isAbsensi || row.isSpecific ? (
                                 <div className="p-2 mx-auto flex items-center justify-center text-slate-300" title="Penilaian ini terhitung otomatis dan tidak dapat diedit manual">
                                   <AiOutlineStop size={18} />
@@ -995,7 +995,7 @@ export const AdminKPIEvaluation: React.FC<KPIEvaluationProps> = ({ currentUser }
                                       formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
                                     }, 100);
                                   }}
-                                  className="p-2 rounded-lg text-amber-500 hover:bg-amber-50 transition-colors mx-auto flex items-center justify-center"
+                                  className="p-2 rounded-lg text-amber-500 hover:bg-amber-50 dark:hover:bg-amber-900/50 transition-colors mx-auto flex items-center justify-center"
                                   title="Edit Penilaian Manual"
                                 >
                                   <Edit size={18} />
@@ -1011,10 +1011,10 @@ export const AdminKPIEvaluation: React.FC<KPIEvaluationProps> = ({ currentUser }
                   {/* Mobile Card View */}
                   <div className="xl:hidden flex flex-col divide-y divide-slate-100">
                     {rowData.map((row) => (
-                      <div key={row.idx} className="p-4 bg-white hover:bg-slate-50 transition-colors flex flex-col gap-3">
+                      <div key={row.idx} className="p-4 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors flex flex-col gap-3">
                         <div className="flex justify-between items-start gap-2">
                           <div className="flex-1 pr-2">
-                            <h3 className="font-bold text-slate-800 text-sm mb-1 line-clamp-2" title={row.task}>{row.task}</h3>
+                            <h3 className="font-bold text-slate-800 dark:text-slate-50 text-sm mb-1 line-clamp-2" title={row.task}>{row.task}</h3>
                           </div>
                           
                           <div className="shrink-0 flex flex-col items-end gap-2">
@@ -1035,7 +1035,7 @@ export const AdminKPIEvaluation: React.FC<KPIEvaluationProps> = ({ currentUser }
                                     formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
                                   }, 100);
                                 }}
-                                className="p-2 rounded-lg text-amber-500 bg-amber-50/50 hover:bg-amber-100 transition-colors"
+                                className="p-2 rounded-lg text-amber-500 bg-amber-50/50 hover:bg-amber-100 dark:bg-amber-900/60 dark:hover:bg-amber-900/70 transition-colors"
                                 title="Edit Penilaian Manual"
                               >
                                 <Edit size={16} />
@@ -1044,12 +1044,12 @@ export const AdminKPIEvaluation: React.FC<KPIEvaluationProps> = ({ currentUser }
                           </div>
                         </div>
 
-                        <div className="flex items-center justify-between bg-slate-50 rounded-lg p-3 border border-slate-100">
+                        <div className="flex items-center justify-between bg-slate-50 dark:bg-slate-900 rounded-lg p-3 border border-slate-100 dark:border-slate-700">
                           <div className="flex items-center gap-2">
-                            <div className="bg-amber-100 p-1.5 rounded-full">
+                            <div className="bg-amber-100 dark:bg-amber-900/60 p-1.5 rounded-full">
                               <Star size={14} className="text-amber-500 fill-amber-500" />
                             </div>
-                            <span className="text-xs font-bold text-slate-500 uppercase">Skor</span>
+                            <span className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase">Skor</span>
                           </div>
                           <div className="flex items-center gap-3">
                             <span className="text-base font-extrabold text-amber-500">
@@ -1072,3 +1072,19 @@ export const AdminKPIEvaluation: React.FC<KPIEvaluationProps> = ({ currentUser }
     </div>
   );
 };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -62,10 +62,10 @@ export const StaffDashboard: React.FC<StaffDashboardProps> = ({ user }) => {
   const StatCard = ({ title, value, icon, gradientClass, subtitle, to, className = '' }: any) => {
     const CardContent = (
       <div className={`relative overflow-hidden rounded-2xl p-4 sm:p-5 shadow-md hover:shadow-xl hover:-translate-y-1 transition-all duration-300 ${gradientClass} text-white border border-white/20 h-full`}>
-        <div className="absolute top-0 right-0 -mt-3 -mr-3 w-24 h-24 bg-white opacity-[0.15] rounded-full blur-2xl"></div>
+        <div className="absolute top-0 right-0 -mt-3 -mr-3 w-24 h-24 bg-white dark:bg-slate-800 opacity-[0.15] rounded-full blur-2xl"></div>
         <div className="absolute bottom-0 left-0 -mb-4 -ml-4 w-20 h-20 bg-black opacity-[0.05] rounded-full blur-xl"></div>
         <div className="relative z-10">
-          <div className="absolute top-0 right-0 p-1.5 rounded-xl bg-white/20 backdrop-blur-md border border-white/30 shadow-sm">
+          <div className="absolute top-0 right-0 p-1.5 rounded-xl bg-white/20 dark:bg-slate-800/20 backdrop-blur-md border border-white/30 shadow-sm">
             {React.cloneElement(icon, { size: 16, className: 'text-white' })}
           </div>
           <p className="text-white/90 font-bold text-[10px] sm:text-[11px] uppercase tracking-widest">{title}</p>
@@ -83,8 +83,8 @@ export const StaffDashboard: React.FC<StaffDashboardProps> = ({ user }) => {
 
       <div className="flex items-stretch justify-between gap-4 mb-8">
         <div className="flex-1 min-w-0">
-          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-slate-800 tracking-tight mb-1 sm:mb-2 truncate">Dashboard Staf</h1>
-          <p className="text-slate-500 text-sm sm:text-base lg:text-lg truncate">Ringkasan informasi dan aktivitas Anda hari ini</p>
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-slate-800 dark:text-slate-50 tracking-tight mb-1 sm:mb-2 truncate">Dashboard Staf</h1>
+          <p className="text-slate-500 dark:text-slate-400 text-sm sm:text-base lg:text-lg truncate">Ringkasan informasi dan aktivitas Anda hari ini</p>
         </div>
 
         <div className="shrink-0 flex items-center justify-end relative">
@@ -95,7 +95,7 @@ export const StaffDashboard: React.FC<StaffDashboardProps> = ({ user }) => {
           >
             <div className="absolute inset-0.5 sm:inset-1 rounded-full animate-ping opacity-50 bg-emerald-400"></div>
 
-            <div className="relative z-10 w-full h-full rounded-full flex flex-col items-center justify-center text-base sm:text-lg font-bold shadow-md border-2 border-slate-200 bg-white overflow-hidden">
+            <div className="relative z-10 w-full h-full rounded-full flex flex-col items-center justify-center text-base sm:text-lg font-bold shadow-md border-2 border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 overflow-hidden">
               <img src={profilePic || `${import.meta.env.BASE_URL}check.png`} alt="Profile" className="w-full h-full object-cover" onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = `${import.meta.env.BASE_URL}check.png`; }} />
             </div>
           </button>
@@ -159,9 +159,9 @@ export const StaffDashboard: React.FC<StaffDashboardProps> = ({ user }) => {
 
       {/* Distribusi Kehadiran Chart Section */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-8">
-        <div className="bg-white rounded-3xl shadow-sm border border-slate-100 p-6 sm:p-8 flex flex-col sm:flex-row gap-6 sm:gap-8 items-center">
+        <div className="bg-white dark:bg-slate-800 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-700 p-6 sm:p-8 flex flex-col sm:flex-row gap-6 sm:gap-8 items-center">
           <div className="w-full sm:w-1/2 flex flex-col items-center sm:items-start h-full">
-            <h3 className="text-slate-600 font-medium mb-4 sm:mb-6 text-center sm:text-left w-full">Distribusi Total Kehadiran</h3>
+            <h3 className="text-slate-600 dark:text-slate-300 font-medium mb-4 sm:mb-6 text-center sm:text-left w-full">Distribusi Total Kehadiran</h3>
             <div className="w-full h-48 sm:h-56 relative flex justify-center items-center">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
@@ -208,19 +208,19 @@ export const StaffDashboard: React.FC<StaffDashboardProps> = ({ user }) => {
           </div>
           <div className="w-full sm:w-1/2 space-y-4">
             <div>
-            <p className="text-slate-500 font-medium mb-1 text-center sm:text-left">Total Absensi</p>
-            <div className="flex items-center justify-between w-full mt-2 border-b border-dashed border-slate-200 pb-4">
-              <span className="text-slate-800 text-3xl font-bold leading-none">{totalTercatat}</span>
+            <p className="text-slate-500 dark:text-slate-400 font-medium mb-1 text-center sm:text-left">Total Absensi</p>
+            <div className="flex items-center justify-between w-full mt-2 border-b border-dashed border-slate-200 dark:border-slate-700 pb-4">
+              <span className="text-slate-800 dark:text-slate-50 text-3xl font-bold leading-none">{totalTercatat}</span>
               <span className="text-slate-400 font-medium text-lg mt-1">Hari</span>
             </div>
           </div>
             <div className="pt-4 space-y-4">
-              <div className="flex justify-between items-center border-b border-dashed border-slate-200 pb-2">
-                <span className="text-slate-600 flex items-center gap-2"><div className="w-3 h-3 rounded-full bg-gradient-to-br from-emerald-500 to-green-400 shadow-[0_0_8px_rgba(16,185,129,0.5)]"></div> Masuk (Hadir)</span>
+              <div className="flex justify-between items-center border-b border-dashed border-slate-200 dark:border-slate-700 pb-2">
+                <span className="text-slate-600 dark:text-slate-300 flex items-center gap-2"><div className="w-3 h-3 rounded-full bg-gradient-to-br from-emerald-500 to-green-400 shadow-[0_0_8px_rgba(16,185,129,0.5)]"></div> Masuk (Hadir)</span>
                 <span className="font-bold text-emerald-500">{totalMasuk}</span>
               </div>
-              <div className="flex justify-between items-center border-b border-dashed border-slate-200 pb-2">
-                <span className="text-slate-600 flex items-center gap-2"><div className="w-3 h-3 rounded-full bg-gradient-to-br from-amber-500 to-yellow-400 shadow-[0_0_8px_rgba(245,158,11,0.5)]"></div> Izin / Sakit</span>
+              <div className="flex justify-between items-center border-b border-dashed border-slate-200 dark:border-slate-700 pb-2">
+                <span className="text-slate-600 dark:text-slate-300 flex items-center gap-2"><div className="w-3 h-3 rounded-full bg-gradient-to-br from-amber-500 to-yellow-400 shadow-[0_0_8px_rgba(245,158,11,0.5)]"></div> Izin / Sakit</span>
                 <span className="font-bold text-amber-500">{totalIzin}</span>
               </div>
             </div>
@@ -228,9 +228,9 @@ export const StaffDashboard: React.FC<StaffDashboardProps> = ({ user }) => {
         </div>
 
         {/* Distribusi Status Tugas Chart Section */}
-        <div className="bg-white rounded-3xl shadow-sm border border-slate-100 p-6 sm:p-8 flex flex-col sm:flex-row gap-6 sm:gap-8 items-center">
+        <div className="bg-white dark:bg-slate-800 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-700 p-6 sm:p-8 flex flex-col sm:flex-row gap-6 sm:gap-8 items-center">
           <div className="w-full sm:w-1/2 flex flex-col items-center sm:items-start h-full">
-            <h3 className="text-slate-600 font-medium mb-4 sm:mb-6 text-center sm:text-left w-full">Distribusi Status Tugas</h3>
+            <h3 className="text-slate-600 dark:text-slate-300 font-medium mb-4 sm:mb-6 text-center sm:text-left w-full">Distribusi Status Tugas</h3>
             <div className="w-full h-48 sm:h-56 relative flex justify-center items-center">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
@@ -279,23 +279,23 @@ export const StaffDashboard: React.FC<StaffDashboardProps> = ({ user }) => {
           </div>
           <div className="w-full sm:w-1/2 space-y-4">
             <div>
-              <p className="text-slate-500 font-medium mb-1 text-center sm:text-left">Nilai Bintang</p>
+              <p className="text-slate-500 dark:text-slate-400 font-medium mb-1 text-center sm:text-left">Nilai Bintang</p>
               <div className="flex items-center justify-center sm:justify-start gap-3 mt-2">
-                <span className="text-slate-800 text-3xl font-bold leading-none">{starRating}</span>
+                <span className="text-slate-800 dark:text-slate-50 text-3xl font-bold leading-none">{starRating}</span>
                 <StarRating score={averageAllTasks} size={26} className="flex items-center gap-1" />
               </div>
             </div>
             <div className="pt-4 space-y-4">
-              <div className="flex justify-between items-center border-b border-dashed border-slate-200 pb-2">
-                <span className="text-slate-600 flex items-center gap-2"><div className="w-3 h-3 rounded-full bg-gradient-to-br from-sky-500 to-teal-400 shadow-[0_0_8px_rgba(14,165,233,0.5)]"></div> Sudah Dinilai</span>
+              <div className="flex justify-between items-center border-b border-dashed border-slate-200 dark:border-slate-700 pb-2">
+                <span className="text-slate-600 dark:text-slate-300 flex items-center gap-2"><div className="w-3 h-3 rounded-full bg-gradient-to-br from-sky-500 to-teal-400 shadow-[0_0_8px_rgba(14,165,233,0.5)]"></div> Sudah Dinilai</span>
                 <span className="font-bold text-sky-500">{totalDisetujui}</span>
               </div>
-              <div className="flex justify-between items-center border-b border-dashed border-slate-200 pb-2">
-                <span className="text-slate-600 flex items-center gap-2"><div className="w-3 h-3 rounded-full bg-gradient-to-br from-amber-500 to-yellow-400 shadow-[0_0_8px_rgba(245,158,11,0.5)]"></div> Menunggu</span>
+              <div className="flex justify-between items-center border-b border-dashed border-slate-200 dark:border-slate-700 pb-2">
+                <span className="text-slate-600 dark:text-slate-300 flex items-center gap-2"><div className="w-3 h-3 rounded-full bg-gradient-to-br from-amber-500 to-yellow-400 shadow-[0_0_8px_rgba(245,158,11,0.5)]"></div> Menunggu</span>
                 <span className="font-bold text-amber-500">{totalMenunggu}</span>
               </div>
-              <div className="flex justify-between items-center border-b border-dashed border-slate-200 pb-2">
-                <span className="text-slate-600 flex items-center gap-2"><div className="w-3 h-3 rounded-full bg-gradient-to-br from-rose-500 to-pink-400 shadow-[0_0_8px_rgba(244,63,94,0.5)]"></div> Ditolak</span>
+              <div className="flex justify-between items-center border-b border-dashed border-slate-200 dark:border-slate-700 pb-2">
+                <span className="text-slate-600 dark:text-slate-300 flex items-center gap-2"><div className="w-3 h-3 rounded-full bg-gradient-to-br from-rose-500 to-pink-400 shadow-[0_0_8px_rgba(244,63,94,0.5)]"></div> Ditolak</span>
                 <span className="font-bold text-rose-500">{totalDitolak}</span>
               </div>
             </div>
@@ -307,3 +307,20 @@ export const StaffDashboard: React.FC<StaffDashboardProps> = ({ user }) => {
     </div>
   );
 };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

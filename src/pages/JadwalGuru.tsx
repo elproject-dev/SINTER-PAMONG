@@ -211,8 +211,8 @@ export const JadwalGuru: React.FC<JadwalGuruProps> = ({ user }) => {
     <div className="w-full space-y-8 animate-in fade-in duration-300">
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div>
-          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-slate-800 mb-1 sm:mb-2 tracking-tight">Jadwal Guru</h1>
-          <p className="text-slate-500 text-sm sm:text-base lg:text-lg">Informasi jadwal mengajar dan kegiatan guru</p>
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-slate-800 dark:text-slate-50 mb-1 sm:mb-2 tracking-tight">Jadwal Guru</h1>
+          <p className="text-slate-500 dark:text-slate-400 text-sm sm:text-base lg:text-lg">Informasi jadwal mengajar dan kegiatan guru</p>
         </div>
         
         <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto shrink-0">
@@ -225,7 +225,7 @@ export const JadwalGuru: React.FC<JadwalGuruProps> = ({ user }) => {
               placeholder="Cari jadwal..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full bg-white border border-slate-200 rounded-xl py-2 pr-4 pl-10 text-slate-700 focus:ring-4 focus:ring-school-blue/10 focus:border-school-blue outline-none transition-all shadow-sm font-medium text-sm"
+              className="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl py-2 pr-4 pl-10 text-slate-700 dark:text-slate-200 focus:ring-4 focus:ring-school-blue/10 focus:border-school-blue outline-none transition-all shadow-sm font-medium text-sm"
             />
           </div>
           
@@ -253,48 +253,48 @@ export const JadwalGuru: React.FC<JadwalGuruProps> = ({ user }) => {
       </div>
 
       {showForm && user.role === 'admin' && (
-        <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 animate-in slide-in-from-top-4 fade-in duration-300">
-          <h2 className="font-bold text-slate-800 text-lg mb-4 flex items-center gap-2 border-b border-slate-100 pb-3">
-            <Calendar size={20} className="text-school-blue" />
+        <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-6 animate-in slide-in-from-top-4 fade-in duration-300">
+          <h2 className="font-bold text-slate-800 dark:text-slate-50 text-lg mb-4 flex items-center gap-2 border-b border-slate-100 dark:border-slate-700 pb-3">
+            <Calendar size={20} className="text-school-blue dark:text-white" />
             {editingMediaId ? 'Edit Jadwal Guru' : 'Upload Jadwal Baru'}
           </h2>
           <form onSubmit={handleUploadSubmit} className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-1">
-                <label className="text-sm font-bold text-slate-700">Judul Jadwal <span className="text-rose-500">*</span></label>
+                <label className="text-sm font-bold text-slate-700 dark:text-slate-200">Judul Jadwal <span className="text-rose-500">*</span></label>
                 <input
                   type="text"
                   value={judul}
                   onChange={(e) => setJudul(e.target.value)}
                   placeholder="Masukkan judul jadwal"
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 h-12 text-sm focus:ring-4 focus:ring-school-blue/10 focus:border-school-blue outline-none transition-all"
+                  className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 h-12 text-sm focus:ring-4 focus:ring-school-blue/10 focus:border-school-blue outline-none transition-all"
                   required
                 />
               </div>
               
               <div className="space-y-1">
-                <label className="text-sm font-bold text-slate-700">File Jadwal {editingMediaId ? <span className="text-slate-400 font-medium">(Opsional)</span> : <span className="text-rose-500">*</span>}</label>
+                <label className="text-sm font-bold text-slate-700 dark:text-slate-200">File Jadwal {editingMediaId ? <span className="text-slate-400 font-medium">(Opsional)</span> : <span className="text-rose-500">*</span>}</label>
                 <input
                   type="file"
                   ref={fileInputRef}
                   onChange={handleFileChange}
-                  className="w-full h-12 block bg-slate-50 border border-slate-200 rounded-xl px-3 text-sm file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-school-blue/10 file:text-school-blue hover:file:bg-school-blue/20 transition-all text-slate-600 cursor-pointer focus:ring-4 focus:ring-school-blue/10 focus:border-school-blue outline-none py-2"
+                  className="w-full h-12 block bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-3 text-sm file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-school-blue/10 file:text-school-blue dark:file:text-white dark:text-white hover:file:bg-school-blue/20 transition-all text-slate-600 dark:text-slate-300 cursor-pointer focus:ring-4 focus:ring-school-blue/10 focus:border-school-blue outline-none py-2"
                   required={!editingMediaId}
                 />
               </div>
               
               <div className="space-y-1">
-                <label className="text-sm font-bold text-slate-700">Deskripsi Singkat</label>
+                <label className="text-sm font-bold text-slate-700 dark:text-slate-200">Deskripsi Singkat</label>
                 <textarea
                   value={deskripsi}
                   onChange={(e) => setDeskripsi(e.target.value)}
                   placeholder="Keterangan jadwal..."
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 h-20 text-sm focus:ring-4 focus:ring-school-blue/10 focus:border-school-blue outline-none transition-all resize-none custom-scrollbar"
+                  className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 h-20 text-sm focus:ring-4 focus:ring-school-blue/10 focus:border-school-blue outline-none transition-all resize-none custom-scrollbar"
                 />
               </div>
 
               <div className="space-y-1">
-                <label className="text-sm font-bold text-slate-700">Target Penerima <span className="text-slate-400 font-medium">(Opsional)</span></label>
+                <label className="text-sm font-bold text-slate-700 dark:text-slate-200">Target Penerima <span className="text-slate-400 font-medium">(Opsional)</span></label>
                 <div className="relative" ref={dropdownRef}>
                   <select
                     value={targetUserId}
@@ -309,10 +309,10 @@ export const JadwalGuru: React.FC<JadwalGuruProps> = ({ user }) => {
                   </select>
 
                   <div
-                    className={`w-full h-12 bg-slate-50 border ${isDropdownOpen ? 'border-school-blue ring-4 ring-school-blue/10' : 'border-slate-200 hover:border-slate-300'} rounded-xl px-4 text-slate-700 flex justify-between items-center cursor-pointer transition-all font-medium`}
+                    className={`w-full h-12 bg-slate-50 dark:bg-slate-900 border ${isDropdownOpen ? 'border-school-blue ring-4 ring-school-blue/10' : 'border-slate-200 dark:border-slate-700 hover:border-slate-300'} rounded-xl px-4 text-slate-700 dark:text-slate-200 flex justify-between items-center cursor-pointer transition-all font-medium`}
                     onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                   >
-                    <span className={targetUserId ? 'text-slate-800 text-sm' : 'text-slate-500 text-sm'}>
+                    <span className={targetUserId ? 'text-slate-800 dark:text-slate-50 text-sm' : 'text-slate-500 dark:text-slate-400 text-sm'}>
                       {targetUserId ? (() => {
                         const s = staffList.find(s => s.id === targetUserId);
                         return s ? `${s.name} - ${s.position || 'Tanpa Jabatan'}` : 'Pilih Staf...';
@@ -322,8 +322,8 @@ export const JadwalGuru: React.FC<JadwalGuruProps> = ({ user }) => {
                   </div>
 
                   {isDropdownOpen && (
-                    <div className="absolute z-20 w-full mt-2 bg-white border border-slate-100 rounded-xl shadow-xl overflow-hidden animate-in fade-in slide-in-from-top-2">
-                      <div className="p-2 border-b border-slate-100 sticky top-0 bg-white z-10">
+                    <div className="absolute z-20 w-full mt-2 bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-xl shadow-xl overflow-hidden animate-in fade-in slide-in-from-top-2">
+                      <div className="p-2 border-b border-slate-100 dark:border-slate-700 sticky top-0 bg-white dark:bg-slate-800 z-10">
                         <div className="relative">
                           <div className="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none text-slate-400">
                             <Search size={14} />
@@ -333,7 +333,7 @@ export const JadwalGuru: React.FC<JadwalGuruProps> = ({ user }) => {
                             placeholder="Cari nama staf..."
                             value={staffSearch}
                             onChange={(e) => setStaffSearch(e.target.value)}
-                            className="w-full bg-slate-50 border border-slate-200 rounded-lg py-2 pr-3 pl-8 text-slate-700 text-xs focus:ring-2 focus:ring-school-blue/20 focus:border-school-blue outline-none transition-all"
+                            className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg py-2 pr-3 pl-8 text-slate-700 dark:text-slate-200 text-xs focus:ring-2 focus:ring-school-blue/20 focus:border-school-blue outline-none transition-all"
                             autoFocus
                             onClick={(e) => e.stopPropagation()}
                           />
@@ -349,10 +349,10 @@ export const JadwalGuru: React.FC<JadwalGuruProps> = ({ user }) => {
                           }}
                         >
                           <div className="flex items-center justify-between">
-                            <span className={`text-sm transition-colors ${targetUserId === '' ? 'font-bold text-school-blue' : 'text-slate-700 font-bold group-hover:text-school-blue'}`}>Semua Staf (Global)</span>
-                            {targetUserId === '' && <Check size={16} className="text-school-blue" />}
+                            <span className={`text-sm transition-colors ${targetUserId === '' ? 'font-bold text-school-blue dark:text-white' : 'text-slate-700 dark:text-slate-200 font-bold group-hover:text-school-blue dark:text-white'}`}>Semua Staf (Global)</span>
+                            {targetUserId === '' && <Check size={16} className="text-school-blue dark:text-white" />}
                           </div>
-                          <span className="text-xs text-slate-500">Jadwal untuk semua pengguna</span>
+                          <span className="text-xs text-slate-500 dark:text-slate-400">Jadwal untuk semua pengguna</span>
                         </div>
 
                         {staffList.filter(s => s.name.toLowerCase().includes(staffSearch.toLowerCase()) || (s.position || '').toLowerCase().includes(staffSearch.toLowerCase())).map(s => (
@@ -366,14 +366,14 @@ export const JadwalGuru: React.FC<JadwalGuruProps> = ({ user }) => {
                             }}
                           >
                             <div className="flex items-center justify-between">
-                              <span className={`text-sm transition-colors ${targetUserId === s.id ? 'font-bold text-school-blue' : 'text-slate-700 font-bold group-hover:text-school-blue'}`}>{s.name}</span>
-                              {targetUserId === s.id && <Check size={16} className="text-school-blue" />}
+                              <span className={`text-sm transition-colors ${targetUserId === s.id ? 'font-bold text-school-blue dark:text-white' : 'text-slate-700 dark:text-slate-200 font-bold group-hover:text-school-blue dark:text-white'}`}>{s.name}</span>
+                              {targetUserId === s.id && <Check size={16} className="text-school-blue dark:text-white" />}
                             </div>
-                            <span className="text-xs text-slate-500">{s.position || 'Tidak ada jabatan'}</span>
+                            <span className="text-xs text-slate-500 dark:text-slate-400">{s.position || 'Tidak ada jabatan'}</span>
                           </div>
                         ))}
                         {staffList.filter(s => s.name.toLowerCase().includes(staffSearch.toLowerCase()) || (s.position || '').toLowerCase().includes(staffSearch.toLowerCase())).length === 0 && (
-                          <div className="px-4 py-6 text-center text-slate-500 text-xs">
+                          <div className="px-4 py-6 text-center text-slate-500 dark:text-slate-400 text-xs">
                             Pencarian tidak ditemukan.
                           </div>
                         )}
@@ -386,7 +386,7 @@ export const JadwalGuru: React.FC<JadwalGuruProps> = ({ user }) => {
             
             {isUploading && (
               <div className="w-full bg-slate-200 rounded-full h-2 mt-4 overflow-hidden">
-                <div className="bg-school-blue h-2 rounded-full transition-all duration-300 ease-out" style={{ width: `${uploadProgress}%` }}></div>
+                <div className="bg-school-blue dark:bg-blue-600 h-2 rounded-full transition-all duration-300 ease-out" style={{ width: `${uploadProgress}%` }}></div>
               </div>
             )}
             
@@ -407,11 +407,11 @@ export const JadwalGuru: React.FC<JadwalGuruProps> = ({ user }) => {
         </div>
       )}
 
-      <div className="bg-white rounded-xl shadow-sm border border-slate-200">
-        <div className="p-4 border-b border-slate-200 flex flex-row items-center justify-between bg-white gap-3 relative">
+      <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700">
+        <div className="p-4 border-b border-slate-200 dark:border-slate-700 flex flex-row items-center justify-between bg-white dark:bg-slate-800 gap-3 relative">
           <div className="flex items-center space-x-2 truncate">
-            <Calendar size={20} className="text-slate-600 shrink-0" />
-            <h2 className="font-bold text-slate-800 text-lg">Daftar Jadwal Guru ({filteredMedia.length})</h2>
+            <Calendar size={20} className="text-slate-600 dark:text-slate-300 shrink-0" />
+            <h2 className="font-bold text-slate-800 dark:text-slate-50 text-lg">Daftar Jadwal Guru ({filteredMedia.length})</h2>
           </div>
         </div>
         
@@ -419,68 +419,68 @@ export const JadwalGuru: React.FC<JadwalGuruProps> = ({ user }) => {
           {/* Desktop Table View */}
           <table className="w-full text-left border-collapse min-w-[900px] hidden xl:table">
             <thead>
-              <tr className="bg-slate-50 text-slate-500 text-xs uppercase tracking-wider">
-                <th className="px-4 py-3 font-bold border border-slate-200 w-12 text-center">NO</th>
-                <th className="px-4 py-3 font-bold border border-slate-200 text-center w-36">TANGGAL</th>
-                <th className="px-4 py-3 font-bold border border-slate-200">JUDUL JADWAL</th>
-                <th className="px-4 py-3 font-bold border border-slate-200 w-1/4">TARGET PENERIMA</th>
-                <th className="px-4 py-3 font-bold border border-slate-200 text-center w-32">LAMPIRAN</th>
-                <th className="px-4 py-3 font-bold border border-slate-200 text-center w-32">AKSI</th>
+              <tr className="bg-slate-50 dark:bg-slate-900 text-slate-500 dark:text-slate-400 text-xs uppercase tracking-wider">
+                <th className="px-4 py-3 font-bold border border-slate-200 dark:border-slate-700 w-12 text-center">NO</th>
+                <th className="px-4 py-3 font-bold border border-slate-200 dark:border-slate-700 text-center w-36">TANGGAL</th>
+                <th className="px-4 py-3 font-bold border border-slate-200 dark:border-slate-700">JUDUL JADWAL</th>
+                <th className="px-4 py-3 font-bold border border-slate-200 dark:border-slate-700 w-1/4">TARGET PENERIMA</th>
+                <th className="px-4 py-3 font-bold border border-slate-200 dark:border-slate-700 text-center w-32">LAMPIRAN</th>
+                <th className="px-4 py-3 font-bold border border-slate-200 dark:border-slate-700 text-center w-32">AKSI</th>
               </tr>
             </thead>
             <tbody>
               {isLoading ? (
                 <tr>
-                  <td colSpan={6} className="p-12 text-center text-slate-500 border border-slate-200">
-                    <div className="flex justify-center mb-3 text-school-blue">
+                  <td colSpan={6} className="p-12 text-center text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-700">
+                    <div className="flex justify-center mb-3 text-school-blue dark:text-white">
                       <Loader2 size={32} className="animate-spin" />
                     </div>
-                    <p className="font-bold text-lg text-slate-600 mb-1">Memuat Data...</p>
+                    <p className="font-bold text-lg text-slate-600 dark:text-slate-300 mb-1">Memuat Data...</p>
                   </td>
                 </tr>
               ) : filteredMedia.length > 0 ? (
                 filteredMedia.map((media, index) => (
-                  <tr key={media.id} className="hover:bg-slate-50 transition-colors">
-                    <td className="px-4 py-3 border border-slate-200 text-center text-sm font-medium text-slate-500">
+                  <tr key={media.id} className="hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
+                    <td className="px-4 py-3 border border-slate-200 dark:border-slate-700 text-center text-sm font-medium text-slate-500 dark:text-slate-400">
                       {index + 1}
                     </td>
-                    <td className="px-4 py-3 border border-slate-200 text-center text-sm text-slate-700">
+                    <td className="px-4 py-3 border border-slate-200 dark:border-slate-700 text-center text-sm text-slate-700 dark:text-slate-200">
                       {media.createdAt ? format(new Date(media.createdAt), 'dd MMM yyyy', { locale: id }) : '-'}
                     </td>
-                    <td className="px-4 py-3 border border-slate-200 text-sm">
-                      <div className="font-bold text-slate-800">{media.judul}</div>
-                      {media.deskripsi && <div className="text-xs text-slate-500 mt-1 line-clamp-2">{media.deskripsi}</div>}
+                    <td className="px-4 py-3 border border-slate-200 dark:border-slate-700 text-sm">
+                      <div className="font-bold text-slate-800 dark:text-slate-50">{media.judul}</div>
+                      {media.deskripsi && <div className="text-xs text-slate-500 dark:text-slate-400 mt-1 line-clamp-2">{media.deskripsi}</div>}
                     </td>
-                    <td className="px-4 py-3 border border-slate-200 text-sm text-slate-800">
+                    <td className="px-4 py-3 border border-slate-200 dark:border-slate-700 text-sm text-slate-800 dark:text-slate-50">
                       {media.targetUserId ? (
                         <>
-                          <div className="font-bold text-school-blue">{media.targetUserName}</div>
-                          <div className="text-xs text-slate-500 font-medium">{media.targetUserPosition || 'Tidak ada jabatan'}</div>
+                          <div className="font-bold text-school-blue dark:text-white">{media.targetUserName}</div>
+                          <div className="text-xs text-slate-500 dark:text-slate-400 font-medium">{media.targetUserPosition || 'Tidak ada jabatan'}</div>
                         </>
                       ) : (
                         <>
-                          <div className="font-bold text-school-blue">Semua Staf (Global)</div>
-                          <div className="text-xs text-slate-500 font-medium">Jadwal untuk semua pengguna</div>
+                          <div className="font-bold text-school-blue dark:text-white">Semua Staf (Global)</div>
+                          <div className="text-xs text-slate-500 dark:text-slate-400 font-medium">Jadwal untuk semua pengguna</div>
                         </>
                       )}
                     </td>
-                    <td className="px-4 py-3 border border-slate-200 text-center">
+                    <td className="px-4 py-3 border border-slate-200 dark:border-slate-700 text-center">
                       <button
                         onClick={(e) => { e.preventDefault(); window.open(getPreviewUrl(media.fileUrl), '_blank'); }}
-                        className="text-school-blue hover:text-blue-700 transition-colors inline-block"
+                        className="text-school-blue dark:text-white hover:text-blue-700 dark:hover:text-slate-300 transition-colors inline-block"
                         title="Buka Lampiran"
                       >
                         <Paperclip size={18} />
                       </button>
                     </td>
-                    <td className="px-4 py-3 border border-slate-200 text-center">
+                    <td className="px-4 py-3 border border-slate-200 dark:border-slate-700 text-center">
                       <div className="flex items-center justify-center gap-1">
                         {user.role !== 'admin' && (
                           <button
                             onClick={(e) => handleDownload(media.fileUrl, e)}
                             disabled={downloadingUrl === media.fileUrl}
                             title="Unduh File"
-                            className="p-2 rounded-lg text-emerald-600 hover:bg-emerald-50 transition-colors relative"
+                            className="p-2 rounded-lg text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/50 transition-colors relative"
                           >
                             {downloadingUrl === media.fileUrl ? <Loader2 size={18} className="animate-spin" /> : <Download size={18} />}
                           </button>
@@ -490,14 +490,14 @@ export const JadwalGuru: React.FC<JadwalGuruProps> = ({ user }) => {
                             <button
                               onClick={() => handleEditClick(media)}
                               title="Edit Jadwal"
-                              className="p-2 rounded-lg text-amber-500 hover:bg-amber-50 transition-colors"
+                              className="p-2 rounded-lg text-amber-500 hover:bg-amber-50 dark:hover:bg-amber-900/50 transition-colors"
                             >
                               <Edit size={18} />
                             </button>
                             <button
                               onClick={() => handleDelete(media.id, media.fileUrl)}
                               title="Hapus Jadwal"
-                              className="p-2 rounded-lg text-rose-500 hover:bg-rose-50 transition-colors"
+                              className="p-2 rounded-lg text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-900/50 transition-colors"
                             >
                               <Trash2 size={18} />
                             </button>
@@ -509,11 +509,11 @@ export const JadwalGuru: React.FC<JadwalGuruProps> = ({ user }) => {
                 ))
               ) : (
                 <tr>
-                  <td colSpan={6} className="p-12 text-center text-slate-500 border border-slate-200">
+                  <td colSpan={6} className="p-12 text-center text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-700">
                     <div className="flex justify-center mb-3 text-slate-300">
                       <Calendar size={48} strokeWidth={1} />
                     </div>
-                    <p className="font-bold text-lg text-slate-600 mb-1">Tidak Ada Jadwal</p>
+                    <p className="font-bold text-lg text-slate-600 dark:text-slate-300 mb-1">Tidak Ada Jadwal</p>
                     <p className="text-sm">Belum ada jadwal yang ditambahkan atau tidak sesuai pencarian.</p>
                   </td>
                 </tr>
@@ -524,18 +524,18 @@ export const JadwalGuru: React.FC<JadwalGuruProps> = ({ user }) => {
           {/* Mobile Card View */}
           <div className="xl:hidden flex flex-col divide-y divide-slate-100">
             {isLoading ? (
-              <div className="p-12 text-center text-slate-500">
-                <div className="flex justify-center mb-3 text-school-blue">
+              <div className="p-12 text-center text-slate-500 dark:text-slate-400">
+                <div className="flex justify-center mb-3 text-school-blue dark:text-white">
                   <Loader2 size={32} className="animate-spin" />
                 </div>
-                <p className="font-bold text-lg text-slate-600 mb-1">Memuat Data...</p>
+                <p className="font-bold text-lg text-slate-600 dark:text-slate-300 mb-1">Memuat Data...</p>
               </div>
             ) : filteredMedia.length > 0 ? (
               filteredMedia.map((media) => (
-                <div key={media.id} className="p-4 hover:bg-slate-50 transition-colors flex flex-col gap-3">
+                <div key={media.id} className="p-4 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors flex flex-col gap-3">
                   <div className="flex justify-between items-start gap-2">
                     <div className="flex flex-col min-w-0">
-                      <h3 className="font-extrabold text-slate-800 text-base leading-snug truncate">{media.judul}</h3>
+                      <h3 className="font-extrabold text-slate-800 dark:text-slate-50 text-base leading-snug truncate">{media.judul}</h3>
                       {media.createdAt && (
                         <p className="text-xs font-bold text-slate-400 mt-1 truncate">
                           {format(new Date(media.createdAt), 'dd MMM yyyy', { locale: id })}
@@ -545,32 +545,32 @@ export const JadwalGuru: React.FC<JadwalGuruProps> = ({ user }) => {
                   </div>
 
                   {media.deskripsi && (
-                    <div className="text-sm text-slate-600 font-medium">
+                    <div className="text-sm text-slate-600 dark:text-slate-300 font-medium">
                       {media.deskripsi}
                     </div>
                   )}
 
                   <div className="flex items-center justify-between gap-2 mt-1">
-                    <span className="text-xs font-bold text-slate-500 uppercase">Lampiran</span>
+                    <span className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase">Lampiran</span>
                     <button 
                       onClick={(e) => { e.preventDefault(); window.open(getPreviewUrl(media.fileUrl), '_blank'); }}
-                      className="text-school-blue hover:text-blue-700 transition-colors flex items-center gap-1 text-xs font-bold mr-1" 
+                      className="text-school-blue dark:text-white hover:text-blue-700 dark:hover:text-slate-300 transition-colors flex items-center gap-1 text-xs font-bold mr-1" 
                       title="Buka File Lampiran"
                     >
                       <Paperclip size={14} /> Buka File
                     </button>
                   </div>
 
-                  <div className="flex items-center justify-between bg-slate-100 p-2.5 rounded-lg border border-slate-200 mt-1">
+                  <div className="flex items-center justify-between bg-slate-100 dark:bg-slate-800 p-2.5 rounded-lg border border-slate-200 dark:border-slate-700 mt-1">
                     <div>
-                      <p className="text-sm font-bold text-school-blue leading-tight">
+                      <p className="text-sm font-bold text-school-blue dark:text-white leading-tight">
                         {media.targetUserId ? media.targetUserName : 'Semua Staf (Global)'}
                       </p>
-                      <p className="text-xs text-slate-500">
+                      <p className="text-xs text-slate-500 dark:text-slate-400">
                         {media.targetUserId ? (media.targetUserPosition || 'Tidak ada jabatan') : 'Jadwal untuk semua pengguna'}
                       </p>
                     </div>
-                    <div className="bg-white p-2 rounded-full shadow-sm border border-slate-200 text-slate-400 shrink-0">
+                    <div className="bg-white dark:bg-slate-800 p-2 rounded-full shadow-sm border border-slate-200 dark:border-slate-700 text-slate-400 shrink-0">
                       {media.targetUserId ? <UserIcon size={16} /> : <Users size={16} />}
                     </div>
                   </div>
@@ -581,7 +581,7 @@ export const JadwalGuru: React.FC<JadwalGuruProps> = ({ user }) => {
                         <button
                           onClick={(e) => handleDownload(media.fileUrl, e)}
                           disabled={downloadingUrl === media.fileUrl}
-                          className="p-2 text-slate-400 hover:text-emerald-600 transition-colors rounded-full bg-slate-50 relative"
+                          className="p-2 text-slate-400 hover:text-emerald-600 transition-colors rounded-full bg-slate-50 dark:bg-slate-900 relative"
                           title="Unduh Jadwal"
                         >
                           {downloadingUrl === media.fileUrl ? <Loader2 size={16} className="animate-spin" /> : <Download size={16} />}
@@ -591,14 +591,14 @@ export const JadwalGuru: React.FC<JadwalGuruProps> = ({ user }) => {
                         <>
                           <button
                             onClick={() => handleEditClick(media)}
-                            className="p-2 text-slate-400 hover:text-amber-500 transition-colors rounded-full bg-slate-50 ml-1"
+                            className="p-2 text-slate-400 hover:text-amber-500 transition-colors rounded-full bg-slate-50 dark:bg-slate-900 ml-1"
                             title="Edit Jadwal"
                           >
                             <Edit size={16} />
                           </button>
                           <button
                             onClick={() => handleDelete(media.id, media.fileUrl)}
-                            className="p-2 text-slate-400 hover:text-rose-500 transition-colors rounded-full bg-slate-50 ml-1"
+                            className="p-2 text-slate-400 hover:text-rose-500 transition-colors rounded-full bg-slate-50 dark:bg-slate-900 ml-1"
                             title="Hapus Jadwal"
                           >
                             <Trash2 size={16} />
@@ -610,7 +610,7 @@ export const JadwalGuru: React.FC<JadwalGuruProps> = ({ user }) => {
                 </div>
               ))
             ) : (
-              <div className="p-8 text-center text-slate-500">
+              <div className="p-8 text-center text-slate-500 dark:text-slate-400">
                 <div className="flex justify-center mb-2 text-slate-300">
                   <Calendar size={32} />
                 </div>
@@ -623,3 +623,19 @@ export const JadwalGuru: React.FC<JadwalGuruProps> = ({ user }) => {
     </div>
   );
 };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

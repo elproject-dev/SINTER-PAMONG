@@ -42,7 +42,7 @@ export const ForgotPassword: React.FC = () => {
         background: `linear-gradient(135deg, ${primaryDarker} 0%, ${primaryDark} 50%, ${primaryColor} 100%)`
       }}
     >
-      <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-white/5 blur-[100px] pointer-events-none"></div>
+      <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-white dark:bg-slate-800/5 blur-[100px] pointer-events-none"></div>
       <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-black/20 blur-[100px] pointer-events-none"></div>
 
       <div className="w-full max-w-[420px] relative z-10">
@@ -53,7 +53,7 @@ export const ForgotPassword: React.FC = () => {
         <div className="relative group">
           <div className="absolute -inset-1 bg-gradient-to-r from-white/20 to-white/0 rounded-[2rem] blur opacity-30 transition duration-1000"></div>
 
-          <div className="relative bg-white/10 backdrop-blur-2xl rounded-[2rem] border border-white/20 shadow-[0_8px_32px_0_rgba(0,0,0,0.3)] p-8 sm:p-10 flex flex-col items-center">
+          <div className="relative bg-white dark:bg-slate-800/10 backdrop-blur-2xl rounded-[2rem] border border-white/20 shadow-[0_8px_32px_0_rgba(0,0,0,0.3)] p-8 sm:p-10 flex flex-col items-center">
 
             <div className="w-full mb-6">
               <h2 className="text-xl font-bold text-white mb-2">Lupa Kata Sandi?</h2>
@@ -76,13 +76,13 @@ export const ForgotPassword: React.FC = () => {
               <div className="space-y-2.5">
                 <label className="text-xs font-semibold text-white/90 ml-1">Email</label>
                 <div className="relative group/input">
-                  <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within/input:text-school-blue transition-colors" />
+                  <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within/input:text-school-blue dark:text-white transition-colors" />
                   <input
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="Masukkan email"
-                    className="w-full h-12 pl-11 bg-white/90 border border-slate-200 text-slate-800 placeholder:text-slate-400 rounded-xl focus:bg-white focus:border-school-blue outline-none focus:ring-4 focus:ring-school-blue/20 transition-all text-sm"
+                    className="w-full h-12 pl-11 bg-white dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-50 placeholder:text-slate-400 rounded-xl focus:bg-white dark:bg-slate-800 focus:border-school-blue outline-none focus:ring-4 focus:ring-school-blue/20 transition-all text-sm"
                     required
                   />
                 </div>
@@ -109,3 +109,19 @@ export const ForgotPassword: React.FC = () => {
     </div>
   );
 };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

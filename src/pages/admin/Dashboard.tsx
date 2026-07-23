@@ -2,7 +2,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { getUsers, getTodayAttendance, getAllTaskReports, getStaffTasks } from '../../lib/db';
 import { User, AttendanceRecord } from '../../lib/types';
 import { Users, UserCheck, UserX, ClipboardList, Paperclip } from 'lucide-react';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, PieChart, Pie } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell, PieChart, Pie } from 'recharts';
 import { useProfilePic } from '../../hooks/useProfilePic';
 import { ProfileModal } from '../../components/ProfileModal';
 
@@ -81,10 +81,10 @@ export const AdminDashboard: React.FC = () => {
 
   const StatCard = ({ title, value, icon, gradientClass, subtitle, className = '' }: any) => (
     <div className={`relative overflow-hidden rounded-2xl p-4 sm:p-5 shadow-md hover:shadow-xl hover:-translate-y-1 transition-all duration-300 ${gradientClass} text-white border border-white/20 ${className}`}>
-      <div className="absolute top-0 right-0 -mt-3 -mr-3 w-24 h-24 bg-white opacity-[0.15] rounded-full blur-2xl"></div>
+      <div className="absolute top-0 right-0 -mt-3 -mr-3 w-24 h-24 bg-white dark:bg-slate-800 opacity-[0.15] rounded-full blur-2xl"></div>
       <div className="absolute bottom-0 left-0 -mb-4 -ml-4 w-20 h-20 bg-black opacity-[0.05] rounded-full blur-xl"></div>
       <div className="relative z-10">
-        <div className="absolute top-0 right-0 p-1.5 rounded-xl bg-white/20 backdrop-blur-md border border-white/30 shadow-sm">
+        <div className="absolute top-0 right-0 p-1.5 rounded-xl bg-white/20 dark:bg-slate-800/20 backdrop-blur-md border border-white/30 shadow-sm">
           {React.cloneElement(icon, { size: 16, className: 'text-white' })}
         </div>
         <p className="text-white/90 font-bold text-[10px] sm:text-[11px] uppercase tracking-widest">{title}</p>
@@ -101,8 +101,8 @@ export const AdminDashboard: React.FC = () => {
     <div className="w-full space-y-10 overflow-x-clip pb-8">
       <div className="flex items-stretch justify-between gap-4">
         <div className="flex-1 min-w-0">
-          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-slate-800 tracking-tight mb-1 sm:mb-2 truncate">Dashboard Admin</h1>
-          <p className="text-slate-500 text-sm sm:text-base lg:text-lg truncate">Hai, {currentUser?.name || 'Admin'} selamat datang kembali...</p>
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-slate-800 dark:text-slate-50 tracking-tight mb-1 sm:mb-2 truncate">Dashboard Admin</h1>
+          <p className="text-slate-500 dark:text-slate-400 text-sm sm:text-base lg:text-lg truncate">Hai, {currentUser?.name || 'Admin'} selamat datang kembali...</p>
         </div>
         <div className="shrink-0 flex items-center justify-end relative">
           <button
@@ -112,7 +112,7 @@ export const AdminDashboard: React.FC = () => {
           >
             <div className="absolute inset-0.5 sm:inset-1 rounded-full animate-ping opacity-50 bg-emerald-400"></div>
 
-            <div className="relative z-10 w-full h-full rounded-full flex flex-col items-center justify-center text-base sm:text-lg font-bold shadow-md border-2 border-slate-200 bg-white overflow-hidden">
+            <div className="relative z-10 w-full h-full rounded-full flex flex-col items-center justify-center text-base sm:text-lg font-bold shadow-md border-2 border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 overflow-hidden">
               <img src={profilePic || `${import.meta.env.BASE_URL}check.png`} alt="Profile" className="w-full h-full object-cover" onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = `${import.meta.env.BASE_URL}check.png`; }} />
             </div>
           </button>
@@ -167,13 +167,13 @@ export const AdminDashboard: React.FC = () => {
         />
       </div>
 
-      <div className="bg-white rounded-3xl shadow-sm border border-slate-100 p-8 flex flex-col md:flex-row gap-8 items-center">
+      <div className="bg-white dark:bg-slate-800 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-700 p-8 flex flex-col md:flex-row gap-8 items-center">
         <div className="w-full md:w-1/2 flex flex-col items-start h-full">
-          <h2 className="text-slate-600 font-medium mb-6">Grafik Kehadiran</h2>
+          <h2 className="text-slate-600 dark:text-slate-300 font-medium mb-6">Grafik Kehadiran</h2>
           <div className="w-full h-64">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={chartData} margin={{ top: 20, right: isMobile ? 0 : 30, left: isMobile ? 0 : -20, bottom: 5 }}>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                
                 <XAxis
                   dataKey="name"
                   axisLine={false}
@@ -189,9 +189,9 @@ export const AdminDashboard: React.FC = () => {
                   tick={{ fill: '#94a3b8' }}
                 />
                 <Tooltip
-                  cursor={{ fill: '#f8fafc' }}
-                  contentStyle={{ borderRadius: '16px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)', padding: '12px 20px', fontWeight: 'bold', color: '#1e293b' }}
-                  itemStyle={{ color: '#0f172a' }}
+                  cursor={{ fill: 'var(--chart-tooltip-cursor)' }}
+                  contentStyle={{ borderRadius: '16px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)', padding: '12px 20px', fontWeight: 'bold', color: 'var(--chart-tooltip-text)', backgroundColor: 'var(--chart-tooltip-bg)' }}
+                  itemStyle={{ color: 'var(--chart-tooltip-text)' }}
                 />
                 <Bar dataKey="value" radius={[8, 8, 0, 0]} maxBarSize={80}>
                   {chartData.map((entry, index) => (
@@ -204,20 +204,20 @@ export const AdminDashboard: React.FC = () => {
         </div>
         <div className="w-full md:w-1/2 space-y-4">
           <div>
-            <p className="text-slate-500 font-medium mb-1">Status Absensi Hari Ini</p>
-            <p className="text-slate-800 text-3xl font-bold">{totalStaff} Staff</p>
+            <p className="text-slate-500 dark:text-slate-400 font-medium mb-1">Status Absensi Hari Ini</p>
+            <p className="text-slate-800 dark:text-slate-50 text-3xl font-bold">{totalStaff} Staff</p>
           </div>
           <div className="pt-4 space-y-4">
-            <div className="flex justify-between items-center border-b border-dashed border-slate-200 pb-2">
-              <span className="text-slate-600 flex items-center gap-2"><div className="w-3 h-3 rounded-full bg-gradient-to-br from-emerald-500 to-green-400 shadow-[0_0_8px_rgba(16,185,129,0.5)]"></div> Hadir</span>
+            <div className="flex justify-between items-center border-b border-dashed border-slate-200 dark:border-slate-700 pb-2">
+              <span className="text-slate-600 dark:text-slate-300 flex items-center gap-2"><div className="w-3 h-3 rounded-full bg-gradient-to-br from-emerald-500 to-green-400 shadow-[0_0_8px_rgba(16,185,129,0.5)]"></div> Hadir</span>
               <span className="font-bold text-emerald-500">{present}</span>
             </div>
-            <div className="flex justify-between items-center border-b border-dashed border-slate-200 pb-2">
-              <span className="text-slate-600 flex items-center gap-2"><div className="w-3 h-3 rounded-full bg-gradient-to-br from-amber-500 to-yellow-400 shadow-[0_0_8px_rgba(245,158,11,0.5)]"></div> Izin / Sakit</span>
+            <div className="flex justify-between items-center border-b border-dashed border-slate-200 dark:border-slate-700 pb-2">
+              <span className="text-slate-600 dark:text-slate-300 flex items-center gap-2"><div className="w-3 h-3 rounded-full bg-gradient-to-br from-amber-500 to-yellow-400 shadow-[0_0_8px_rgba(245,158,11,0.5)]"></div> Izin / Sakit</span>
               <span className="font-bold text-amber-500">{leave}</span>
             </div>
-            <div className="flex justify-between items-center border-b border-dashed border-slate-200 pb-2">
-              <span className="text-slate-600 flex items-center gap-2"><div className="w-3 h-3 rounded-full bg-gradient-to-br from-rose-500 to-red-400 shadow-[0_0_8px_rgba(239,68,68,0.5)]"></div> Belum Hadir</span>
+            <div className="flex justify-between items-center border-b border-dashed border-slate-200 dark:border-slate-700 pb-2">
+              <span className="text-slate-600 dark:text-slate-300 flex items-center gap-2"><div className="w-3 h-3 rounded-full bg-gradient-to-br from-rose-500 to-red-400 shadow-[0_0_8px_rgba(239,68,68,0.5)]"></div> Belum Hadir</span>
               <span className="font-bold text-rose-500">{totalStaff - present - leave}</span>
             </div>
           </div>
@@ -227,9 +227,9 @@ export const AdminDashboard: React.FC = () => {
       {/* New Dummy Indicators Section */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-8">
         {/* Large Chart Card */}
-        <div className="lg:col-span-2 bg-white rounded-3xl shadow-sm border border-slate-100 p-8 flex flex-col md:flex-row gap-8 items-center">
+        <div className="lg:col-span-2 bg-white dark:bg-slate-800 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-700 p-8 flex flex-col md:flex-row gap-8 items-center">
           <div className="w-full md:w-1/2 flex flex-col items-start h-full">
-            <h3 className="text-slate-600 font-medium mb-6">Distribusi Status Tugas</h3>
+            <h3 className="text-slate-600 dark:text-slate-300 font-medium mb-6">Distribusi Status Tugas</h3>
             <div className="w-full h-64 relative flex justify-center items-center">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
@@ -280,24 +280,24 @@ export const AdminDashboard: React.FC = () => {
           </div>
           <div className="w-full md:w-1/2 space-y-4">
             <div>
-              <p className="text-slate-500 font-medium mb-1">Total Keseluruhan</p>
-              <p className="text-slate-800 text-3xl font-bold">{totalTasks} Tugas</p>
+              <p className="text-slate-500 dark:text-slate-400 font-medium mb-1">Total Keseluruhan</p>
+              <p className="text-slate-800 dark:text-slate-50 text-3xl font-bold">{totalTasks} Tugas</p>
             </div>
             <div className="pt-4 space-y-4">
-              <div className="flex justify-between items-center border-b border-dashed border-slate-200 pb-2">
-                <span className="text-slate-600 flex items-center gap-2"><div className="w-3 h-3 rounded-full bg-gradient-to-br from-sky-500 to-teal-400 shadow-[0_0_8px_rgba(14,165,233,0.5)]"></div> Selesai</span>
+              <div className="flex justify-between items-center border-b border-dashed border-slate-200 dark:border-slate-700 pb-2">
+                <span className="text-slate-600 dark:text-slate-300 flex items-center gap-2"><div className="w-3 h-3 rounded-full bg-gradient-to-br from-sky-500 to-teal-400 shadow-[0_0_8px_rgba(14,165,233,0.5)]"></div> Selesai</span>
                 <span className="font-bold text-sky-500">{tasksSelesai}</span>
               </div>
-              <div className="flex justify-between items-center border-b border-dashed border-slate-200 pb-2">
-                <span className="text-slate-600 flex items-center gap-2"><div className="w-3 h-3 rounded-full bg-gradient-to-br from-amber-500 to-amber-300 shadow-[0_0_8px_rgba(245,158,11,0.5)]"></div> Menunggu</span>
+              <div className="flex justify-between items-center border-b border-dashed border-slate-200 dark:border-slate-700 pb-2">
+                <span className="text-slate-600 dark:text-slate-300 flex items-center gap-2"><div className="w-3 h-3 rounded-full bg-gradient-to-br from-amber-500 to-amber-300 shadow-[0_0_8px_rgba(245,158,11,0.5)]"></div> Menunggu</span>
                 <span className="font-bold text-amber-500">{tasksMenunggu}</span>
               </div>
-              <div className="flex justify-between items-center border-b border-dashed border-slate-200 pb-2">
-                <span className="text-slate-600 flex items-center gap-2"><div className="w-3 h-3 rounded-full bg-gradient-to-br from-rose-500 to-pink-400 shadow-[0_0_8px_rgba(244,63,94,0.5)]"></div> Ditolak</span>
+              <div className="flex justify-between items-center border-b border-dashed border-slate-200 dark:border-slate-700 pb-2">
+                <span className="text-slate-600 dark:text-slate-300 flex items-center gap-2"><div className="w-3 h-3 rounded-full bg-gradient-to-br from-rose-500 to-pink-400 shadow-[0_0_8px_rgba(244,63,94,0.5)]"></div> Ditolak</span>
                 <span className="font-bold text-rose-500">{tasksDitolak}</span>
               </div>
-              <div className="flex justify-between items-center border-b border-dashed border-slate-200 pb-2">
-                <span className="text-slate-600 flex items-center gap-2"><div className="w-3 h-3 rounded-full bg-gradient-to-br from-violet-500 to-indigo-400 shadow-[0_0_8px_rgba(139,92,246,0.5)]"></div> Belum Dikerjakan</span>
+              <div className="flex justify-between items-center border-b border-dashed border-slate-200 dark:border-slate-700 pb-2">
+                <span className="text-slate-600 dark:text-slate-300 flex items-center gap-2"><div className="w-3 h-3 rounded-full bg-gradient-to-br from-violet-500 to-indigo-400 shadow-[0_0_8px_rgba(139,92,246,0.5)]"></div> Belum Dikerjakan</span>
                 <span className="font-bold text-violet-500">{totalTasks - (tasksSelesai + tasksMenunggu + tasksDitolak)}</span>
               </div>
             </div>
@@ -306,18 +306,18 @@ export const AdminDashboard: React.FC = () => {
 
         {/* Small Cards Column */}
         <div className="flex flex-col gap-6 h-full">
-          <div className="bg-white rounded-3xl shadow-sm border border-slate-100 p-6 flex flex-1 items-center justify-between relative overflow-hidden">
+          <div className="bg-white dark:bg-slate-800 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-700 p-6 flex flex-1 items-center justify-between relative overflow-hidden">
             <div className="flex items-center gap-4 relative z-10">
               {/* Custom SVG Radial Progress */}
               <div className="relative w-24 h-24 flex items-center justify-center">
                 <svg className="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
-                  <circle cx="50" cy="50" r="40" fill="none" stroke="#f1f5f9" strokeWidth="12" />
+                  <circle cx="50" cy="50" r="40" fill="none" className="stroke-slate-100 dark:stroke-slate-700" strokeWidth="12" />
                   <circle cx="50" cy="50" r="40" fill="none" stroke="#10b981" strokeWidth="12" strokeDasharray="251.2" strokeDashoffset={251.2 - (251.2 * percentMenunggu) / 100} strokeLinecap="round" />
                 </svg>
-                <span className="absolute text-xl font-bold text-slate-800">{percentMenunggu}%</span>
+                <span className="absolute text-xl font-bold text-slate-800 dark:text-slate-50">{percentMenunggu}%</span>
 
                 {/* Decorative Icon Bubble */}
-                <div className="absolute -top-1 -left-1 bg-white p-1 rounded-full shadow-md z-20">
+                <div className="absolute -top-1 -left-1 bg-white dark:bg-slate-800 p-1 rounded-full shadow-md z-20">
                   <div className="bg-[#10b981] rounded-full p-1.5">
                     <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                   </div>
@@ -325,21 +325,21 @@ export const AdminDashboard: React.FC = () => {
               </div>
             </div>
             <div className="relative z-10 text-right w-1/2">
-              <h3 className="text-4xl font-extrabold text-slate-700 mb-2">{tasksMenunggu}</h3>
-              <p className="text-xs text-slate-500 leading-tight">Status Menunggu Laporan</p>
+              <h3 className="text-4xl font-extrabold text-slate-700 dark:text-slate-200 mb-2">{tasksMenunggu}</h3>
+              <p className="text-xs text-slate-500 dark:text-slate-400 leading-tight">Status Menunggu Laporan</p>
             </div>
           </div>
 
-          <div className="bg-white rounded-3xl shadow-sm border border-slate-100 p-6 flex flex-1 items-center justify-between relative overflow-hidden">
+          <div className="bg-white dark:bg-slate-800 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-700 p-6 flex flex-1 items-center justify-between relative overflow-hidden">
             <div className="flex items-center gap-4 relative z-10">
               <div className="relative w-24 h-24 flex items-center justify-center">
                 <svg className="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
-                  <circle cx="50" cy="50" r="40" fill="none" stroke="#f1f5f9" strokeWidth="12" />
+                  <circle cx="50" cy="50" r="40" fill="none" className="stroke-slate-100 dark:stroke-slate-700" strokeWidth="12" />
                   <circle cx="50" cy="50" r="40" fill="none" stroke="#ea580c" strokeWidth="12" strokeDasharray="251.2" strokeDashoffset={251.2 - (251.2 * percentLampiranMenunggu) / 100} strokeLinecap="round" />
                 </svg>
-                <span className="absolute text-xl font-bold text-slate-800">{percentLampiranMenunggu}%</span>
+                <span className="absolute text-xl font-bold text-slate-800 dark:text-slate-50">{percentLampiranMenunggu}%</span>
 
-                <div className="absolute -top-1 -left-1 bg-white p-1 rounded-full shadow-md z-20">
+                <div className="absolute -top-1 -left-1 bg-white dark:bg-slate-800 p-1 rounded-full shadow-md z-20">
                   <div className="bg-[#ea580c] rounded-full p-1.5">
                     <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" /></svg>
                   </div>
@@ -347,8 +347,8 @@ export const AdminDashboard: React.FC = () => {
               </div>
             </div>
             <div className="relative z-10 text-right w-1/2">
-              <h3 className="text-4xl font-extrabold text-slate-700 mb-2">{lampiranMenunggu}</h3>
-              <p className="text-xs text-slate-500 leading-tight">Lampiran Belum Dinilai Admin</p>
+              <h3 className="text-4xl font-extrabold text-slate-700 dark:text-slate-200 mb-2">{lampiranMenunggu}</h3>
+              <p className="text-xs text-slate-500 dark:text-slate-400 leading-tight">Lampiran Belum Dinilai Admin</p>
             </div>
           </div>
         </div>
@@ -356,3 +356,26 @@ export const AdminDashboard: React.FC = () => {
     </div>
   );
 };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

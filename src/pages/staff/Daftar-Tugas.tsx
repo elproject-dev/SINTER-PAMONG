@@ -515,14 +515,14 @@ export const DaftarTugas: React.FC<DaftarTugasProps> = ({ user }) => {
       {/* Feedback Modal */}
       {feedbackModal.show && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="bg-white rounded-2xl shadow-xl border border-slate-200 w-full max-w-md overflow-hidden flex flex-col max-h-[90vh]">
-            <div className="p-5 border-b border-slate-100 flex justify-between items-center bg-slate-50">
-              <h2 className="font-extrabold text-slate-800 text-lg flex items-center gap-2">
-                <MessageSquareMore size={18} className="text-school-blue" /> Detail Catatan
+          <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-700 w-full max-w-md overflow-hidden flex flex-col max-h-[90vh]">
+            <div className="p-5 border-b border-slate-100 dark:border-slate-700 flex justify-between items-center bg-slate-50 dark:bg-slate-900">
+              <h2 className="font-extrabold text-slate-800 dark:text-slate-50 text-lg flex items-center gap-2">
+                <MessageSquareMore size={18} className="text-school-blue dark:text-white" /> Detail Catatan
               </h2>
               <button
                 onClick={() => setFeedbackModal({ ...feedbackModal, show: false })}
-                className="text-slate-400 hover:text-slate-600 transition-colors p-1.5 rounded-lg hover:bg-slate-200"
+                className="text-slate-400 hover:text-slate-600 dark:text-slate-300 transition-colors p-1.5 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-600"
               >
                 <X size={20} />
               </button>
@@ -531,28 +531,28 @@ export const DaftarTugas: React.FC<DaftarTugasProps> = ({ user }) => {
             <div className="p-5 flex flex-col gap-5 overflow-y-auto custom-scrollbar">
               <div>
                 <p className="text-xs text-slate-400 font-bold uppercase tracking-wider mb-1.5">Tugas</p>
-                <p className="text-sm font-bold text-slate-800">{feedbackModal.taskName}</p>
+                <p className="text-sm font-bold text-slate-800 dark:text-slate-50">{feedbackModal.taskName}</p>
               </div>
 
               <div>
                 <p className="text-xs text-slate-400 font-bold uppercase tracking-wider mb-1.5">Catatan Staf</p>
-                <div className="text-sm text-slate-700 bg-slate-50 border border-slate-100 rounded-xl p-3">
+                <div className="text-sm text-slate-700 dark:text-slate-200 bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-700 rounded-xl p-3">
                   {feedbackModal.catatan || <span className="italic text-slate-400">Tidak ada catatan staf</span>}
                 </div>
               </div>
 
               <div>
-                <p className="text-xs text-school-blue font-bold uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
+                <p className="text-xs text-school-blue dark:text-white font-bold uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
                   Balasan Admin
                 </p>
-                <div className="text-sm font-medium text-school-blue bg-blue-50 border border-blue-100 rounded-xl p-3 whitespace-pre-wrap">
+                <div className="text-sm font-medium text-school-blue dark:text-white bg-blue-50 dark:bg-slate-800 border border-blue-100 rounded-xl p-3 whitespace-pre-wrap">
                   {feedbackModal.adminFeedback}
                 </div>
               </div>
             </div>
 
-            <div className="flex justify-end p-4 border-t border-slate-100">
-              <button onClick={() => setFeedbackModal({ ...feedbackModal, show: false })} className="px-6 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl transition-colors text-sm">
+            <div className="flex justify-end p-4 border-t border-slate-100 dark:border-slate-700">
+              <button onClick={() => setFeedbackModal({ ...feedbackModal, show: false })} className="px-6 py-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 font-bold rounded-xl transition-colors text-sm">
                 Tutup
               </button>
             </div>
@@ -563,14 +563,14 @@ export const DaftarTugas: React.FC<DaftarTugasProps> = ({ user }) => {
       {/* Revision Modal */}
       {showRevisionModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="bg-white rounded-2xl shadow-xl border border-slate-200 w-full max-w-md overflow-hidden flex flex-col max-h-[90vh]">
-            <div className="p-5 border-b border-slate-100 flex justify-between items-center bg-slate-50">
-              <h2 className="font-extrabold text-slate-800 text-lg flex items-center gap-2">
+          <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-700 w-full max-w-md overflow-hidden flex flex-col max-h-[90vh]">
+            <div className="p-5 border-b border-slate-100 dark:border-slate-700 flex justify-between items-center bg-slate-50 dark:bg-slate-900">
+              <h2 className="font-extrabold text-slate-800 dark:text-slate-50 text-lg flex items-center gap-2">
                 <RefreshCw size={18} className="text-amber-500" /> Revisi Laporan
               </h2>
               <button
                 onClick={() => setShowRevisionModal(false)}
-                className="text-slate-400 hover:text-slate-600 transition-colors p-1.5 rounded-lg hover:bg-slate-200"
+                className="text-slate-400 hover:text-slate-600 dark:text-slate-300 transition-colors p-1.5 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-600"
               >
                 <X size={20} />
               </button>
@@ -578,18 +578,18 @@ export const DaftarTugas: React.FC<DaftarTugasProps> = ({ user }) => {
 
             <form onSubmit={handleRevisionSubmit} className="p-5 flex flex-col gap-4">
               <div>
-                <p className="text-sm font-bold text-slate-700 mb-1">Tugas yang Direvisi:</p>
-                <p className="text-sm text-slate-600 font-medium bg-slate-50 p-3 rounded-xl border border-slate-100">
+                <p className="text-sm font-bold text-slate-700 dark:text-slate-200 mb-1">Tugas yang Direvisi:</p>
+                <p className="text-sm text-slate-600 dark:text-slate-300 font-medium bg-slate-50 dark:bg-slate-900 p-3 rounded-xl border border-slate-100 dark:border-slate-700">
                   {revisionItem?.taskName}
                 </p>
               </div>
 
               <div>
-                <label className="block text-sm font-bold text-slate-700 mb-1.5">Upload File Revisi <span className="text-rose-500">*</span></label>
+                <label className="block text-sm font-bold text-slate-700 dark:text-slate-200 mb-1.5">Upload File Revisi <span className="text-rose-500">*</span></label>
                 <input
                   type="file"
                   ref={revisionFileRef}
-                  className="w-full h-16 block pt-4 bg-slate-50 border border-slate-200 rounded-xl px-4 text-sm file:mr-4 file:py-1.5 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-amber-500/10 file:text-amber-600 hover:file:bg-amber-500/20 transition-all text-slate-600 cursor-pointer focus:ring-4 focus:ring-amber-500/10 focus:border-amber-500 outline-none"
+                  className="w-full h-16 block pt-4 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 text-sm file:mr-4 file:py-1.5 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-amber-500/10 file:text-amber-600 hover:file:bg-amber-500/20 transition-all text-slate-600 dark:text-slate-300 cursor-pointer focus:ring-4 focus:ring-amber-500/10 focus:border-amber-500 outline-none"
                   accept="image/*,video/*,application/pdf"
                   onChange={handleRevisionFileUpload}
                   disabled={isUploadingRevision}
@@ -604,17 +604,17 @@ export const DaftarTugas: React.FC<DaftarTugasProps> = ({ user }) => {
               </div>
 
               <div>
-                <label className="block text-sm font-bold text-slate-700 mb-1.5">Catatan <span className="text-slate-400 font-medium">(Opsional)</span></label>
+                <label className="block text-sm font-bold text-slate-700 dark:text-slate-200 mb-1.5">Catatan <span className="text-slate-400 font-medium">(Opsional)</span></label>
                 <textarea
                   value={revisionCatatan}
                   onChange={(e) => setRevisionCatatan(e.target.value)}
                   placeholder="Tambahkan catatan untuk admin..."
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 h-20 resize-none focus:ring-4 focus:ring-amber-500/10 focus:border-amber-500 outline-none transition-all shadow-sm text-sm"
+                  className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl p-3 h-20 resize-none focus:ring-4 focus:ring-amber-500/10 focus:border-amber-500 outline-none transition-all shadow-sm text-sm"
                 />
               </div>
 
               <div className="flex justify-end gap-3 mt-4">
-                <button type="button" onClick={() => setShowRevisionModal(false)} className="px-5 py-2 rounded-xl border border-slate-200 text-slate-600 font-bold hover:bg-slate-50 transition-colors text-sm">Batal</button>
+                <button type="button" onClick={() => setShowRevisionModal(false)} className="px-5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 font-bold hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors text-sm">Batal</button>
                 <button type="submit" disabled={isUploadingRevision || !revisionLink} className={`px-6 py-2 text-white font-bold rounded-xl transition-all shadow-md hover:shadow-lg text-sm flex items-center justify-center gap-2 ${isUploadingRevision || !revisionLink ? 'opacity-70 cursor-not-allowed bg-slate-400' : 'bg-amber-500 hover:bg-amber-600'}`}>
                   {isUploadingRevision ? 'Mengunggah...' : <><RefreshCw size={16} /> Kirim Revisi</>}
                 </button>
@@ -626,8 +626,8 @@ export const DaftarTugas: React.FC<DaftarTugasProps> = ({ user }) => {
 
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div>
-          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-slate-800 mb-1 sm:mb-2 tracking-tight">Daftar Tugas</h1>
-          <p className="text-slate-500 text-sm sm:text-base lg:text-lg">Kerjakan, kelola, dan pantau riwayat penyelesaian tugas</p>
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-slate-800 dark:text-slate-50 mb-1 sm:mb-2 tracking-tight">Daftar Tugas</h1>
+          <p className="text-slate-500 dark:text-slate-400 text-sm sm:text-base lg:text-lg">Kerjakan, kelola, dan pantau riwayat penyelesaian tugas</p>
         </div>
 
         <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto shrink-0">
@@ -640,7 +640,7 @@ export const DaftarTugas: React.FC<DaftarTugasProps> = ({ user }) => {
               placeholder="Cari tugas..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full bg-white border border-slate-200 rounded-xl py-2 pr-4 pl-10 text-slate-700 text-sm focus:ring-4 focus:ring-school-blue/10 focus:border-school-blue outline-none transition-all shadow-sm font-medium"
+              className="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl py-2 pr-4 pl-10 text-slate-700 dark:text-slate-200 text-sm focus:ring-4 focus:ring-school-blue/10 focus:border-school-blue outline-none transition-all shadow-sm font-medium"
             />
           </div>
         </div>
@@ -655,10 +655,10 @@ export const DaftarTugas: React.FC<DaftarTugasProps> = ({ user }) => {
 
       {/* Form Inline Laporan Baru */}
       {showForm && (
-        <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden mb-6 animate-in fade-in slide-in-from-top-4">
-          <div className="p-4 border-b border-slate-200 bg-slate-50 flex items-center gap-2">
-            <Edit size={18} className="text-school-blue" />
-            <h3 className="font-extrabold text-slate-800 text-lg tracking-tight">
+        <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden mb-6 animate-in fade-in slide-in-from-top-4">
+          <div className="p-4 border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 flex items-center gap-2">
+            <Edit size={18} className="text-school-blue dark:text-white" />
+            <h3 className="font-extrabold text-slate-800 dark:text-slate-50 text-lg tracking-tight">
               {editingReportId ? 'Revisi Laporan Kegiatan' : 'Input Laporan Baru'}
             </h3>
           </div>
@@ -667,24 +667,24 @@ export const DaftarTugas: React.FC<DaftarTugasProps> = ({ user }) => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5">
               <div className="space-y-4 flex flex-col h-full">
                 <div>
-                  <label className="block text-sm font-bold text-slate-700 mb-1.5">Jenis Tugas</label>
+                  <label className="block text-sm font-bold text-slate-700 dark:text-slate-200 mb-1.5">Jenis Tugas</label>
                   <textarea
                     value={reportTaskName}
                     readOnly
                     rows={2}
-                    className="w-full bg-slate-100 border border-slate-200 rounded-xl px-4 py-2.5 text-slate-500 font-bold text-sm outline-none cursor-not-allowed shadow-sm resize-none custom-scrollbar"
+                    className="w-full bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-slate-500 dark:text-slate-400 font-bold text-sm outline-none cursor-not-allowed shadow-sm resize-none custom-scrollbar"
                   />
                 </div>
 
                 {(() => {
                   const matchingAdminTask = adminTasks.find(t => t.namaTugas === reportTaskName);
-                  const label = <label className="block text-sm font-bold text-slate-700 mb-1.5">Instruksi & Lampiran Tugas</label>;
+                  const label = <label className="block text-sm font-bold text-slate-700 dark:text-slate-200 mb-1.5">Instruksi & Lampiran Tugas</label>;
 
                   if (!matchingAdminTask || (!matchingAdminTask.deskripsi && !matchingAdminTask.lampiranUrl)) {
                     return (
                       <div className="flex flex-col">
                         {label}
-                        <div className="bg-slate-50 border border-slate-200 rounded-xl p-3 flex flex-col justify-center items-center h-24 text-slate-400 text-sm font-medium">
+                        <div className="bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl p-3 flex flex-col justify-center items-center h-24 text-slate-400 text-sm font-medium">
                           <p className="text-xs text-slate-400 font-medium">Tidak ada instruksi khusus dari Admin</p>
                         </div>
                       </div>
@@ -693,7 +693,7 @@ export const DaftarTugas: React.FC<DaftarTugasProps> = ({ user }) => {
                   return (
                     <div className="flex flex-col">
                       {label}
-                      <div className={`bg-slate-50 border border-slate-200 rounded-xl p-3 h-24 overflow-y-auto custom-scrollbar text-sm text-slate-700 ${!matchingAdminTask.deskripsi ? 'flex items-center justify-start' : 'space-y-1.5'
+                      <div className={`bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl p-3 h-24 overflow-y-auto custom-scrollbar text-sm text-slate-700 dark:text-slate-200 ${!matchingAdminTask.deskripsi ? 'flex items-center justify-start' : 'space-y-1.5'
                         }`}>
                         {matchingAdminTask.deskripsi && (
                           <p className="text-xs leading-relaxed whitespace-pre-wrap">{matchingAdminTask.deskripsi}</p>
@@ -704,7 +704,7 @@ export const DaftarTugas: React.FC<DaftarTugasProps> = ({ user }) => {
                               href={matchingAdminTask.lampiranUrl}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="inline-flex items-center gap-1.5 text-xs text-school-blue font-bold hover:underline"
+                              className="inline-flex items-center gap-1.5 text-xs text-school-blue dark:text-white font-bold hover:underline"
                             >
                               <Paperclip size={14} /> Lihat File Lampiran Tugas
                             </a>
@@ -719,13 +719,13 @@ export const DaftarTugas: React.FC<DaftarTugasProps> = ({ user }) => {
               <div className="space-y-4 flex flex-col h-full">
                 <div>
                   <div className="flex justify-between items-center mb-1.5">
-                    <label className="block text-sm font-bold text-slate-700">Tautan / Bukti Dokumen <span className="text-slate-400 font-medium">(Opsional)</span></label>
+                    <label className="block text-sm font-bold text-slate-700 dark:text-slate-200">Tautan / Bukti Dokumen <span className="text-slate-400 font-medium">(Opsional)</span></label>
                     {reportLink && (
                       <a
                         href={reportLink}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-school-blue hover:text-blue-700 transition-colors p-1 rounded-full hover:bg-blue-50 flex items-center justify-center"
+                        className="text-school-blue dark:text-white hover:text-blue-700 dark:hover:text-slate-300 transition-colors p-1 rounded-full hover:bg-blue-50 dark:bg-slate-800 dark:hover:bg-slate-700 flex items-center justify-center"
                         title="Periksa Bukti"
                       >
                         <Eye size={16} />
@@ -735,37 +735,37 @@ export const DaftarTugas: React.FC<DaftarTugasProps> = ({ user }) => {
                   <input
                     type="file"
                     ref={fileInputRef}
-                    className="w-full h-16 block pt-4 bg-slate-50 border border-slate-200 rounded-xl px-4 text-sm file:mr-4 file:py-1.5 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-school-blue/10 file:text-school-blue hover:file:bg-school-blue/20 transition-all text-slate-600 cursor-pointer focus:ring-4 focus:ring-school-blue/10 focus:border-school-blue outline-none"
+                    className="w-full h-16 block pt-4 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 text-sm file:mr-4 file:py-1.5 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-school-blue/10 file:text-school-blue dark:file:text-white dark:text-white hover:file:bg-school-blue/20 transition-all text-slate-600 dark:text-slate-300 cursor-pointer focus:ring-4 focus:ring-school-blue/10 focus:border-school-blue outline-none"
                     accept="image/*,video/*,application/pdf"
                     onChange={handleFileUpload}
                     disabled={isUploading}
                   />
                   {isUploading && (
                     <div className="w-full bg-slate-200 rounded-full h-1.5 mt-2 overflow-hidden">
-                      <div className="bg-school-blue h-1.5 rounded-full transition-all duration-300 ease-out" style={{ width: `${uploadProgress}%` }}></div>
+                      <div className="bg-school-blue dark:bg-blue-600 h-1.5 rounded-full transition-all duration-300 ease-out" style={{ width: `${uploadProgress}%` }}></div>
                     </div>
                   )}
                   {uploadSuccessMsg && <p className="text-emerald-500 text-xs mt-1.5 font-bold animate-in fade-in">{uploadSuccessMsg}</p>}
                 </div>
 
                 <div className="flex flex-col">
-                  <label className="block text-sm font-bold text-slate-700 mb-1.5">Deskripsi Kegiatan <span className="text-rose-500">*</span></label>
+                  <label className="block text-sm font-bold text-slate-700 dark:text-slate-200 mb-1.5">Deskripsi Kegiatan <span className="text-rose-500">*</span></label>
                   <textarea
                     value={reportDescription}
                     onChange={(e) => setReportDescription(e.target.value)}
                     placeholder="Ceritakan detail kegiatan yang dilakukan..."
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 h-24 resize-none focus:ring-4 focus:ring-school-blue/10 focus:border-school-blue outline-none transition-all shadow-sm text-sm"
+                    className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl p-3 h-24 resize-none focus:ring-4 focus:ring-school-blue/10 focus:border-school-blue outline-none transition-all shadow-sm text-sm"
                     required
                   />
                 </div>
               </div>
             </div>
 
-            <div className="flex justify-end gap-3 pt-4 border-t border-slate-100">
+            <div className="flex justify-end gap-3 pt-4 border-t border-slate-100 dark:border-slate-700">
               <button
                 type="button"
                 onClick={closeFormModal}
-                className="px-6 py-2 rounded-xl border border-slate-200 text-slate-600 font-bold hover:bg-slate-50 transition-colors text-sm"
+                className="px-6 py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 font-bold hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors text-sm"
               >
                 Batal
               </button>
@@ -787,27 +787,27 @@ export const DaftarTugas: React.FC<DaftarTugasProps> = ({ user }) => {
 
       {/* Form Update Lampiran */}
       {showAttachmentForm && attachmentReportId && (
-        <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden mb-6 animate-in fade-in slide-in-from-top-4">
-          <div className="p-4 border-b border-slate-200 bg-slate-50 flex items-center gap-2">
-            <Plus size={18} className="text-school-blue" />
-            <h3 className="font-extrabold text-slate-800 text-lg tracking-tight">Update Lampiran Baru</h3>
+        <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden mb-6 animate-in fade-in slide-in-from-top-4">
+          <div className="p-4 border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 flex items-center gap-2">
+            <Plus size={18} className="text-school-blue dark:text-white" />
+            <h3 className="font-extrabold text-slate-800 dark:text-slate-50 text-lg tracking-tight">Update Lampiran Baru</h3>
           </div>
           <form onSubmit={handleAttachmentSubmit} className="p-5">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5">
               <div className="space-y-4">
                 <div>
                   <div className="flex justify-between items-center mb-1.5">
-                    <label className="block text-sm font-bold text-slate-700">File / Tautan Lampiran <span className="text-rose-500">*</span></label>
+                    <label className="block text-sm font-bold text-slate-700 dark:text-slate-200">File / Tautan Lampiran <span className="text-rose-500">*</span></label>
                     {attachmentLink && (
-                      <a href={attachmentLink} target="_blank" rel="noopener noreferrer" className="text-school-blue hover:text-blue-700 transition-colors p-1 rounded-full hover:bg-blue-50 flex items-center justify-center" title="Periksa">
+                      <a href={attachmentLink} target="_blank" rel="noopener noreferrer" className="text-school-blue dark:text-white hover:text-blue-700 dark:hover:text-slate-300 transition-colors p-1 rounded-full hover:bg-blue-50 dark:bg-slate-800 dark:hover:bg-slate-700 flex items-center justify-center" title="Periksa">
                         <Eye size={16} />
                       </a>
                     )}
                   </div>
-                  <input type="file" ref={attachmentFileRef} className="w-full h-16 block pt-4 bg-slate-50 border border-slate-200 rounded-xl px-4 text-sm file:mr-4 file:py-1.5 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-school-blue/10 file:text-school-blue hover:file:bg-school-blue/20 transition-all text-slate-600 cursor-pointer focus:ring-4 focus:ring-school-blue/10 focus:border-school-blue outline-none" accept="image/*,video/*,application/pdf" onChange={handleAttachmentFileUpload} disabled={isUploadingAttachment} required={!attachmentLink} />
+                  <input type="file" ref={attachmentFileRef} className="w-full h-16 block pt-4 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 text-sm file:mr-4 file:py-1.5 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-school-blue/10 file:text-school-blue dark:file:text-white dark:text-white hover:file:bg-school-blue/20 transition-all text-slate-600 dark:text-slate-300 cursor-pointer focus:ring-4 focus:ring-school-blue/10 focus:border-school-blue outline-none" accept="image/*,video/*,application/pdf" onChange={handleAttachmentFileUpload} disabled={isUploadingAttachment} required={!attachmentLink} />
                   {isUploadingAttachment && (
                     <div className="w-full bg-slate-200 rounded-full h-1.5 mt-2 overflow-hidden">
-                      <div className="bg-school-blue h-1.5 rounded-full transition-all duration-300 ease-out" style={{ width: `${attachmentUploadProgress}%` }}></div>
+                      <div className="bg-school-blue dark:bg-blue-600 h-1.5 rounded-full transition-all duration-300 ease-out" style={{ width: `${attachmentUploadProgress}%` }}></div>
                     </div>
                   )}
                   {uploadSuccessMsg && <p className="text-emerald-500 text-xs mt-1.5 font-bold animate-in fade-in">{uploadSuccessMsg}</p>}
@@ -815,13 +815,13 @@ export const DaftarTugas: React.FC<DaftarTugasProps> = ({ user }) => {
               </div>
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-bold text-slate-700 mb-1.5">Catatan <span className="text-slate-400 font-medium">(Opsional)</span></label>
-                  <textarea value={attachmentCatatan} onChange={(e) => setAttachmentCatatan(e.target.value)} placeholder="Catatan untuk update lampiran ini..." className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 h-16 resize-none focus:ring-4 focus:ring-school-blue/10 focus:border-school-blue outline-none transition-all shadow-sm text-sm" />
+                  <label className="block text-sm font-bold text-slate-700 dark:text-slate-200 mb-1.5">Catatan <span className="text-slate-400 font-medium">(Opsional)</span></label>
+                  <textarea value={attachmentCatatan} onChange={(e) => setAttachmentCatatan(e.target.value)} placeholder="Catatan untuk update lampiran ini..." className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl p-3 h-16 resize-none focus:ring-4 focus:ring-school-blue/10 focus:border-school-blue outline-none transition-all shadow-sm text-sm" />
                 </div>
               </div>
             </div>
-            <div className="flex justify-end gap-3 pt-4 border-t border-slate-100">
-              <button type="button" onClick={() => setShowAttachmentForm(false)} className="px-6 py-2 rounded-xl border border-slate-200 text-slate-600 font-bold hover:bg-slate-50 transition-colors text-sm">Batal</button>
+            <div className="flex justify-end gap-3 pt-4 border-t border-slate-100 dark:border-slate-700">
+              <button type="button" onClick={() => setShowAttachmentForm(false)} className="px-6 py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 font-bold hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors text-sm">Batal</button>
               <button type="submit" disabled={isUploadingAttachment} className={`px-8 py-2 text-white font-bold rounded-xl transition-all shadow-md hover:shadow-lg text-sm flex items-center justify-center gap-2 ${isUploadingAttachment ? 'opacity-70 cursor-not-allowed bg-slate-400' : 'bg-gradient-to-r from-school-blue to-indigo-600 hover:from-blue-700 hover:to-indigo-700'}`}>
                 {isUploadingAttachment ? 'Mengunggah...' : <><Plus size={16} /> Kirim Lampiran</>}
               </button>
@@ -833,14 +833,14 @@ export const DaftarTugas: React.FC<DaftarTugasProps> = ({ user }) => {
       {/* Tampilan Detail Laporan (Inline Top-Level) */}
       {selectedReport && !showForm && !showAttachmentForm && (
         <>
-          <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-5 mb-6 animate-in slide-in-from-top-4 fade-in duration-300">
-            <div className="flex justify-between items-center mb-4 border-b border-slate-100 pb-3">
-              <h2 className="font-bold text-slate-800 text-lg flex items-center">
+          <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-5 mb-6 animate-in slide-in-from-top-4 fade-in duration-300">
+            <div className="flex justify-between items-center mb-4 border-b border-slate-100 dark:border-slate-700 pb-3">
+              <h2 className="font-bold text-slate-800 dark:text-slate-50 text-lg flex items-center">
                 Detail Laporan Kegiatan
               </h2>
               <button
                 onClick={() => { setSelectedReport(null); setAttachments([]); }}
-                className="text-sm font-bold text-slate-500 hover:text-slate-700 transition-colors bg-slate-100 hover:bg-slate-200 px-3 py-1.5 rounded-lg"
+                className="text-sm font-bold text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:text-slate-200 transition-colors bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-600 px-3 py-1.5 rounded-lg"
               >
                 Tutup Detail
               </button>
@@ -851,12 +851,12 @@ export const DaftarTugas: React.FC<DaftarTugasProps> = ({ user }) => {
               <div className="space-y-3">
                 <div>
                   <p className="text-xs text-slate-400 font-bold uppercase tracking-wider mb-2">Tanggal Kegiatan</p>
-                  <p className="font-bold text-slate-700">{format(new Date(selectedReport.date), 'dd MMMM yyyy', { locale: id })}</p>
+                  <p className="font-bold text-slate-700 dark:text-slate-200">{format(new Date(selectedReport.date), 'dd MMMM yyyy', { locale: id })}</p>
                 </div>
 
                 <div>
                   <p className="text-xs text-slate-400 font-bold uppercase tracking-wider mb-1">Nama Laporan</p>
-                  <p className="font-bold text-slate-800 text-base">{selectedReport.taskName}</p>
+                  <p className="font-bold text-slate-800 dark:text-slate-50 text-base">{selectedReport.taskName}</p>
                 </div>
 
                 {(() => {
@@ -865,13 +865,13 @@ export const DaftarTugas: React.FC<DaftarTugasProps> = ({ user }) => {
                   return (
                     <div className="mt-2 border-l-2 border-school-blue pl-3 py-1">
                       <div className="flex items-center justify-between gap-3 mb-1.5">
-                        <h4 className="text-xs font-bold text-school-blue uppercase tracking-wider flex items-center gap-1.5 shrink-0">
+                        <h4 className="text-xs font-bold text-school-blue dark:text-white uppercase tracking-wider flex items-center gap-1.5 shrink-0">
                           <ClipboardList size={14} /> Instruksi Tugas
                         </h4>
                       </div>
 
                       {matchingAdminTask.deskripsi ? (
-                        <p className="text-sm text-slate-600 whitespace-pre-wrap">{matchingAdminTask.deskripsi}</p>
+                        <p className="text-sm text-slate-600 dark:text-slate-300 whitespace-pre-wrap">{matchingAdminTask.deskripsi}</p>
                       ) : (
                         <p className="text-sm text-slate-400 italic">Tidak ada instruksi khusus.</p>
                       )}
@@ -896,7 +896,7 @@ export const DaftarTugas: React.FC<DaftarTugasProps> = ({ user }) => {
                             <button
                               onClick={(e) => handleDownload(matchingAdminTask.lampiranUrl!, e)}
                               disabled={downloadingUrl === matchingAdminTask.lampiranUrl}
-                              className="text-xs font-bold text-school-blue hover:text-blue-700 transition-colors flex items-center gap-1 underline underline-offset-2"
+                              className="text-xs font-bold text-school-blue dark:text-white hover:text-blue-700 dark:hover:text-slate-300 transition-colors flex items-center gap-1 underline underline-offset-2"
                             >
                               {downloadingUrl === matchingAdminTask.lampiranUrl ? <><Loader2 size={12} className="animate-spin" /> Mengunduh...</> : <><Paperclip size={12} /> Unduh Lampiran Admin</>}
                             </button>
@@ -905,12 +905,12 @@ export const DaftarTugas: React.FC<DaftarTugasProps> = ({ user }) => {
                         return null;
                       })()}
                     </div>
-                    <div className={`w-full flex-1 min-h-[48px] text-sm bg-slate-50 border border-slate-200 rounded-xl p-3 overflow-y-auto custom-scrollbar ${selectedReport.status === 'reviewed' ? 'text-emerald-700 font-medium' : selectedReport.status === 'rejected' ? 'text-rose-700 font-medium' : 'text-slate-500 italic'}`}>
+                    <div className={`w-full flex-1 min-h-[48px] text-sm bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl p-3 overflow-y-auto custom-scrollbar ${selectedReport.status === 'reviewed' ? 'text-emerald-700 font-medium' : selectedReport.status === 'rejected' ? 'text-rose-700 font-medium' : 'text-slate-500 dark:text-slate-400 italic'}`}>
                       {selectedReport.adminFeedback || 'Belum ada tanggapan dari admin.'}
                     </div>
 
                     {(selectedReport.status === 'reviewed' && selectedReport.score) && (
-                      <div className="flex flex-col gap-2 pt-3 border-t border-slate-100 mt-3">
+                      <div className="flex flex-col gap-2 pt-3 border-t border-slate-100 dark:border-slate-700 mt-3">
                         <div className="flex items-center justify-between w-full pr-1.5">
                           <span className="text-xs text-slate-400 font-bold uppercase tracking-wider">Total Penilaian</span>
                           <div className="flex items-center gap-1.5 text-slate-300" title={`Nilai Rata-rata: ${Number(selectedReport.averageScore ?? selectedReport.score).toFixed(1)} Bintang`}>
@@ -924,7 +924,7 @@ export const DaftarTugas: React.FC<DaftarTugasProps> = ({ user }) => {
                 </div>
 
                 {selectedReport.status === 'rejected' && (
-                  <div className="flex gap-3 pt-4 border-t border-slate-100 mt-auto">
+                  <div className="flex gap-3 pt-4 border-t border-slate-100 dark:border-slate-700 mt-auto">
                     <button
                       type="button"
                       onClick={() => {
@@ -946,15 +946,15 @@ export const DaftarTugas: React.FC<DaftarTugasProps> = ({ user }) => {
           </div>
 
           {/* Tabel Riwayat Lampiran - Card Terpisah */}
-          <div className="bg-white rounded-xl shadow-sm border border-slate-200 mb-6 animate-in slide-in-from-top-4 fade-in duration-300">
-            <div className="p-4 border-b border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-4 bg-white rounded-t-xl">
+          <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 mb-6 animate-in slide-in-from-top-4 fade-in duration-300">
+            <div className="p-4 border-b border-slate-200 dark:border-slate-700 flex flex-col sm:flex-row items-center justify-between gap-4 bg-white dark:bg-slate-800 rounded-t-xl">
               <div className="flex items-center space-x-2 w-full sm:w-auto">
-                <Paperclip size={20} className="text-slate-600" />
-                <h2 className="font-bold text-slate-800 text-lg">Riwayat Lampiran ({(selectedReport.link ? 1 : 0) + attachments.length})</h2>
+                <Paperclip size={20} className="text-slate-600 dark:text-slate-300" />
+                <h2 className="font-bold text-slate-800 dark:text-slate-50 text-lg">Riwayat Lampiran ({(selectedReport.link ? 1 : 0) + attachments.length})</h2>
               </div>
               <button
                 onClick={() => openAttachmentForm(selectedReport.id)}
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 text-sm font-bold text-school-blue hover:text-blue-700 bg-blue-50 hover:bg-blue-100 px-4 py-2 rounded-xl transition-colors shadow-sm"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 text-sm font-bold text-school-blue dark:text-white hover:text-blue-700 dark:hover:text-slate-300 bg-blue-50 dark:bg-slate-800 hover:bg-blue-100 dark:bg-slate-700 dark:hover:bg-slate-600 px-4 py-2 rounded-xl transition-colors shadow-sm"
               >
                 <Plus size={16} /> Tambah Lampiran
               </button>
@@ -962,47 +962,47 @@ export const DaftarTugas: React.FC<DaftarTugasProps> = ({ user }) => {
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse min-w-[600px] hidden xl:table">
                 <thead>
-                  <tr className="bg-slate-50 text-slate-500 text-xs uppercase tracking-wider">
-                    <th className="px-4 py-3 font-bold border border-slate-200 w-12 text-center">NO</th>
-                    <th className="px-4 py-3 font-bold border border-slate-200 text-center w-36">TANGGAL</th>
-                    <th className="px-4 py-3 font-bold border border-slate-200 text-center w-28">JAM</th>
-                    <th className="px-4 py-3 font-bold border border-slate-200 w-64">NAMA TUGAS</th>
-                    <th className="px-4 py-3 font-bold border border-slate-200 w-80">CATATAN</th>
-                    <th className="px-4 py-3 font-bold border border-slate-200 text-center w-32">STATUS</th>
-                    <th className="px-4 py-3 font-bold border border-slate-200 text-center w-28">NILAI</th>
-                    <th className="px-4 py-3 font-bold border border-slate-200 text-center w-16">SKOR</th>
-                    <th className="px-4 py-3 font-bold border border-slate-200 text-center w-24">LAMPIRAN</th>
-                    <th className="px-4 py-3 font-bold border border-slate-200 text-center w-24">UNDUH</th>
+                  <tr className="bg-slate-50 dark:bg-slate-900 text-slate-500 dark:text-slate-400 text-xs uppercase tracking-wider">
+                    <th className="px-4 py-3 font-bold border border-slate-200 dark:border-slate-700 w-12 text-center">NO</th>
+                    <th className="px-4 py-3 font-bold border border-slate-200 dark:border-slate-700 text-center w-36">TANGGAL</th>
+                    <th className="px-4 py-3 font-bold border border-slate-200 dark:border-slate-700 text-center w-28">JAM</th>
+                    <th className="px-4 py-3 font-bold border border-slate-200 dark:border-slate-700 w-64">NAMA TUGAS</th>
+                    <th className="px-4 py-3 font-bold border border-slate-200 dark:border-slate-700 w-80">CATATAN</th>
+                    <th className="px-4 py-3 font-bold border border-slate-200 dark:border-slate-700 text-center w-32">STATUS</th>
+                    <th className="px-4 py-3 font-bold border border-slate-200 dark:border-slate-700 text-center w-28">NILAI</th>
+                    <th className="px-4 py-3 font-bold border border-slate-200 dark:border-slate-700 text-center w-16">SKOR</th>
+                    <th className="px-4 py-3 font-bold border border-slate-200 dark:border-slate-700 text-center w-24">LAMPIRAN</th>
+                    <th className="px-4 py-3 font-bold border border-slate-200 dark:border-slate-700 text-center w-24">UNDUH</th>
                   </tr>
                 </thead>
                 <tbody>
                   {isAttachmentsLoading ? (
                     <tr>
-                      <td colSpan={10} className="p-12 text-center text-slate-500 border border-slate-200">
-                        <div className="flex justify-center mb-3 text-school-blue">
+                      <td colSpan={10} className="p-12 text-center text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-700">
+                        <div className="flex justify-center mb-3 text-school-blue dark:text-white">
                           <Loader2 size={32} className="animate-spin" />
                         </div>
-                        <p className="font-bold text-lg text-slate-600 mb-1">Memuat Lampiran...</p>
+                        <p className="font-bold text-lg text-slate-600 dark:text-slate-300 mb-1">Memuat Lampiran...</p>
                       </td>
                     </tr>
                   ) : (
                     <>
                       {selectedReport.link && (
-                        <tr className="hover:bg-slate-50 transition-colors bg-white">
-                          <td className="px-4 py-3 border border-slate-200 text-center text-sm font-medium text-slate-500">1</td>
-                          <td className="px-4 py-3 border border-slate-200 text-center text-sm text-slate-700">{format(new Date(selectedReport.createdAt), 'dd MMM yyyy', { locale: id })}</td>
-                          <td className="px-4 py-3 border border-slate-200 text-center text-sm font-bold text-slate-600">{format(new Date(selectedReport.createdAt), 'HH:mm', { locale: id })}</td>
-                          <td className="px-4 py-3 border border-slate-200 text-sm font-bold text-slate-800 max-w-[200px] truncate" title={selectedReport.taskName}>{selectedReport.taskName}</td>
-                          <td className="px-4 py-3 border border-slate-200">
+                        <tr className="hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors bg-white dark:bg-slate-800">
+                          <td className="px-4 py-3 border border-slate-200 dark:border-slate-700 text-center text-sm font-medium text-slate-500 dark:text-slate-400">1</td>
+                          <td className="px-4 py-3 border border-slate-200 dark:border-slate-700 text-center text-sm text-slate-700 dark:text-slate-200">{format(new Date(selectedReport.createdAt), 'dd MMM yyyy', { locale: id })}</td>
+                          <td className="px-4 py-3 border border-slate-200 dark:border-slate-700 text-center text-sm font-bold text-slate-600 dark:text-slate-300">{format(new Date(selectedReport.createdAt), 'HH:mm', { locale: id })}</td>
+                          <td className="px-4 py-3 border border-slate-200 dark:border-slate-700 text-sm font-bold text-slate-800 dark:text-slate-50 max-w-[200px] truncate" title={selectedReport.taskName}>{selectedReport.taskName}</td>
+                          <td className="px-4 py-3 border border-slate-200 dark:border-slate-700">
                             <div className="flex items-center justify-between gap-2">
-                              <span className="text-sm text-slate-700 truncate max-w-[260px]">-</span>
+                              <span className="text-sm text-slate-700 dark:text-slate-200 truncate max-w-[260px]">-</span>
                               {selectedReport.adminFeedback && (
                                 <button
                                   onClick={() => {
                                     setFeedbackModal({ show: true, taskName: selectedReport.taskName, catatan: '-', adminFeedback: selectedReport.adminFeedback! });
                                     markFeedbackAsRead(selectedReport.id, selectedReport.adminFeedback!);
                                   }}
-                                  className="text-school-blue hover:text-blue-700 hover:bg-blue-50 p-1.5 rounded-lg transition-colors shrink-0 relative"
+                                  className="text-school-blue dark:text-white hover:text-blue-700 dark:hover:text-slate-300 hover:bg-blue-50 dark:bg-slate-800 dark:hover:bg-slate-700 p-1.5 rounded-lg transition-colors shrink-0 relative"
                                   title="Lihat Balasan Admin"
                                 >
                                   <MessageSquareMore size={16} />
@@ -1016,7 +1016,7 @@ export const DaftarTugas: React.FC<DaftarTugasProps> = ({ user }) => {
                               )}
                             </div>
                           </td>
-                          <td className="px-4 py-3 border border-slate-200 text-center">
+                          <td className="px-4 py-3 border border-slate-200 dark:border-slate-700 text-center">
                             <div className="flex items-center justify-center">
                               {selectedReport.status === 'reviewed' ? (
                                 <span title="Disetujui"><CheckCircle2 size={20} className="fill-emerald-500 text-white" /></span>
@@ -1027,29 +1027,29 @@ export const DaftarTugas: React.FC<DaftarTugasProps> = ({ user }) => {
                               )}
                             </div>
                           </td>
-                          <td className="px-4 py-3 border border-slate-200 text-center">
+                          <td className="px-4 py-3 border border-slate-200 dark:border-slate-700 text-center">
                             <div className="flex items-center justify-center gap-1 text-slate-300" title={selectedReport?.score ? `Nilai: ${selectedReport.score.toFixed(1)} Bintang` : 'Belum Dinilai'}>
                               <StarRating score={selectedReport?.score ?? 0} size={16} />
                             </div>
                           </td>
-                          <td className="px-4 py-3 border border-slate-200 text-center font-bold text-amber-500">
+                          <td className="px-4 py-3 border border-slate-200 dark:border-slate-700 text-center font-bold text-amber-500">
                             {selectedReport?.score ? selectedReport.score.toFixed(1) : '-'}
                           </td>
-                          <td className="px-4 py-3 border border-slate-200 text-center">
+                          <td className="px-4 py-3 border border-slate-200 dark:border-slate-700 text-center">
                             <div className="flex items-center justify-center">
-                              <a href={selectedReport.link} target="_blank" rel="noopener noreferrer" className="text-school-blue hover:text-blue-700 transition-colors inline-block" title="Lihat Lampiran">
+                              <a href={selectedReport.link} target="_blank" rel="noopener noreferrer" className="text-school-blue dark:text-white hover:text-blue-700 dark:hover:text-slate-300 transition-colors inline-block" title="Lihat Lampiran">
                                 <Paperclip size={18} />
                               </a>
                             </div>
                           </td>
-                          <td className="px-4 py-3 border border-slate-200 text-center">
+                          <td className="px-4 py-3 border border-slate-200 dark:border-slate-700 text-center">
                             <div className="flex items-center justify-center">
                               {selectedReport.status === 'rejected' ? (
                                 <button onClick={() => openRevisionModal(selectedReport.id, true, selectedReport.taskName, selectedReport.description)} className="text-amber-500 hover:text-amber-600 transition-colors inline-block cursor-pointer" title="Revisi Lampiran">
                                   <RefreshCw size={18} />
                                 </button>
                               ) : (
-                                <button onClick={(e) => handleDownload(selectedReport.link!, e)} disabled={downloadingUrl === selectedReport.link} className={`${downloadingUrl === selectedReport.link ? 'text-school-blue' : 'text-slate-500 hover:text-slate-700'} transition-colors inline-block cursor-pointer`} title="Unduh Lampiran">
+                                <button onClick={(e) => handleDownload(selectedReport.link!, e)} disabled={downloadingUrl === selectedReport.link} className={`${downloadingUrl === selectedReport.link ? 'text-school-blue dark:text-white' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:text-slate-200'} transition-colors inline-block cursor-pointer`} title="Unduh Lampiran">
                                   {downloadingUrl === selectedReport.link ? <Loader2 size={18} className="animate-spin" /> : <Download size={18} />}
                                 </button>
                               )}
@@ -1058,21 +1058,21 @@ export const DaftarTugas: React.FC<DaftarTugasProps> = ({ user }) => {
                         </tr>
                       )}
                       {attachments.map((att, idx) => (
-                        <tr key={att.id} className="hover:bg-slate-50 transition-colors bg-white">
-                          <td className="px-4 py-3 border border-slate-200 text-center text-sm font-medium text-slate-500">{(selectedReport.link ? 1 : 0) + idx + 1}</td>
-                          <td className="px-4 py-3 border border-slate-200 text-center text-sm text-slate-700">{format(new Date(att.createdAt), 'dd MMM yyyy', { locale: id })}</td>
-                          <td className="px-4 py-3 border border-slate-200 text-center text-sm font-bold text-slate-600">{format(new Date(att.createdAt), 'HH:mm', { locale: id })}</td>
-                          <td className="px-4 py-3 border border-slate-200 text-sm font-bold text-slate-800 max-w-[200px] truncate" title={selectedReport.taskName}>{selectedReport.taskName}</td>
-                          <td className="px-4 py-3 border border-slate-200">
+                        <tr key={att.id} className="hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors bg-white dark:bg-slate-800">
+                          <td className="px-4 py-3 border border-slate-200 dark:border-slate-700 text-center text-sm font-medium text-slate-500 dark:text-slate-400">{(selectedReport.link ? 1 : 0) + idx + 1}</td>
+                          <td className="px-4 py-3 border border-slate-200 dark:border-slate-700 text-center text-sm text-slate-700 dark:text-slate-200">{format(new Date(att.createdAt), 'dd MMM yyyy', { locale: id })}</td>
+                          <td className="px-4 py-3 border border-slate-200 dark:border-slate-700 text-center text-sm font-bold text-slate-600 dark:text-slate-300">{format(new Date(att.createdAt), 'HH:mm', { locale: id })}</td>
+                          <td className="px-4 py-3 border border-slate-200 dark:border-slate-700 text-sm font-bold text-slate-800 dark:text-slate-50 max-w-[200px] truncate" title={selectedReport.taskName}>{selectedReport.taskName}</td>
+                          <td className="px-4 py-3 border border-slate-200 dark:border-slate-700">
                             <div className="flex items-center justify-between gap-2">
-                              <span className="text-sm text-slate-700 truncate max-w-[260px]" title={att.catatan}>{att.catatan || '-'}</span>
+                              <span className="text-sm text-slate-700 dark:text-slate-200 truncate max-w-[260px]" title={att.catatan}>{att.catatan || '-'}</span>
                               {att.adminFeedback && (
                                 <button
                                   onClick={() => {
                                     setFeedbackModal({ show: true, taskName: selectedReport.taskName, catatan: att.catatan || '-', adminFeedback: att.adminFeedback! });
                                     markFeedbackAsRead(att.id, att.adminFeedback!);
                                   }}
-                                  className="text-school-blue hover:text-blue-700 hover:bg-blue-50 p-1.5 rounded-lg transition-colors shrink-0 relative"
+                                  className="text-school-blue dark:text-white hover:text-blue-700 dark:hover:text-slate-300 hover:bg-blue-50 dark:bg-slate-800 dark:hover:bg-slate-700 p-1.5 rounded-lg transition-colors shrink-0 relative"
                                   title="Lihat Balasan Admin"
                                 >
                                   <MessageSquareMore size={16} />
@@ -1086,7 +1086,7 @@ export const DaftarTugas: React.FC<DaftarTugasProps> = ({ user }) => {
                               )}
                             </div>
                           </td>
-                          <td className="px-4 py-3 border border-slate-200 text-center">
+                          <td className="px-4 py-3 border border-slate-200 dark:border-slate-700 text-center">
                             <div className="flex items-center justify-center">
                               {att.status === 'reviewed' ? (
                                 <span title="Disetujui"><CheckCircle2 size={20} className="fill-emerald-500 text-white" /></span>
@@ -1097,29 +1097,29 @@ export const DaftarTugas: React.FC<DaftarTugasProps> = ({ user }) => {
                               )}
                             </div>
                           </td>
-                          <td className="px-4 py-3 border border-slate-200 text-center">
+                          <td className="px-4 py-3 border border-slate-200 dark:border-slate-700 text-center">
                             <div className="flex items-center justify-center gap-1 text-slate-300" title={att?.score ? `Nilai: ${att.score.toFixed(1)} Bintang` : 'Belum Dinilai'}>
                               <StarRating score={att?.score ?? 0} size={16} />
                             </div>
                           </td>
-                          <td className="px-4 py-3 border border-slate-200 text-center font-bold text-amber-500">
+                          <td className="px-4 py-3 border border-slate-200 dark:border-slate-700 text-center font-bold text-amber-500">
                             {att?.score ? att.score.toFixed(1) : '-'}
                           </td>
-                          <td className="px-4 py-3 border border-slate-200 text-center">
+                          <td className="px-4 py-3 border border-slate-200 dark:border-slate-700 text-center">
                             <div className="flex items-center justify-center">
-                              <a href={att.link} target="_blank" rel="noopener noreferrer" className="text-school-blue hover:text-blue-700 transition-colors inline-block" title="Lihat Lampiran">
+                              <a href={att.link} target="_blank" rel="noopener noreferrer" className="text-school-blue dark:text-white hover:text-blue-700 dark:hover:text-slate-300 transition-colors inline-block" title="Lihat Lampiran">
                                 <Paperclip size={18} />
                               </a>
                             </div>
                           </td>
-                          <td className="px-4 py-3 border border-slate-200 text-center">
+                          <td className="px-4 py-3 border border-slate-200 dark:border-slate-700 text-center">
                             <div className="flex items-center justify-center">
                               {att.status === 'rejected' ? (
                                 <button onClick={() => openRevisionModal(att.id, false, selectedReport.taskName, selectedReport.description)} className="text-amber-500 hover:text-amber-600 transition-colors inline-block cursor-pointer" title="Revisi Lampiran">
                                   <RefreshCw size={18} />
                                 </button>
                               ) : (
-                                <button onClick={(e) => handleDownload(att.link, e)} disabled={downloadingUrl === att.link} className={`${downloadingUrl === att.link ? 'text-school-blue' : 'text-slate-500 hover:text-slate-700'} transition-colors inline-block cursor-pointer`} title="Unduh Lampiran">
+                                <button onClick={(e) => handleDownload(att.link, e)} disabled={downloadingUrl === att.link} className={`${downloadingUrl === att.link ? 'text-school-blue dark:text-white' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:text-slate-200'} transition-colors inline-block cursor-pointer`} title="Unduh Lampiran">
                                   {downloadingUrl === att.link ? <Loader2 size={18} className="animate-spin" /> : <Download size={18} />}
                                 </button>
                               )}
@@ -1129,7 +1129,7 @@ export const DaftarTugas: React.FC<DaftarTugasProps> = ({ user }) => {
                       ))}
                       {!selectedReport.link && attachments.length === 0 && (
                         <tr>
-                          <td colSpan={9} className="p-8 text-center text-slate-500 border border-slate-200">
+                          <td colSpan={9} className="p-8 text-center text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-700">
                             Belum ada lampiran.
                           </td>
                         </tr>
@@ -1140,21 +1140,21 @@ export const DaftarTugas: React.FC<DaftarTugasProps> = ({ user }) => {
               </table>
 
               {/* Mobile Card View */}
-              <div className="xl:hidden flex flex-col divide-y divide-slate-100 border-t border-slate-200">
+              <div className="xl:hidden flex flex-col divide-y divide-slate-100 border-t border-slate-200 dark:border-slate-700">
                 {isAttachmentsLoading ? (
-                  <div className="p-12 text-center text-slate-500">
-                    <div className="flex justify-center mb-3 text-school-blue">
+                  <div className="p-12 text-center text-slate-500 dark:text-slate-400">
+                    <div className="flex justify-center mb-3 text-school-blue dark:text-white">
                       <Loader2 size={32} className="animate-spin" />
                     </div>
-                    <p className="font-bold text-lg text-slate-600 mb-1">Memuat Lampiran...</p>
+                    <p className="font-bold text-lg text-slate-600 dark:text-slate-300 mb-1">Memuat Lampiran...</p>
                   </div>
                 ) : (
                   <>
                     {selectedReport.link && (
-                      <div className="p-4 hover:bg-slate-50 transition-colors flex flex-col gap-3 bg-white">
+                      <div className="p-4 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors flex flex-col gap-3 bg-white dark:bg-slate-800">
                         <div className="flex justify-between items-start gap-2">
                           <div className="flex flex-col min-w-0 flex-1">
-                            <h3 className="font-extrabold text-slate-800 text-sm leading-snug truncate" title={selectedReport.taskName}>{selectedReport.taskName}</h3>
+                            <h3 className="font-extrabold text-slate-800 dark:text-slate-50 text-sm leading-snug truncate" title={selectedReport.taskName}>{selectedReport.taskName}</h3>
                             <p className="text-[11px] font-bold text-slate-400 mt-0.5 truncate">
                               {format(new Date(selectedReport.createdAt), 'dd MMM yyyy • HH:mm', { locale: id })}
                             </p>
@@ -1165,22 +1165,22 @@ export const DaftarTugas: React.FC<DaftarTugasProps> = ({ user }) => {
                             ) : selectedReport.status === 'rejected' ? (
                               <span className="bg-rose-100 text-rose-700 px-2 py-1 rounded-md text-[10px] font-bold uppercase flex items-center gap-1"><XCircle size={12}/> Ditolak</span>
                             ) : (
-                              <span className="bg-slate-100 text-slate-600 px-2 py-1 rounded-md text-[10px] font-bold uppercase flex items-center gap-1"><Clock size={12}/> Tertunda</span>
+                              <span className="bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 px-2 py-1 rounded-md text-[10px] font-bold uppercase flex items-center gap-1"><Clock size={12}/> Tertunda</span>
                             )}
                           </div>
                         </div>
 
-                        <div className="bg-slate-50 p-2.5 rounded-lg border border-slate-100 mt-1">
-                          <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Catatan:</p>
+                        <div className="bg-slate-50 dark:bg-slate-900 p-2.5 rounded-lg border border-slate-100 dark:border-slate-700 mt-1">
+                          <p className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Catatan:</p>
                           <div className="flex items-start justify-between gap-2">
-                            <p className="text-xs text-slate-600 italic line-clamp-2">-</p>
+                            <p className="text-xs text-slate-600 dark:text-slate-300 italic line-clamp-2">-</p>
                             {selectedReport.adminFeedback && (
                               <button
                                 onClick={() => {
                                   setFeedbackModal({ show: true, taskName: selectedReport.taskName, catatan: '-', adminFeedback: selectedReport.adminFeedback! });
                                   markFeedbackAsRead(selectedReport.id, selectedReport.adminFeedback!);
                                 }}
-                                className="text-school-blue hover:text-blue-700 hover:bg-blue-50 p-1.5 rounded-lg transition-colors shrink-0 relative bg-white border border-blue-100"
+                                className="text-school-blue dark:text-white hover:text-blue-700 dark:hover:text-slate-300 hover:bg-blue-50 dark:bg-slate-800 dark:hover:bg-slate-700 p-1.5 rounded-lg transition-colors shrink-0 relative bg-white dark:bg-slate-800 border border-blue-100"
                                 title="Lihat Balasan Admin"
                               >
                                 <MessageSquareMore size={14} />
@@ -1195,22 +1195,22 @@ export const DaftarTugas: React.FC<DaftarTugasProps> = ({ user }) => {
                           </div>
                         </div>
                         
-                        <div className="flex items-center justify-between gap-2 mt-1 pt-2 border-t border-slate-100">
+                        <div className="flex items-center justify-between gap-2 mt-1 pt-2 border-t border-slate-100 dark:border-slate-700">
                           <div className="flex items-center gap-2">
-                            <span className="text-[10px] font-bold text-slate-500 uppercase">Penilaian</span>
+                            <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase">Penilaian</span>
                             <StarRating score={selectedReport?.score ?? 0} size={14} />
                           </div>
                           
                           <div className="flex items-center gap-1.5 shrink-0">
-                            <a href={selectedReport.link} target="_blank" rel="noopener noreferrer" className="p-2 text-school-blue bg-blue-50 hover:bg-blue-100 rounded-full transition-colors" title="Lihat Lampiran">
+                            <a href={selectedReport.link} target="_blank" rel="noopener noreferrer" className="p-2 text-school-blue dark:text-white bg-blue-50 dark:bg-slate-800 hover:bg-blue-100 dark:bg-slate-700 dark:hover:bg-slate-600 rounded-full transition-colors" title="Lihat Lampiran">
                               <Eye size={14} />
                             </a>
                             {selectedReport.status === 'rejected' ? (
-                              <button onClick={() => openRevisionModal(selectedReport.id, true, selectedReport.taskName, selectedReport.description)} className="p-2 text-amber-600 bg-amber-50 hover:bg-amber-100 rounded-full transition-colors" title="Revisi Lampiran">
+                              <button onClick={() => openRevisionModal(selectedReport.id, true, selectedReport.taskName, selectedReport.description)} className="p-2 text-amber-600 bg-amber-50 hover:bg-amber-100 dark:bg-amber-900/60 dark:hover:bg-amber-900/70 rounded-full transition-colors" title="Revisi Lampiran">
                                 <RefreshCw size={14} />
                               </button>
                             ) : (
-                              <button onClick={(e) => handleDownload(selectedReport.link!, e)} disabled={downloadingUrl === selectedReport.link} className={`p-2 rounded-full transition-colors ${downloadingUrl === selectedReport.link ? 'text-slate-400 bg-slate-100' : 'text-slate-600 bg-slate-100 hover:bg-slate-200'}`} title="Unduh Lampiran">
+                              <button onClick={(e) => handleDownload(selectedReport.link!, e)} disabled={downloadingUrl === selectedReport.link} className={`p-2 rounded-full transition-colors ${downloadingUrl === selectedReport.link ? 'text-slate-400 bg-slate-100 dark:bg-slate-800' : 'text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-600'}`} title="Unduh Lampiran">
                                 {downloadingUrl === selectedReport.link ? <Loader2 size={14} className="animate-spin" /> : <Download size={14} />}
                               </button>
                             )}
@@ -1219,10 +1219,10 @@ export const DaftarTugas: React.FC<DaftarTugasProps> = ({ user }) => {
                       </div>
                     )}
                     {attachments.map((att) => (
-                      <div key={att.id} className="p-4 hover:bg-slate-50 transition-colors flex flex-col gap-3 bg-white">
+                      <div key={att.id} className="p-4 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors flex flex-col gap-3 bg-white dark:bg-slate-800">
                         <div className="flex justify-between items-start gap-2">
                           <div className="flex flex-col min-w-0 flex-1">
-                            <h3 className="font-extrabold text-slate-800 text-sm leading-snug truncate" title={selectedReport.taskName}>{selectedReport.taskName}</h3>
+                            <h3 className="font-extrabold text-slate-800 dark:text-slate-50 text-sm leading-snug truncate" title={selectedReport.taskName}>{selectedReport.taskName}</h3>
                             <p className="text-[11px] font-bold text-slate-400 mt-0.5 truncate">
                               {format(new Date(att.createdAt), 'dd MMM yyyy • HH:mm', { locale: id })}
                             </p>
@@ -1233,22 +1233,22 @@ export const DaftarTugas: React.FC<DaftarTugasProps> = ({ user }) => {
                             ) : att.status === 'rejected' ? (
                               <span className="bg-rose-100 text-rose-700 px-2 py-1 rounded-md text-[10px] font-bold uppercase flex items-center gap-1"><XCircle size={12}/> Ditolak</span>
                             ) : (
-                              <span className="bg-slate-100 text-slate-600 px-2 py-1 rounded-md text-[10px] font-bold uppercase flex items-center gap-1"><Clock size={12}/> Tertunda</span>
+                              <span className="bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 px-2 py-1 rounded-md text-[10px] font-bold uppercase flex items-center gap-1"><Clock size={12}/> Tertunda</span>
                             )}
                           </div>
                         </div>
 
-                        <div className="bg-slate-50 p-2.5 rounded-lg border border-slate-100 mt-1">
-                          <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Catatan:</p>
+                        <div className="bg-slate-50 dark:bg-slate-900 p-2.5 rounded-lg border border-slate-100 dark:border-slate-700 mt-1">
+                          <p className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Catatan:</p>
                           <div className="flex items-start justify-between gap-2">
-                            <p className="text-xs text-slate-600 italic line-clamp-2">{att.catatan || '-'}</p>
+                            <p className="text-xs text-slate-600 dark:text-slate-300 italic line-clamp-2">{att.catatan || '-'}</p>
                             {att.adminFeedback && (
                               <button
                                 onClick={() => {
                                   setFeedbackModal({ show: true, taskName: selectedReport.taskName, catatan: att.catatan || '-', adminFeedback: att.adminFeedback! });
                                   markFeedbackAsRead(att.id, att.adminFeedback!);
                                 }}
-                                className="text-school-blue hover:text-blue-700 hover:bg-blue-50 p-1.5 rounded-lg transition-colors shrink-0 relative bg-white border border-blue-100"
+                                className="text-school-blue dark:text-white hover:text-blue-700 dark:hover:text-slate-300 hover:bg-blue-50 dark:bg-slate-800 dark:hover:bg-slate-700 p-1.5 rounded-lg transition-colors shrink-0 relative bg-white dark:bg-slate-800 border border-blue-100"
                                 title="Lihat Balasan Admin"
                               >
                                 <MessageSquareMore size={14} />
@@ -1263,22 +1263,22 @@ export const DaftarTugas: React.FC<DaftarTugasProps> = ({ user }) => {
                           </div>
                         </div>
                         
-                        <div className="flex items-center justify-between gap-2 mt-1 pt-2 border-t border-slate-100">
+                        <div className="flex items-center justify-between gap-2 mt-1 pt-2 border-t border-slate-100 dark:border-slate-700">
                           <div className="flex items-center gap-2">
-                            <span className="text-[10px] font-bold text-slate-500 uppercase">Penilaian</span>
+                            <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase">Penilaian</span>
                             <StarRating score={att?.score ?? 0} size={14} />
                           </div>
                           
                           <div className="flex items-center gap-1.5 shrink-0">
-                            <a href={att.link} target="_blank" rel="noopener noreferrer" className="p-2 text-school-blue bg-blue-50 hover:bg-blue-100 rounded-full transition-colors" title="Lihat Lampiran">
+                            <a href={att.link} target="_blank" rel="noopener noreferrer" className="p-2 text-school-blue dark:text-white bg-blue-50 dark:bg-slate-800 hover:bg-blue-100 dark:bg-slate-700 dark:hover:bg-slate-600 rounded-full transition-colors" title="Lihat Lampiran">
                               <Eye size={14} />
                             </a>
                             {att.status === 'rejected' ? (
-                              <button onClick={() => openRevisionModal(att.id, false, selectedReport.taskName, selectedReport.description)} className="p-2 text-amber-600 bg-amber-50 hover:bg-amber-100 rounded-full transition-colors" title="Revisi Lampiran">
+                              <button onClick={() => openRevisionModal(att.id, false, selectedReport.taskName, selectedReport.description)} className="p-2 text-amber-600 bg-amber-50 hover:bg-amber-100 dark:bg-amber-900/60 dark:hover:bg-amber-900/70 rounded-full transition-colors" title="Revisi Lampiran">
                                 <RefreshCw size={14} />
                               </button>
                             ) : (
-                              <button onClick={(e) => handleDownload(att.link, e)} disabled={downloadingUrl === att.link} className={`p-2 rounded-full transition-colors ${downloadingUrl === att.link ? 'text-slate-400 bg-slate-100' : 'text-slate-600 bg-slate-100 hover:bg-slate-200'}`} title="Unduh Lampiran">
+                              <button onClick={(e) => handleDownload(att.link, e)} disabled={downloadingUrl === att.link} className={`p-2 rounded-full transition-colors ${downloadingUrl === att.link ? 'text-slate-400 bg-slate-100 dark:bg-slate-800' : 'text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-600'}`} title="Unduh Lampiran">
                                 {downloadingUrl === att.link ? <Loader2 size={14} className="animate-spin" /> : <Download size={14} />}
                               </button>
                             )}
@@ -1287,7 +1287,7 @@ export const DaftarTugas: React.FC<DaftarTugasProps> = ({ user }) => {
                       </div>
                     ))}
                     {!selectedReport.link && attachments.length === 0 && (
-                      <div className="p-8 text-center text-slate-500">
+                      <div className="p-8 text-center text-slate-500 dark:text-slate-400">
                         <div className="flex justify-center mb-2 text-slate-300">
                           <ClipboardList size={32} />
                         </div>
@@ -1303,44 +1303,44 @@ export const DaftarTugas: React.FC<DaftarTugasProps> = ({ user }) => {
       )}
 
       {/* Ringkasan Status Keseluruhan */}
-      <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-3 sm:p-4 mb-6">
-        <h3 className="font-bold text-slate-800 text-sm mb-3">Ringkasan Status Lampiran</h3>
-        <div className="flex items-center justify-center gap-2 sm:gap-8 bg-slate-50 p-2 sm:p-4 rounded-lg border border-slate-100 overflow-x-auto">
+      <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-3 sm:p-4 mb-6">
+        <h3 className="font-bold text-slate-800 dark:text-slate-50 text-sm mb-3">Ringkasan Status Lampiran</h3>
+        <div className="flex items-center justify-center gap-2 sm:gap-8 bg-slate-50 dark:bg-slate-900 p-2 sm:p-4 rounded-lg border border-slate-100 dark:border-slate-700 overflow-x-auto">
           <div className="flex flex-col items-center justify-center text-center shrink-0">
             <p className="text-xl sm:text-2xl font-black text-blue-600 leading-none">{taskReports.reduce((sum, r) => sum + (r.totalUpdates || 0), 0)}</p>
-            <p className="text-[9px] sm:text-xs font-bold text-slate-500 uppercase tracking-wider mt-1 sm:mt-2">Total Lampiran</p>
+            <p className="text-[9px] sm:text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mt-1 sm:mt-2">Total Lampiran</p>
           </div>
           <div className="w-px h-8 sm:h-10 bg-slate-200 shrink-0"></div>
           <div className="flex flex-col items-center justify-center text-center shrink-0">
             <p className="text-xl sm:text-2xl font-black text-orange-500 leading-none">{taskReports.reduce((sum, r) => sum + (r.totalMenunggu || 0), 0)}</p>
-            <p className="text-[9px] sm:text-xs font-bold text-slate-500 uppercase tracking-wider mt-1 sm:mt-2">Menunggu</p>
+            <p className="text-[9px] sm:text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mt-1 sm:mt-2">Menunggu</p>
           </div>
           <div className="w-px h-8 sm:h-10 bg-slate-200 shrink-0"></div>
           <div className="flex flex-col items-center justify-center text-center shrink-0">
             <p className="text-xl sm:text-2xl font-black text-emerald-500 leading-none">{taskReports.reduce((sum, r) => sum + (r.totalDisetujui || 0), 0)}</p>
-            <p className="text-[9px] sm:text-xs font-bold text-slate-500 uppercase tracking-wider mt-1 sm:mt-2">Disetujui</p>
+            <p className="text-[9px] sm:text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mt-1 sm:mt-2">Disetujui</p>
           </div>
           <div className="w-px h-8 sm:h-10 bg-slate-200 shrink-0"></div>
           <div className="flex flex-col items-center justify-center text-center shrink-0">
             <p className="text-xl sm:text-2xl font-black text-rose-500 leading-none">{taskReports.reduce((sum, r) => sum + (r.totalDitolak || 0), 0)}</p>
-            <p className="text-[9px] sm:text-xs font-bold text-slate-500 uppercase tracking-wider mt-1 sm:mt-2">Ditolak</p>
+            <p className="text-[9px] sm:text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mt-1 sm:mt-2">Ditolak</p>
           </div>
         </div>
       </div>
 
-      <div className="bg-white rounded-xl shadow-sm border border-slate-200">
-        <div className="p-4 border-b border-slate-200 flex flex-row items-center justify-between gap-4 bg-white">
+      <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700">
+        <div className="p-4 border-b border-slate-200 dark:border-slate-700 flex flex-row items-center justify-between gap-4 bg-white dark:bg-slate-800">
           <div className="flex items-center space-x-2 truncate">
-            <ClipboardList size={20} className="text-slate-600 shrink-0" />
-            <h2 className="font-bold text-slate-800 text-lg">Riwayat Tugas Laporan</h2>
+            <ClipboardList size={20} className="text-slate-600 dark:text-slate-300 shrink-0" />
+            <h2 className="font-bold text-slate-800 dark:text-slate-50 text-lg">Riwayat Tugas Laporan</h2>
           </div>
 
           <div className="flex items-center gap-2 relative" ref={filterPopupRef}>
             <button
               onClick={() => setShowFilterPopup(!showFilterPopup)}
               className={`flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-bold border transition-all ${showFilterPopup || filterStartDate || filterEndDate || filterStatus !== 'all'
-                ? 'bg-school-blue/10 border-school-blue text-school-blue shadow-sm'
-                : 'bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100 shadow-sm'
+                ? 'bg-school-blue/10 border-school-blue text-school-blue dark:text-white shadow-sm'
+                : 'bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700 shadow-sm'
                 }`}
             >
               <SlidersHorizontal size={16} />
@@ -1349,10 +1349,10 @@ export const DaftarTugas: React.FC<DaftarTugasProps> = ({ user }) => {
 
             {/* Pop-up Filter */}
             {showFilterPopup && (
-              <div className="absolute right-0 top-full mt-2 w-[calc(100vw-32px)] sm:w-72 bg-white rounded-xl shadow-xl border border-slate-200 p-4 z-50 animate-in fade-in slide-in-from-top-2">
+              <div className="absolute right-0 top-full mt-2 w-[calc(100vw-32px)] sm:w-72 bg-white dark:bg-slate-800 rounded-xl shadow-xl border border-slate-200 dark:border-slate-700 p-4 z-50 animate-in fade-in slide-in-from-top-2">
                 <div className="flex justify-between items-center mb-4">
-                  <h3 className="font-bold text-slate-800 text-sm">Filter Data</h3>
-                  <button onClick={() => setShowFilterPopup(false)} className="text-slate-400 hover:text-slate-600 bg-slate-50 hover:bg-slate-100 p-1 rounded-md transition-colors">
+                  <h3 className="font-bold text-slate-800 dark:text-slate-50 text-sm">Filter Data</h3>
+                  <button onClick={() => setShowFilterPopup(false)} className="text-slate-400 hover:text-slate-600 dark:text-slate-300 bg-slate-50 dark:bg-slate-900 hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700 p-1 rounded-md transition-colors">
                     <X size={16} />
                   </button>
                 </div>
@@ -1373,7 +1373,7 @@ export const DaftarTugas: React.FC<DaftarTugasProps> = ({ user }) => {
                       }}
                       value={filterStartDate}
                       onChange={(e) => setFilterStartDate(e.target.value)}
-                      className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-school-blue/20 outline-none text-slate-700 font-bold text-center cursor-pointer transition-all hover:bg-slate-100"
+                      className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-school-blue/20 outline-none text-slate-700 dark:text-slate-200 font-bold text-center cursor-pointer transition-all hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700"
                     />
                   </div>
                   <div>
@@ -1391,14 +1391,14 @@ export const DaftarTugas: React.FC<DaftarTugasProps> = ({ user }) => {
                       }}
                       value={filterEndDate}
                       onChange={(e) => setFilterEndDate(e.target.value)}
-                      className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-school-blue/20 outline-none text-slate-700 font-bold text-center cursor-pointer transition-all hover:bg-slate-100"
+                      className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-school-blue/20 outline-none text-slate-700 dark:text-slate-200 font-bold text-center cursor-pointer transition-all hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700"
                     />
                   </div>
                   <div className="relative" ref={statusDropdownRef}>
                     <button
                       type="button"
                       onClick={() => setIsStatusDropdownOpen(!isStatusDropdownOpen)}
-                      className="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-2.5 text-sm outline-none text-slate-700 font-bold flex justify-center items-center transition-all hover:bg-slate-100 hover:border-slate-300 focus:ring-2 focus:ring-school-blue/20"
+                      className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-4 py-2.5 text-sm outline-none text-slate-700 dark:text-slate-200 font-bold flex justify-center items-center transition-all hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700 hover:border-slate-300 focus:ring-2 focus:ring-school-blue/20"
                     >
                       <span className="flex items-center gap-2">
                         {filterStatus === 'all' && 'Semua Status'}
@@ -1410,39 +1410,39 @@ export const DaftarTugas: React.FC<DaftarTugasProps> = ({ user }) => {
                     </button>
 
                     {isStatusDropdownOpen && (
-                      <div className="absolute z-50 w-full mt-1.5 bg-white border border-slate-200 rounded-xl shadow-lg overflow-hidden animate-in fade-in zoom-in-95 duration-100">
+                      <div className="absolute z-50 w-full mt-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-lg overflow-hidden animate-in fade-in zoom-in-95 duration-100">
                         <button
                           type="button"
                           onClick={() => { setFilterStatus('all'); setIsStatusDropdownOpen(false); }}
-                          className={`w-full text-left px-4 py-2.5 text-sm font-semibold flex items-center gap-2 transition-colors hover:bg-slate-50 ${filterStatus === 'all' ? 'text-school-blue bg-blue-50/50' : 'text-slate-700'}`}
+                          className={`w-full text-left px-4 py-2.5 text-sm font-semibold flex items-center gap-2 transition-colors hover:bg-slate-50 dark:hover:bg-slate-700 ${filterStatus === 'all' ? 'text-school-blue dark:text-white bg-blue-50/50 dark:bg-blue-900/40' : 'text-slate-700 dark:text-slate-200'}`}
                         >
-                          <Layers size={16} className={filterStatus === 'all' ? 'text-school-blue' : 'text-slate-500'} /> Semua Status
+                          <Layers size={16} className={filterStatus === 'all' ? 'text-school-blue dark:text-white' : 'text-slate-500 dark:text-slate-400'} /> Semua Status
                         </button>
                         <button
                           type="button"
                           onClick={() => { setFilterStatus('unassigned'); setIsStatusDropdownOpen(false); }}
-                          className={`w-full text-left px-4 py-2.5 text-sm font-semibold flex items-center gap-2 transition-colors hover:bg-slate-50 ${filterStatus === 'unassigned' ? 'text-slate-700 bg-slate-100' : 'text-slate-700'}`}
+                          className={`w-full text-left px-4 py-2.5 text-sm font-semibold flex items-center gap-2 transition-colors hover:bg-slate-50 dark:hover:bg-slate-700 ${filterStatus === 'unassigned' ? 'text-slate-700 dark:text-slate-200 bg-slate-100 dark:bg-slate-800' : 'text-slate-700 dark:text-slate-200'}`}
                         >
-                          <Clock size={16} className={filterStatus === 'unassigned' ? 'text-slate-500' : 'text-slate-400'} /> Tertunda
+                          <Clock size={16} className={filterStatus === 'unassigned' ? 'text-slate-500 dark:text-slate-400' : 'text-slate-400'} /> Tertunda
                         </button>
                         <button
                           type="button"
                           onClick={() => { setFilterStatus('pending'); setIsStatusDropdownOpen(false); }}
-                          className={`w-full text-left px-4 py-2.5 text-sm font-semibold flex items-center gap-2 transition-colors hover:bg-slate-50 ${filterStatus === 'pending' ? 'text-amber-600 bg-amber-50/50' : 'text-slate-700'}`}
+                          className={`w-full text-left px-4 py-2.5 text-sm font-semibold flex items-center gap-2 transition-colors hover:bg-slate-50 dark:hover:bg-slate-700 ${filterStatus === 'pending' ? 'text-amber-600 bg-amber-50/50' : 'text-slate-700 dark:text-slate-200'}`}
                         >
                           <Clock size={16} className={filterStatus === 'pending' ? 'text-amber-600' : 'text-amber-500'} /> Menunggu
                         </button>
                         <button
                           type="button"
                           onClick={() => { setFilterStatus('reviewed'); setIsStatusDropdownOpen(false); }}
-                          className={`w-full text-left px-4 py-2.5 text-sm font-semibold flex items-center gap-2 transition-colors hover:bg-slate-50 ${filterStatus === 'reviewed' ? 'text-emerald-600 bg-emerald-50/50' : 'text-slate-700'}`}
+                          className={`w-full text-left px-4 py-2.5 text-sm font-semibold flex items-center gap-2 transition-colors hover:bg-slate-50 dark:hover:bg-slate-700 ${filterStatus === 'reviewed' ? 'text-emerald-600 bg-emerald-50/50 dark:bg-emerald-900/40' : 'text-slate-700 dark:text-slate-200'}`}
                         >
                           <CheckCircle2 size={16} className={filterStatus === 'reviewed' ? 'text-emerald-600' : 'text-emerald-500'} /> Disetujui
                         </button>
                         <button
                           type="button"
                           onClick={() => { setFilterStatus('rejected'); setIsStatusDropdownOpen(false); }}
-                          className={`w-full text-left px-4 py-2.5 text-sm font-semibold flex items-center gap-2 transition-colors hover:bg-slate-50 ${filterStatus === 'rejected' ? 'text-rose-600 bg-rose-50/50' : 'text-slate-700'}`}
+                          className={`w-full text-left px-4 py-2.5 text-sm font-semibold flex items-center gap-2 transition-colors hover:bg-slate-50 dark:hover:bg-slate-700 ${filterStatus === 'rejected' ? 'text-rose-600 bg-rose-50/50 dark:bg-rose-900/40' : 'text-slate-700 dark:text-slate-200'}`}
                         >
                           <XCircle size={16} className={filterStatus === 'rejected' ? 'text-rose-600' : 'text-rose-500'} /> Ditolak
                         </button>
@@ -1457,7 +1457,7 @@ export const DaftarTugas: React.FC<DaftarTugasProps> = ({ user }) => {
                         setFilterEndDate('');
                         setFilterStatus('all');
                       }}
-                      className="w-full mt-2 text-xs font-bold text-rose-500 hover:text-rose-600 bg-rose-50 hover:bg-rose-100 py-2 rounded-lg transition-colors"
+                      className="w-full mt-2 text-xs font-bold text-rose-500 hover:text-rose-600 bg-rose-50 hover:bg-rose-100 dark:hover:bg-rose-900/70 py-2 rounded-lg transition-colors"
                     >
                       Reset Filter
                     </button>
@@ -1471,24 +1471,24 @@ export const DaftarTugas: React.FC<DaftarTugasProps> = ({ user }) => {
           {/* Desktop Table View */}
           <table className="w-full text-left border-collapse min-w-[800px] hidden xl:table">
             <thead>
-              <tr className="bg-slate-50 text-slate-500 text-xs uppercase tracking-wider">
-                <th className="px-4 py-3 font-bold border border-slate-200 w-12 text-center">NO</th>
-                <th className="px-4 py-3 font-bold border border-slate-200 text-center w-36">TANGGAL</th>
-                <th className="px-4 py-3 font-bold border border-slate-200 w-1/3">NAMA TUGAS</th>
-                <th className="px-4 py-3 font-bold border border-slate-200 text-center w-28">NILAI</th>
-                <th className="px-4 py-3 font-bold border border-slate-200 text-center w-16">SKOR</th>
-                <th className="px-4 py-3 font-bold border border-slate-200 text-center w-20">PERIKSA</th>
-                <th className="px-4 py-3 font-bold border border-slate-200 text-center w-20">UPDATE</th>
+              <tr className="bg-slate-50 dark:bg-slate-900 text-slate-500 dark:text-slate-400 text-xs uppercase tracking-wider">
+                <th className="px-4 py-3 font-bold border border-slate-200 dark:border-slate-700 w-12 text-center">NO</th>
+                <th className="px-4 py-3 font-bold border border-slate-200 dark:border-slate-700 text-center w-36">TANGGAL</th>
+                <th className="px-4 py-3 font-bold border border-slate-200 dark:border-slate-700 w-1/3">NAMA TUGAS</th>
+                <th className="px-4 py-3 font-bold border border-slate-200 dark:border-slate-700 text-center w-28">NILAI</th>
+                <th className="px-4 py-3 font-bold border border-slate-200 dark:border-slate-700 text-center w-16">SKOR</th>
+                <th className="px-4 py-3 font-bold border border-slate-200 dark:border-slate-700 text-center w-20">PERIKSA</th>
+                <th className="px-4 py-3 font-bold border border-slate-200 dark:border-slate-700 text-center w-20">UPDATE</th>
               </tr>
             </thead>
             <tbody>
               {isLoading ? (
                 <tr>
-                  <td colSpan={10} className="p-12 text-center text-slate-500 border border-slate-200">
-                    <div className="flex justify-center mb-3 text-school-blue">
+                  <td colSpan={10} className="p-12 text-center text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-700">
+                    <div className="flex justify-center mb-3 text-school-blue dark:text-white">
                       <Loader2 size={32} className="animate-spin" />
                     </div>
-                    <p className="font-bold text-lg text-slate-600 mb-1">Memuat Data...</p>
+                    <p className="font-bold text-lg text-slate-600 dark:text-slate-300 mb-1">Memuat Data...</p>
                   </td>
                 </tr>
               ) : combinedTasks.length > 0 ? (
@@ -1496,31 +1496,31 @@ export const DaftarTugas: React.FC<DaftarTugasProps> = ({ user }) => {
                   const report = item.report;
 
                   return (
-                    <tr key={index} className={`transition-colors ${!report ? 'bg-white' : 'bg-slate-50/50'} hover:bg-slate-50`}>
-                      <td className="px-4 py-3 border border-slate-200 text-center text-sm font-medium text-slate-500">
+                    <tr key={index} className={`transition-colors ${!report ? 'bg-white dark:bg-slate-800' : 'bg-slate-50 dark:bg-slate-900/50'} hover:bg-slate-50 dark:hover:bg-slate-700`}>
+                      <td className="px-4 py-3 border border-slate-200 dark:border-slate-700 text-center text-sm font-medium text-slate-500 dark:text-slate-400">
                         {index + 1}
                       </td>
-                      <td className="px-4 py-3 border border-slate-200 text-center text-sm text-slate-700">
+                      <td className="px-4 py-3 border border-slate-200 dark:border-slate-700 text-center text-sm text-slate-700 dark:text-slate-200">
                         {format(new Date(item.date), 'dd MMM yyyy', { locale: id })}
                       </td>
-                      <td className="px-4 py-3 border border-slate-200 text-sm font-bold text-slate-800 max-w-sm truncate" title={item.taskName}>
+                      <td className="px-4 py-3 border border-slate-200 dark:border-slate-700 text-sm font-bold text-slate-800 dark:text-slate-50 max-w-sm truncate" title={item.taskName}>
                         {item.taskName}
                       </td>
-                      <td className="px-4 py-3 border border-slate-200 text-center">
+                      <td className="px-4 py-3 border border-slate-200 dark:border-slate-700 text-center">
                         <div className="flex items-center justify-center gap-0.5 text-slate-300" title={(report?.averageScore ?? report?.score) ? `Nilai: ${Number(report?.averageScore ?? report?.score).toFixed(1)} Bintang` : 'Belum Dinilai'}>
                           <StarRating score={report?.averageScore ?? report?.score} size={16} />
                         </div>
                       </td>
-                      <td className="px-4 py-3 border border-slate-200 text-center font-bold text-amber-500">
+                      <td className="px-4 py-3 border border-slate-200 dark:border-slate-700 text-center font-bold text-amber-500">
                         {(report?.averageScore ?? report?.score) ? Number(report?.averageScore ?? report?.score).toFixed(1) : '-'}
                       </td>
-                      <td className="px-4 py-3 border border-slate-200 text-center">
+                      <td className="px-4 py-3 border border-slate-200 dark:border-slate-700 text-center">
                         <div className="flex items-center justify-center gap-1">
                           {report ? (
                             <button
                               onClick={() => handleDetailClick(report)}
                               title="Lihat Detail"
-                              className="p-2 rounded-full text-school-blue hover:bg-blue-50 hover:text-blue-700 transition-colors inline-flex"
+                              className="p-2 rounded-full text-school-blue dark:text-white hover:bg-blue-50 dark:bg-slate-800 dark:hover:bg-slate-700 hover:text-blue-700 dark:hover:text-slate-300 transition-colors inline-flex"
                             >
                               <Eye size={18} />
                             </button>
@@ -1534,20 +1534,20 @@ export const DaftarTugas: React.FC<DaftarTugasProps> = ({ user }) => {
                                 setTimeout(scrollToTop, 50);
                               }}
                               title="Kerjakan Tugas"
-                              className="p-2 rounded-full text-emerald-600 hover:bg-emerald-50 hover:text-emerald-700 transition-colors inline-flex"
+                              className="p-2 rounded-full text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/50 hover:text-emerald-700 transition-colors inline-flex"
                             >
                               <Edit size={18} />
                             </button>
                           )}
                         </div>
                       </td>
-                      <td className="px-4 py-3 border border-slate-200 text-center">
+                      <td className="px-4 py-3 border border-slate-200 dark:border-slate-700 text-center">
                         <div className="flex items-center justify-center gap-1">
                           {report && (
                             <button
                               onClick={() => openAttachmentForm(report.id)}
                               title="Update Lampiran"
-                              className="p-2 rounded-full text-amber-500 hover:bg-amber-50 hover:text-amber-600 transition-colors inline-flex"
+                              className="p-2 rounded-full text-amber-500 hover:bg-amber-50 dark:hover:bg-amber-900/50 hover:text-amber-600 transition-colors inline-flex"
                             >
                               <Plus size={18} />
                             </button>
@@ -1559,7 +1559,7 @@ export const DaftarTugas: React.FC<DaftarTugasProps> = ({ user }) => {
                 })
               ) : (
                 <tr>
-                  <td colSpan={10} className="p-8 text-center text-slate-500 border border-slate-200">
+                  <td colSpan={10} className="p-8 text-center text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-700">
                     <div className="flex justify-center mb-2 text-slate-300">
                       <ClipboardList size={32} />
                     </div>
@@ -1571,31 +1571,31 @@ export const DaftarTugas: React.FC<DaftarTugasProps> = ({ user }) => {
           </table>
 
           {/* Mobile Card View */}
-          <div className="xl:hidden flex flex-col divide-y divide-slate-100 border-t border-slate-200">
+          <div className="xl:hidden flex flex-col divide-y divide-slate-100 border-t border-slate-200 dark:border-slate-700">
             {isLoading ? (
-              <div className="p-12 text-center text-slate-500">
-                <div className="flex justify-center mb-3 text-school-blue">
+              <div className="p-12 text-center text-slate-500 dark:text-slate-400">
+                <div className="flex justify-center mb-3 text-school-blue dark:text-white">
                   <Loader2 size={32} className="animate-spin" />
                 </div>
-                <p className="font-bold text-lg text-slate-600 mb-1">Memuat Data...</p>
+                <p className="font-bold text-lg text-slate-600 dark:text-slate-300 mb-1">Memuat Data...</p>
               </div>
             ) : combinedTasks.length > 0 ? (
               combinedTasks.map((item, index) => {
                 const report = item.report;
                 return (
-                  <div key={index} className="p-4 hover:bg-slate-50 transition-colors flex flex-col gap-3 bg-white">
+                  <div key={index} className="p-4 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors flex flex-col gap-3 bg-white dark:bg-slate-800">
                     <div className="flex justify-between items-start gap-2">
                       <div className="flex flex-col min-w-0 flex-1">
-                        <h3 className="font-extrabold text-slate-800 text-sm leading-snug truncate" title={item.taskName}>{item.taskName}</h3>
+                        <h3 className="font-extrabold text-slate-800 dark:text-slate-50 text-sm leading-snug truncate" title={item.taskName}>{item.taskName}</h3>
                         <p className="text-[11px] font-bold text-slate-400 mt-0.5 truncate">
                           {format(new Date(item.date), 'dd MMM yyyy', { locale: id })}
                         </p>
                       </div>
                     </div>
                     
-                    <div className="flex items-center justify-between gap-2 mt-2 pt-2 border-t border-slate-100">
+                    <div className="flex items-center justify-between gap-2 mt-2 pt-2 border-t border-slate-100 dark:border-slate-700">
                       <div className="flex items-center gap-2">
-                        <span className="text-xs font-bold text-slate-500 uppercase">Penilaian</span>
+                        <span className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase">Penilaian</span>
                         <StarRating score={report?.averageScore ?? report?.score} size={16} />
                       </div>
                       
@@ -1607,14 +1607,14 @@ export const DaftarTugas: React.FC<DaftarTugasProps> = ({ user }) => {
                                 handleDetailClick(report);
                                 setTimeout(scrollToTop, 50);
                               }}
-                              className="p-2 text-slate-400 hover:text-school-blue transition-colors rounded-full bg-slate-50"
+                              className="p-2 text-slate-400 hover:text-school-blue dark:text-white transition-colors rounded-full bg-slate-50 dark:bg-slate-900"
                               title="Lihat Detail Laporan"
                             >
                               <Eye size={16} />
                             </button>
                             <button
                               onClick={() => openAttachmentForm(report.id)}
-                              className="p-2 text-slate-400 hover:text-amber-500 transition-colors rounded-full bg-slate-50 ml-1"
+                              className="p-2 text-slate-400 hover:text-amber-500 transition-colors rounded-full bg-slate-50 dark:bg-slate-900 ml-1"
                               title="Update Lampiran"
                             >
                               <Plus size={16} />
@@ -1640,7 +1640,7 @@ export const DaftarTugas: React.FC<DaftarTugasProps> = ({ user }) => {
                 )
               })
             ) : (
-              <div className="p-8 text-center text-slate-500">
+              <div className="p-8 text-center text-slate-500 dark:text-slate-400">
                 <div className="flex justify-center mb-2 text-slate-300">
                   <ClipboardList size={32} />
                 </div>
@@ -1655,3 +1655,19 @@ export const DaftarTugas: React.FC<DaftarTugasProps> = ({ user }) => {
     </div>
   );
 };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

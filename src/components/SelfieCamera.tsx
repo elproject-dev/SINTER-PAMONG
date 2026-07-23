@@ -124,26 +124,26 @@ export const SelfieCamera: React.FC<SelfieCameraProps> = ({ onCapture, onClose }
 
   return (
     <div className="fixed inset-0 z-[9999] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-200">
-      <div className="bg-white rounded-3xl shadow-2xl max-w-md w-full overflow-hidden animate-in zoom-in-95 duration-300">
+      <div className="bg-white dark:bg-slate-800 rounded-3xl shadow-2xl max-w-md w-full overflow-hidden animate-in zoom-in-95 duration-300">
         {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b border-slate-100">
+        <div className="flex items-center justify-between p-4 border-b border-slate-100 dark:border-slate-700">
           <div className="flex items-center gap-2">
             <div className="p-2 bg-school-blue/10 rounded-xl">
-              <Camera size={20} className="text-school-blue" />
+              <Camera size={20} className="text-school-blue dark:text-white" />
             </div>
-            <h3 className="font-extrabold text-slate-800 text-lg">Foto Selfie Absensi</h3>
+            <h3 className="font-extrabold text-slate-800 dark:text-slate-50 text-lg">Foto Selfie Absensi</h3>
           </div>
           <button
             onClick={() => { stopStream(); onClose(); }}
-            className="p-2 hover:bg-slate-100 rounded-xl transition-colors"
+            className="p-2 hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700 rounded-xl transition-colors"
           >
-            <X size={20} className="text-slate-500" />
+            <X size={20} className="text-slate-500 dark:text-slate-400" />
           </button>
         </div>
 
         {/* Camera / Preview Area */}
         <div className="p-5 flex flex-col items-center">
-          <div className="relative w-full max-w-[320px] aspect-[3/4] rounded-3xl overflow-hidden border-4 border-school-blue/20 shadow-lg shadow-blue-500/10 mb-5 bg-slate-100">
+          <div className="relative w-full max-w-[320px] aspect-[3/4] rounded-3xl overflow-hidden border-4 border-school-blue/20 shadow-lg shadow-blue-500/10 mb-5 bg-slate-100 dark:bg-slate-800">
             {/* Selalu render video agar referensi (ref) tidak null saat stream siap */}
             <video
               ref={videoRef}
@@ -163,14 +163,14 @@ export const SelfieCamera: React.FC<SelfieCameraProps> = ({ onCapture, onClose }
             )}
 
             {isLoading && (
-              <div className="absolute inset-0 w-full h-full bg-slate-100 flex flex-col items-center justify-center gap-3 z-10">
-                <Loader2 size={32} className="text-school-blue animate-spin" />
-                <p className="text-sm text-slate-500 font-medium">Memuat kamera...</p>
+              <div className="absolute inset-0 w-full h-full bg-slate-100 dark:bg-slate-800 flex flex-col items-center justify-center gap-3 z-10">
+                <Loader2 size={32} className="text-school-blue dark:text-white animate-spin" />
+                <p className="text-sm text-slate-500 dark:text-slate-400 font-medium">Memuat kamera...</p>
               </div>
             )}
 
             {error && (
-              <div className="absolute inset-0 w-full h-full bg-slate-100 flex items-center justify-center p-6 z-20">
+              <div className="absolute inset-0 w-full h-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center p-6 z-20">
                 <p className="text-sm text-rose-500 font-medium text-center">{error}</p>
               </div>
             )}
@@ -190,7 +190,7 @@ export const SelfieCamera: React.FC<SelfieCameraProps> = ({ onCapture, onClose }
               <div className="flex flex-col gap-2 w-full">
                 <button
                   onClick={startCamera}
-                  className="w-full bg-school-blue hover:bg-blue-700 text-white py-3 rounded-2xl font-bold transition-all flex items-center justify-center gap-2"
+                  className="w-full bg-school-blue dark:bg-blue-600 hover:bg-blue-700 dark:hover:bg-blue-500 dark:hover:bg-slate-600 text-white py-3 rounded-2xl font-bold transition-all flex items-center justify-center gap-2"
                 >
                   <RotateCcw size={18} /> Coba Lagi
                 </button>
@@ -213,7 +213,7 @@ export const SelfieCamera: React.FC<SelfieCameraProps> = ({ onCapture, onClose }
                         canvas.toBlob((blob) => { if (blob) onCapture(blob); }, 'image/jpeg');
                       }
                     }}
-                    className="w-full bg-slate-100 hover:bg-slate-200 text-slate-600 py-3 rounded-2xl font-bold transition-all flex items-center justify-center gap-2 text-sm"
+                    className="w-full bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-600 dark:text-slate-300 py-3 rounded-2xl font-bold transition-all flex items-center justify-center gap-2 text-sm"
                   >
                     Bypass Tanpa Kamera (Testing)
                   </button>
@@ -223,7 +223,7 @@ export const SelfieCamera: React.FC<SelfieCameraProps> = ({ onCapture, onClose }
               <>
                 <button
                   onClick={handleRetake}
-                  className="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 py-3 rounded-2xl font-bold transition-all flex items-center justify-center gap-2"
+                  className="flex-1 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 py-3 rounded-2xl font-bold transition-all flex items-center justify-center gap-2"
                 >
                   <RotateCcw size={18} /> Ambil Ulang
                 </button>
@@ -253,3 +253,19 @@ export const SelfieCamera: React.FC<SelfieCameraProps> = ({ onCapture, onClose }
     </div>
   );
 };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
