@@ -1140,7 +1140,7 @@ export const DaftarTugas: React.FC<DaftarTugasProps> = ({ user }) => {
               </table>
 
               {/* Mobile Card View */}
-              <div className="xl:hidden flex flex-col divide-y divide-slate-100 border-t border-slate-200 dark:border-slate-700">
+              <div className="xl:hidden flex flex-col divide-y divide-slate-100 dark:divide-slate-700 border-t border-slate-200 dark:border-slate-700">
                 {isAttachmentsLoading ? (
                   <div className="p-12 text-center text-slate-500 dark:text-slate-400">
                     <div className="flex justify-center mb-3 text-school-blue dark:text-white">
@@ -1571,7 +1571,7 @@ export const DaftarTugas: React.FC<DaftarTugasProps> = ({ user }) => {
           </table>
 
           {/* Mobile Card View */}
-          <div className="xl:hidden flex flex-col divide-y divide-slate-100 border-t border-slate-200 dark:border-slate-700">
+          <div className="xl:hidden flex flex-col divide-y divide-slate-100 dark:divide-slate-700 border-t border-slate-200 dark:border-slate-700">
             {isLoading ? (
               <div className="p-12 text-center text-slate-500 dark:text-slate-400">
                 <div className="flex justify-center mb-3 text-school-blue dark:text-white">
@@ -1655,6 +1655,7 @@ export const DaftarTugas: React.FC<DaftarTugasProps> = ({ user }) => {
     </div>
   );
 };
+
 
 
 

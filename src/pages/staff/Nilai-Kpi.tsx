@@ -177,7 +177,7 @@ export const KPI: React.FC<KPIProps> = ({ user }) => {
             </table>
 
             {/* Mobile Card View */}
-            <div className="md:hidden flex flex-col divide-y divide-slate-100">
+            <div className="md:hidden flex flex-col divide-y divide-slate-100 dark:divide-slate-700">
               {isLoading ? (
                 <div className="p-12 text-center text-slate-500 dark:text-slate-400">
                   <div className="flex justify-center mb-3 text-school-blue dark:text-white">
@@ -335,7 +335,7 @@ export const KPI: React.FC<KPIProps> = ({ user }) => {
                               <th className="px-4 py-3 font-bold border border-slate-200 dark:border-slate-700 w-32 text-center">SKOR</th>
                             </tr>
                           </thead>
-                          <tbody className="divide-y divide-slate-200 bg-white dark:bg-slate-800">
+                          <tbody className="divide-y divide-slate-200 dark:divide-slate-700 bg-white dark:bg-slate-800">
                             {detailRows.map((row) => (
                               <tr key={row.idx} className="hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
                                 <td className="px-4 py-3 border border-slate-200 dark:border-slate-700 text-sm font-medium text-slate-500 dark:text-slate-400 text-center">{row.idx + 1}</td>
@@ -360,7 +360,7 @@ export const KPI: React.FC<KPIProps> = ({ user }) => {
                       </div>
 
                       {/* Mobile Card View */}
-                      <div className="md:hidden flex flex-col divide-y divide-slate-100 border border-slate-200 dark:border-slate-700 rounded-xl overflow-hidden bg-white dark:bg-slate-800 shadow-sm">
+                      <div className="md:hidden flex flex-col divide-y divide-slate-100 dark:divide-slate-700 border border-slate-200 dark:border-slate-700 rounded-xl overflow-hidden bg-white dark:bg-slate-800 shadow-sm">
                         {detailRows.map((row) => (
                           <div key={row.idx} className="p-4 flex flex-col gap-3 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
                             <div className="flex justify-between items-start gap-2">
@@ -409,6 +409,7 @@ export const KPI: React.FC<KPIProps> = ({ user }) => {
     </div>
   );
 };
+
 
 
 

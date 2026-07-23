@@ -523,7 +523,7 @@ export const BukuSaku: React.FC<BukuSakuProps> = ({ user }) => {
           </table>
 
           {/* Mobile Card View */}
-          <div className="xl:hidden flex flex-col divide-y divide-slate-100">
+          <div className="xl:hidden flex flex-col divide-y divide-slate-100 dark:divide-slate-700">
             {isLoading ? (
               <div className="p-12 text-center text-slate-500 dark:text-slate-400">
                 <div className="flex justify-center mb-3 text-school-blue dark:text-white">
@@ -582,7 +582,7 @@ export const BukuSaku: React.FC<BukuSakuProps> = ({ user }) => {
                         <button
                           onClick={(e) => handleDownload(media.fileUrl, e)}
                           disabled={downloadingUrl === media.fileUrl}
-                          className="p-2 text-slate-400 hover:text-emerald-600 transition-colors rounded-full bg-slate-50 dark:bg-slate-900 relative"
+                          className="p-2 text-slate-400 hover:text-emerald-600 transition-colors rounded-full relative"
                           title="Unduh Media"
                         >
                           {downloadingUrl === media.fileUrl ? <Loader2 size={16} className="animate-spin" /> : <Download size={16} />}
@@ -592,14 +592,14 @@ export const BukuSaku: React.FC<BukuSakuProps> = ({ user }) => {
                         <>
                           <button
                             onClick={() => handleEditClick(media)}
-                            className="p-2 text-slate-400 hover:text-amber-500 transition-colors rounded-full bg-slate-50 dark:bg-slate-900 ml-1"
+                            className="p-2 text-slate-400 hover:text-amber-500 transition-colors rounded-full ml-1"
                             title="Edit Media"
                           >
                             <Edit size={16} />
                           </button>
                           <button
                             onClick={() => handleDelete(media.id, media.fileUrl)}
-                            className="p-2 text-slate-400 hover:text-rose-500 transition-colors rounded-full bg-slate-50 dark:bg-slate-900 ml-1"
+                            className="p-2 text-slate-400 hover:text-rose-500 transition-colors rounded-full ml-1"
                             title="Hapus Media"
                           >
                             <Trash2 size={16} />
@@ -624,6 +624,10 @@ export const BukuSaku: React.FC<BukuSakuProps> = ({ user }) => {
     </div>
   );
 };
+
+
+
+
 
 
 

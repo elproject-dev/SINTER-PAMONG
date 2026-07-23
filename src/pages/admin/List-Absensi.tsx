@@ -288,7 +288,7 @@ export const ListAbsensi: React.FC = () => {
         <div className="overflow-x-auto">
           {showNilaiView ? (
             <>
-              <table className="w-full text-left border-collapse min-w-[500px]">
+              <table className="w-full text-left border-collapse min-w-[500px] hidden lg:table">
                 <thead>
                   <tr className="bg-slate-50 dark:bg-slate-900 text-slate-500 dark:text-slate-400 text-xs uppercase tracking-wider">
                     <th className="px-4 py-3 font-bold border border-slate-200 dark:border-slate-700 w-12 text-center">NO</th>
@@ -320,6 +320,43 @@ export const ListAbsensi: React.FC = () => {
                   ))}
                 </tbody>
               </table>
+
+              {/* Mobile View (Cards) for Rekap Nilai */}
+              <div className="lg:hidden space-y-4 p-4">
+                {getNilaiAbsensi().map((s, idx) => (
+                  <div key={s.id} className="bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl p-4 shadow-sm flex flex-col gap-3">
+                    <div className="flex justify-between items-start border-b border-slate-200 dark:border-slate-700 pb-3">
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <span className="bg-school-blue/10 text-school-blue dark:text-white px-2 py-0.5 rounded text-xs font-bold">#{idx + 1}</span>
+                          <h4 className="font-bold text-school-blue dark:text-white text-base">{s.name}</h4>
+                        </div>
+                        <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">{s.position || '-'}</p>
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-3 text-sm">
+                      <div className="bg-white dark:bg-slate-800 p-2 rounded-lg border border-slate-200 dark:border-slate-700">
+                        <p className="text-xs text-slate-500 dark:text-slate-400 mb-1">Hadir</p>
+                        <p className="font-bold text-slate-800 dark:text-slate-50">{s.totalHadir}</p>
+                      </div>
+                      <div className="bg-white dark:bg-slate-800 p-2 rounded-lg border border-slate-200 dark:border-slate-700">
+                        <p className="text-xs text-slate-500 dark:text-slate-400 mb-1">Izin / Sakit</p>
+                        <p className="font-bold text-amber-600">{s.totalIzinSakit}</p>
+                      </div>
+                      <div className="bg-white dark:bg-slate-800 p-2 rounded-lg border border-slate-200 dark:border-slate-700 col-span-2 flex justify-between items-center">
+                        <div>
+                          <p className="text-xs text-slate-500 dark:text-slate-400 mb-1">Penilaian</p>
+                          <StarRating score={Number(s.score)} size={14} className="flex items-center gap-0.5" />
+                        </div>
+                        <div className="text-right">
+                          <p className="text-xs text-slate-500 dark:text-slate-400 mb-1">Skor</p>
+                          <p className="font-bold text-amber-500 text-lg">{s.score}</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </>
           ) : (
             <>
@@ -419,7 +456,7 @@ export const ListAbsensi: React.FC = () => {
           </table>
 
           {/* Mobile Card View */}
-          <div className="lg:hidden flex flex-col divide-y divide-slate-100">
+          <div className="lg:hidden flex flex-col divide-y divide-slate-100 dark:divide-slate-700">
             {isLoading ? (
               <div className="p-8 text-center text-slate-500 dark:text-slate-400">
                 <div className="flex justify-center mb-3 text-school-blue dark:text-white">
@@ -504,6 +541,7 @@ export const ListAbsensi: React.FC = () => {
     </div>
   );
 };
+
 
 
 

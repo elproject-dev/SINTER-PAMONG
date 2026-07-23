@@ -775,7 +775,7 @@ export const AdminKPIEvaluation: React.FC<KPIEvaluationProps> = ({ currentUser }
                           <button
                             onClick={() => openEvaluationPanel(user.id)}
                             title="Periksa / Beri Nilai"
-                            className="p-2 rounded-lg text-school-blue dark:text-white hover:bg-blue-50 dark:bg-slate-800 dark:hover:bg-slate-700 transition-colors mx-auto flex items-center justify-center"
+                            className="p-2 rounded-lg text-school-blue dark:text-white hover:bg-blue-50 dark:hover:bg-slate-700 transition-colors mx-auto flex items-center justify-center"
                           >
                             <Eye size={18} />
                           </button>
@@ -797,7 +797,7 @@ export const AdminKPIEvaluation: React.FC<KPIEvaluationProps> = ({ currentUser }
             </table>
 
             {/* Mobile Card View */}
-            <div className="lg:hidden flex flex-col divide-y divide-slate-100">
+            <div className="lg:hidden flex flex-col divide-y divide-slate-100 dark:divide-slate-700">
               {isLoading ? (
                 <div className="p-8 text-center text-slate-500 dark:text-slate-400">
                   <div className="flex justify-center mb-3 text-school-blue dark:text-white">
@@ -833,7 +833,7 @@ export const AdminKPIEvaluation: React.FC<KPIEvaluationProps> = ({ currentUser }
                         <button
                           onClick={() => openEvaluationPanel(user.id)}
                           title="Periksa / Beri Nilai"
-                          className="p-2 rounded-full bg-slate-50 dark:bg-slate-900 text-slate-400 hover:text-school-blue dark:text-white transition-colors flex items-center justify-center"
+                          className="p-2 rounded-full text-slate-400 hover:text-school-blue dark:text-white transition-colors flex items-center justify-center"
                         >
                           <Eye size={16} />
                         </button>
@@ -1009,7 +1009,7 @@ export const AdminKPIEvaluation: React.FC<KPIEvaluationProps> = ({ currentUser }
                   </div>
 
                   {/* Mobile Card View */}
-                  <div className="xl:hidden flex flex-col divide-y divide-slate-100">
+                  <div className="xl:hidden flex flex-col divide-y divide-slate-100 dark:divide-slate-700">
                     {rowData.map((row) => (
                       <div key={row.idx} className="p-4 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors flex flex-col gap-3">
                         <div className="flex justify-between items-start gap-2">
@@ -1072,6 +1072,8 @@ export const AdminKPIEvaluation: React.FC<KPIEvaluationProps> = ({ currentUser }
     </div>
   );
 };
+
+
 
 
 

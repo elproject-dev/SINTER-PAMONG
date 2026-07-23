@@ -515,7 +515,7 @@ export const AdminReviewLaporanTugas: React.FC = () => {
             </div>
 
             {/* Mobile Card View for Lampiran */}
-            <div className="lg:hidden flex flex-col divide-y divide-slate-100">
+            <div className="lg:hidden flex flex-col divide-y divide-slate-100 dark:divide-slate-700">
               {isAttachmentsLoading ? (
                 <div className="p-12 text-center text-slate-500 dark:text-slate-400">
                   <div className="flex justify-center mb-3 text-school-blue dark:text-white">
@@ -860,7 +860,7 @@ export const AdminReviewLaporanTugas: React.FC = () => {
             </table>
 
             {/* Mobile Card View */}
-            <div className="lg:hidden flex flex-col divide-y divide-slate-100">
+            <div className="lg:hidden flex flex-col divide-y divide-slate-100 dark:divide-slate-700">
               {isLoading ? (
                 <div className="p-12 text-center text-slate-500 dark:text-slate-400">
                   <div className="flex justify-center mb-3 text-school-blue dark:text-white">
@@ -918,14 +918,14 @@ export const AdminReviewLaporanTugas: React.FC = () => {
                       <div className="flex items-center shrink-0">
                         <button
                           onClick={() => handleReviewClick(report)}
-                          className={`p-2 transition-colors rounded-full mr-1 ${selectedReportId === report.id ? 'bg-amber-100 dark:bg-amber-900/60 text-amber-700' : 'text-amber-500 hover:text-amber-600 hover:bg-amber-50 dark:hover:bg-amber-900/50 bg-slate-50 dark:bg-slate-900'}`}
+                          className={`p-2 transition-colors rounded-full mr-1 ${selectedReportId === report.id ? 'bg-amber-100 dark:bg-amber-900/60 text-amber-700' : 'text-amber-500 hover:text-amber-600'}`}
                           title="Periksa Lampiran"
                         >
                           <Eye size={16} />
                         </button>
                         <button
                           onClick={() => handleDeleteReport(report.id)}
-                          className="p-2 text-slate-400 hover:text-rose-500 transition-colors rounded-full bg-slate-50 dark:bg-slate-900 ml-1"
+                          className="p-2 text-slate-400 hover:text-rose-500 transition-colors rounded-full ml-1"
                           title="Hapus Laporan"
                         >
                           <Trash2 size={16} />
@@ -950,6 +950,8 @@ export const AdminReviewLaporanTugas: React.FC = () => {
     </div>
   );
 };
+
+
 
 
 
