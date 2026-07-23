@@ -1,6 +1,7 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { LayoutDashboard, Users, UserCheck, FileText, ClipboardList, Star, Settings, GraduationCap, BookOpen } from 'lucide-react';
+import { LayoutDashboard, Users, UserCheck, FileText, ClipboardList, Settings, GraduationCap, Calendar } from 'lucide-react';
+import { BiBookBookmark, BiCheckSquare } from "react-icons/bi";
 
 import { User } from '../lib/types';
 import { useProfilePic } from '../hooks/useProfilePic';
@@ -26,18 +27,20 @@ export const Sidebar: React.FC<SidebarProps> = ({ user, onLogout }) => {
     { to: '/admin/tugas-staff', icon: FileText, label: 'Tugas Staff' },
     { to: '/admin/penilaian-tugas', icon: ClipboardList, label: 'Penilaian Tugas' },
     { to: '/admin/staff', icon: Users, label: 'Daftar Staf' },
-    { to: '/admin/kpi', icon: FileText, label: 'Penilaian KPI' },
+    { to: '/admin/kpi', icon: BiCheckSquare, label: 'Penilaian KPI' },
+    { to: '/admin/jadwal-guru', icon: Calendar, label: 'Jadwal Guru' },
+    { to: '/admin/buku-saku', icon: BiBookBookmark, label: 'Buku Saku' },
     { to: '/admin/settings', icon: Settings, label: 'Pengaturan' },
-    { to: '/admin/buku-saku', icon: BookOpen, label: 'Buku Saku' },
   ];
 
   const staffLinks = [
     { to: '/staff', icon: LayoutDashboard, label: 'Dashboard' },
     { to: '/staff/absensi', icon: UserCheck, label: 'Absensi' },
     { to: '/staff/daftar-tugas', icon: ClipboardList, label: 'Daftar Tugas' },
-    { to: '/staff/nilai-kpi', icon: Star, label: 'Penilaian KPI' },
+    { to: '/staff/nilai-kpi', icon: BiCheckSquare, label: 'Penilaian KPI' },
+    { to: '/staff/jadwal-guru', icon: Calendar, label: 'Jadwal Guru' },
+    { to: '/staff/buku-saku', icon: BiBookBookmark, label: 'Buku Saku' },
     { to: '/staff/settings', icon: Settings, label: 'Pengaturan' },
-    { to: '/staff/buku-saku', icon: BookOpen, label: 'Buku Saku' },
   ];
 
   const links = user.role === 'admin' ? adminLinks : staffLinks;

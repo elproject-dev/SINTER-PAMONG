@@ -108,3 +108,17 @@ export interface MediaBukuSaku {
   targetUserPosition?: string | null;
   createdAt: string;
 }
+
+export interface JadwalGuru {
+  id: string;
+  judul: string;
+  deskripsi?: string;
+  fileUrl: string;
+  uploaderId: string;
+  uploaderName?: string;
+  uploaderPosition?: string;
+  targetUserId?: string | null;
+  targetUserName?: string | null;
+  targetUserPosition?: string | null;
+  createdAt: string;
+}

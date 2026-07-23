@@ -263,7 +263,7 @@ export const AdminTugasStaff: React.FC = () => {
                   </select>
 
                   <div
-                    className={`w-full bg-slate-50 border ${isDropdownOpen ? 'border-school-blue ring-4 ring-school-blue/10' : 'border-slate-200 hover:border-slate-300'} rounded-xl px-4 py-2 text-slate-700 flex justify-between items-center cursor-pointer transition-all font-medium ${!!editingTaskId ? 'opacity-70 cursor-not-allowed bg-slate-100' : ''}`}
+                    className={`w-full h-12 bg-slate-50 border ${isDropdownOpen ? 'border-school-blue ring-4 ring-school-blue/10' : 'border-slate-200 hover:border-slate-300'} rounded-xl px-4 text-slate-700 flex justify-between items-center cursor-pointer transition-all font-medium ${!!editingTaskId ? 'opacity-70 cursor-not-allowed bg-slate-100' : ''}`}
                     onClick={() => {
                       if (!editingTaskId) setIsDropdownOpen(!isDropdownOpen);
                     }}
@@ -327,7 +327,7 @@ export const AdminTugasStaff: React.FC = () => {
                   type="text"
                   value={selectedStaffId ? staff.find(s => s.id === selectedStaffId)?.position || 'Tidak ada jabatan' : ''}
                   placeholder="Otomatis terisi setelah memilih staf..."
-                  className="w-full bg-slate-100 border border-slate-200 rounded-xl px-4 py-2 text-sm text-slate-500 font-medium outline-none cursor-not-allowed"
+                  className="w-full h-12 bg-slate-100 border border-slate-200 rounded-xl px-4 text-sm text-slate-500 font-medium outline-none cursor-not-allowed"
                   disabled
                 />
               </div>

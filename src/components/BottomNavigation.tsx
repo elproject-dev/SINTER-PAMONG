@@ -2,8 +2,9 @@ import React, { useMemo, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { 
   LayoutDashboard, Users, UserCheck, FileText, 
-  Settings, Menu, LogOut, ClipboardList, Star, BookOpen
+  Settings, Menu, LogOut, ClipboardList, Calendar
 } from 'lucide-react';
+import { BiBookBookmark, BiCheckSquare } from "react-icons/bi";
 import { User } from '../lib/types';
 
 interface BottomNavigationProps {
@@ -31,7 +32,7 @@ export const BottomNavigation: React.FC<BottomNavigationProps> = ({ user, onLogo
       { href: "/staff", label: "Dashboard", icon: LayoutDashboard },
       { href: "/staff/absensi", label: "Absensi", icon: UserCheck },
       { href: "/staff/daftar-tugas", label: "Tugas", icon: ClipboardList },
-      { href: "/staff/nilai-kpi", label: "Nilai KPI", icon: Star },
+      { href: "/staff/nilai-kpi", label: "Nilai KPI", icon: BiCheckSquare },
     ];
   }, [isAdmin]);
 
@@ -39,14 +40,16 @@ export const BottomNavigation: React.FC<BottomNavigationProps> = ({ user, onLogo
     if (isAdmin) {
       return [
         { href: "/admin/staff", label: "Daftar Staf", icon: Users },
-        { href: "/admin/kpi", label: "Penilaian KPI", icon: FileText },
-        { href: "/admin/buku-saku", label: "Buku Saku", icon: BookOpen },
+        { href: "/admin/kpi", label: "Penilaian KPI", icon: BiCheckSquare },
+        { href: "/admin/jadwal-guru", label: "Jadwal", icon: Calendar },
+        { href: "/admin/buku-saku", label: "Buku Saku", icon: BiBookBookmark },
         { href: "/admin/settings", label: "Pengaturan", icon: Settings },
         { href: "#logout", label: "Keluar", icon: LogOut, isLogout: true },
       ];
     }
     return [
-      { href: "/staff/buku-saku", label: "Buku Saku", icon: BookOpen },
+      { href: "/staff/buku-saku", label: "Buku Saku", icon: BiBookBookmark },
+      { href: "/staff/jadwal-guru", label: "Jadwal", icon: Calendar },
       { href: "/staff/settings", label: "Pengaturan", icon: Settings },
       { href: "#logout", label: "Keluar", icon: LogOut, isLogout: true },
     ];

@@ -1,13 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { User, MediaBukuSaku } from '../lib/types';
-import { getMediaBukuSaku, uploadMediaFile, addMediaBukuSaku, deleteMediaBukuSaku, getStaffList, updateMediaBukuSaku, deleteStorageFile } from '../lib/db';
+import { User, JadwalGuru as JadwalGuruType } from '../lib/types';
+import { getJadwalGuru, uploadJadwalFile, addJadwalGuru, deleteJadwalGuru, getStaffList, updateJadwalGuru, deleteStorageFile } from '../lib/db';
 import { useRealtimeSubscription } from '../lib/useRealtime';
-import { Search, Plus, Trash2, FileText, Loader2, Users, ChevronDown, Check, Paperclip, User as UserIcon, Edit, Download } from 'lucide-react';
-import { BiBookBookmark } from "react-icons/bi";
+import { Search, Plus, Trash2, Loader2, Users, ChevronDown, Check, Paperclip, User as UserIcon, Edit, Download, Calendar } from 'lucide-react';
 import { format } from 'date-fns';
 import { id } from 'date-fns/locale';
 
-interface BukuSakuProps {
+interface JadwalGuruProps {
   user: User;
 }
 
@@ -19,8 +18,8 @@ const getPreviewUrl = (url: string) => {
   return url;
 };
 
-export const BukuSaku: React.FC<BukuSakuProps> = ({ user }) => {
-  const [mediaList, setMediaList] = useState<MediaBukuSaku[]>([]);
+export const JadwalGuru: React.FC<JadwalGuruProps> = ({ user }) => {
+  const [jadwalList, setJadwalList] = useState<JadwalGuruType[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   
@@ -45,8 +44,8 @@ export const BukuSaku: React.FC<BukuSakuProps> = ({ user }) => {
   const fetchData = async () => {
     setIsLoading(true);
     try {
-      const data = await getMediaBukuSaku();
-      setMediaList(data);
+      const data = await getJadwalGuru();
+      setJadwalList(data);
     } catch (err) {
       console.error(err);
     } finally {
@@ -70,7 +69,7 @@ export const BukuSaku: React.FC<BukuSakuProps> = ({ user }) => {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [user.role]);
 
-  useRealtimeSubscription(['media_buku_saku'], fetchData);
+  useRealtimeSubscription(['jadwal_guru'], fetchData);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -104,13 +103,13 @@ export const BukuSaku: React.FC<BukuSakuProps> = ({ user }) => {
           const staff = staffList.find(s => s.id === targetUserId);
           if (staff) folderName = staff.name;
         }
-        fileUrl = await uploadMediaFile(fileToUpload, folderName);
+        fileUrl = await uploadJadwalFile(fileToUpload, folderName);
       }
 
       if (editingMediaId) {
-        const oldMedia = mediaList.find(m => m.id === editingMediaId);
+        const oldJadwal = jadwalList.find(j => j.id === editingMediaId);
         
-        await updateMediaBukuSaku(editingMediaId, {
+        await updateJadwalGuru(editingMediaId, {
           judul,
           deskripsi,
           fileUrl: fileUrl || undefined,
@@ -118,11 +117,11 @@ export const BukuSaku: React.FC<BukuSakuProps> = ({ user }) => {
         });
 
         // Hapus file lama jika admin mengunggah file baru saat edit
-        if (fileUrl && oldMedia && oldMedia.fileUrl && oldMedia.fileUrl !== fileUrl) {
-          await deleteStorageFile('media_buku_saku', oldMedia.fileUrl).catch(console.error);
+        if (fileUrl && oldJadwal && oldJadwal.fileUrl && oldJadwal.fileUrl !== fileUrl) {
+          await deleteStorageFile('jadwal_guru_media', oldJadwal.fileUrl).catch(console.error);
         }
       } else {
-        await addMediaBukuSaku({
+        await addJadwalGuru({
           judul,
           deskripsi,
           fileUrl,
@@ -145,13 +144,13 @@ export const BukuSaku: React.FC<BukuSakuProps> = ({ user }) => {
       fetchData();
     } catch (error) {
       console.error('Error uploading media:', error);
-      alert('Gagal menyimpan media.');
+      alert('Gagal menyimpan jadwal.');
     } finally {
       setIsUploading(false);
     }
   };
 
-  const handleEditClick = (media: MediaBukuSaku) => {
+  const handleEditClick = (media: JadwalGuruType) => {
     setEditingMediaId(media.id);
     setJudul(media.judul);
     setDeskripsi(media.deskripsi || '');
@@ -163,12 +162,12 @@ export const BukuSaku: React.FC<BukuSakuProps> = ({ user }) => {
   };
 
   const handleDelete = async (id: string, fileUrl: string) => {
-    if (window.confirm('Apakah Anda yakin ingin menghapus media ini?')) {
+    if (window.confirm('Apakah Anda yakin ingin menghapus jadwal ini?')) {
       try {
-        await deleteMediaBukuSaku(id, fileUrl);
+        await deleteJadwalGuru(id, fileUrl);
         fetchData();
       } catch (error) {
-        console.error('Error deleting media:', error);
+        console.error('Error deleting jadwal:', error);
         alert('Gagal menghapus file.');
       }
     }
@@ -187,7 +186,7 @@ export const BukuSaku: React.FC<BukuSakuProps> = ({ user }) => {
       link.href = blobUrl;
 
       const urlParts = url.split('/');
-      const filename = urlParts[urlParts.length - 1].split('?')[0] || 'media_buku_saku';
+      const filename = urlParts[urlParts.length - 1].split('?')[0] || 'jadwal_guru';
 
       link.download = filename;
       document.body.appendChild(link);
@@ -203,7 +202,7 @@ export const BukuSaku: React.FC<BukuSakuProps> = ({ user }) => {
     }
   };
 
-  const filteredMedia = mediaList.filter(media => 
+  const filteredMedia = jadwalList.filter(media => 
     media.judul.toLowerCase().includes(searchTerm.toLowerCase()) || 
     (media.deskripsi && media.deskripsi.toLowerCase().includes(searchTerm.toLowerCase()))
   );
@@ -212,8 +211,8 @@ export const BukuSaku: React.FC<BukuSakuProps> = ({ user }) => {
     <div className="w-full space-y-8 animate-in fade-in duration-300">
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div>
-          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-slate-800 mb-1 sm:mb-2 tracking-tight">Buku Saku (Media Tugas)</h1>
-          <p className="text-slate-500 text-sm sm:text-base lg:text-lg">Kumpulan referensi, panduan, dan data media tugas</p>
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-slate-800 mb-1 sm:mb-2 tracking-tight">Jadwal Guru</h1>
+          <p className="text-slate-500 text-sm sm:text-base lg:text-lg">Informasi jadwal mengajar dan kegiatan guru</p>
         </div>
         
         <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto shrink-0">
@@ -223,7 +222,7 @@ export const BukuSaku: React.FC<BukuSakuProps> = ({ user }) => {
             </div>
             <input
               type="text"
-              placeholder="Cari media..."
+              placeholder="Cari jadwal..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full bg-white border border-slate-200 rounded-xl py-2 pr-4 pl-10 text-slate-700 focus:ring-4 focus:ring-school-blue/10 focus:border-school-blue outline-none transition-all shadow-sm font-medium text-sm"
@@ -247,7 +246,7 @@ export const BukuSaku: React.FC<BukuSakuProps> = ({ user }) => {
                 : 'bg-gradient-to-r from-school-blue to-indigo-600 hover:from-blue-700 hover:to-indigo-700'
                 }`}
             >
-              {showForm ? (editingMediaId ? 'Batal Edit' : 'Batal Upload') : <><Plus size={18} /> <span>Upload Media</span></>}
+              {showForm ? (editingMediaId ? 'Batal Edit' : 'Batal Upload') : <><Plus size={18} /> <span>Upload Jadwal</span></>}
             </button>
           )}
         </div>
@@ -256,25 +255,25 @@ export const BukuSaku: React.FC<BukuSakuProps> = ({ user }) => {
       {showForm && user.role === 'admin' && (
         <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 animate-in slide-in-from-top-4 fade-in duration-300">
           <h2 className="font-bold text-slate-800 text-lg mb-4 flex items-center gap-2 border-b border-slate-100 pb-3">
-            <BiBookBookmark size={20} className="text-school-blue" />
-            {editingMediaId ? 'Edit Media Buku Saku' : 'Upload Media Baru'}
+            <Calendar size={20} className="text-school-blue" />
+            {editingMediaId ? 'Edit Jadwal Guru' : 'Upload Jadwal Baru'}
           </h2>
           <form onSubmit={handleUploadSubmit} className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-1">
-                <label className="text-sm font-bold text-slate-700">Judul Media <span className="text-rose-500">*</span></label>
+                <label className="text-sm font-bold text-slate-700">Judul Jadwal <span className="text-rose-500">*</span></label>
                 <input
                   type="text"
                   value={judul}
                   onChange={(e) => setJudul(e.target.value)}
-                  placeholder="Masukkan judul media"
+                  placeholder="Masukkan judul jadwal"
                   className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 h-12 text-sm focus:ring-4 focus:ring-school-blue/10 focus:border-school-blue outline-none transition-all"
                   required
                 />
               </div>
               
               <div className="space-y-1">
-                <label className="text-sm font-bold text-slate-700">File Upload {editingMediaId ? <span className="text-slate-400 font-medium">(Opsional)</span> : <span className="text-rose-500">*</span>}</label>
+                <label className="text-sm font-bold text-slate-700">File Jadwal {editingMediaId ? <span className="text-slate-400 font-medium">(Opsional)</span> : <span className="text-rose-500">*</span>}</label>
                 <input
                   type="file"
                   ref={fileInputRef}
@@ -289,7 +288,7 @@ export const BukuSaku: React.FC<BukuSakuProps> = ({ user }) => {
                 <textarea
                   value={deskripsi}
                   onChange={(e) => setDeskripsi(e.target.value)}
-                  placeholder="Keterangan isi file..."
+                  placeholder="Keterangan jadwal..."
                   className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 h-20 text-sm focus:ring-4 focus:ring-school-blue/10 focus:border-school-blue outline-none transition-all resize-none custom-scrollbar"
                 />
               </div>
@@ -353,7 +352,7 @@ export const BukuSaku: React.FC<BukuSakuProps> = ({ user }) => {
                             <span className={`text-sm transition-colors ${targetUserId === '' ? 'font-bold text-school-blue' : 'text-slate-700 font-bold group-hover:text-school-blue'}`}>Semua Staf (Global)</span>
                             {targetUserId === '' && <Check size={16} className="text-school-blue" />}
                           </div>
-                          <span className="text-xs text-slate-500">Media informasi untuk semua pengguna</span>
+                          <span className="text-xs text-slate-500">Jadwal untuk semua pengguna</span>
                         </div>
 
                         {staffList.filter(s => s.name.toLowerCase().includes(staffSearch.toLowerCase()) || (s.position || '').toLowerCase().includes(staffSearch.toLowerCase())).map(s => (
@@ -400,7 +399,7 @@ export const BukuSaku: React.FC<BukuSakuProps> = ({ user }) => {
                 {isUploading ? (
                   <><Loader2 size={16} className="animate-spin" /> Mengunggah...</>
                 ) : (
-                  <><Plus size={16} /> Simpan Media</>
+                  <><Plus size={16} /> Simpan Jadwal</>
                 )}
               </button>
             </div>
@@ -411,8 +410,8 @@ export const BukuSaku: React.FC<BukuSakuProps> = ({ user }) => {
       <div className="bg-white rounded-xl shadow-sm border border-slate-200">
         <div className="p-4 border-b border-slate-200 flex flex-row items-center justify-between bg-white gap-3 relative">
           <div className="flex items-center space-x-2 truncate">
-            <BiBookBookmark size={20} className="text-slate-600 shrink-0" />
-            <h2 className="font-bold text-slate-800 text-lg">Daftar Media Buku Saku ({filteredMedia.length})</h2>
+            <Calendar size={20} className="text-slate-600 shrink-0" />
+            <h2 className="font-bold text-slate-800 text-lg">Daftar Jadwal Guru ({filteredMedia.length})</h2>
           </div>
         </div>
         
@@ -423,7 +422,7 @@ export const BukuSaku: React.FC<BukuSakuProps> = ({ user }) => {
               <tr className="bg-slate-50 text-slate-500 text-xs uppercase tracking-wider">
                 <th className="px-4 py-3 font-bold border border-slate-200 w-12 text-center">NO</th>
                 <th className="px-4 py-3 font-bold border border-slate-200 text-center w-36">TANGGAL</th>
-                <th className="px-4 py-3 font-bold border border-slate-200">JUDUL MEDIA</th>
+                <th className="px-4 py-3 font-bold border border-slate-200">JUDUL JADWAL</th>
                 <th className="px-4 py-3 font-bold border border-slate-200 w-1/4">TARGET PENERIMA</th>
                 <th className="px-4 py-3 font-bold border border-slate-200 text-center w-32">LAMPIRAN</th>
                 <th className="px-4 py-3 font-bold border border-slate-200 text-center w-32">AKSI</th>
@@ -461,7 +460,7 @@ export const BukuSaku: React.FC<BukuSakuProps> = ({ user }) => {
                       ) : (
                         <>
                           <div className="font-bold text-school-blue">Semua Staf (Global)</div>
-                          <div className="text-xs text-slate-500 font-medium">Media informasi untuk semua pengguna</div>
+                          <div className="text-xs text-slate-500 font-medium">Jadwal untuk semua pengguna</div>
                         </>
                       )}
                     </td>
@@ -490,14 +489,14 @@ export const BukuSaku: React.FC<BukuSakuProps> = ({ user }) => {
                           <>
                             <button
                               onClick={() => handleEditClick(media)}
-                              title="Edit Media"
+                              title="Edit Jadwal"
                               className="p-2 rounded-lg text-amber-500 hover:bg-amber-50 transition-colors"
                             >
                               <Edit size={18} />
                             </button>
                             <button
                               onClick={() => handleDelete(media.id, media.fileUrl)}
-                              title="Hapus Media"
+                              title="Hapus Jadwal"
                               className="p-2 rounded-lg text-rose-500 hover:bg-rose-50 transition-colors"
                             >
                               <Trash2 size={18} />
@@ -512,10 +511,10 @@ export const BukuSaku: React.FC<BukuSakuProps> = ({ user }) => {
                 <tr>
                   <td colSpan={6} className="p-12 text-center text-slate-500 border border-slate-200">
                     <div className="flex justify-center mb-3 text-slate-300">
-                      <FileText size={48} strokeWidth={1} />
+                      <Calendar size={48} strokeWidth={1} />
                     </div>
-                    <p className="font-bold text-lg text-slate-600 mb-1">Tidak Ada Media</p>
-                    <p className="text-sm">Belum ada data media yang ditambahkan atau tidak sesuai pencarian.</p>
+                    <p className="font-bold text-lg text-slate-600 mb-1">Tidak Ada Jadwal</p>
+                    <p className="text-sm">Belum ada jadwal yang ditambahkan atau tidak sesuai pencarian.</p>
                   </td>
                 </tr>
               )}
@@ -568,7 +567,7 @@ export const BukuSaku: React.FC<BukuSakuProps> = ({ user }) => {
                         {media.targetUserId ? media.targetUserName : 'Semua Staf (Global)'}
                       </p>
                       <p className="text-xs text-slate-500">
-                        {media.targetUserId ? (media.targetUserPosition || 'Tidak ada jabatan') : 'Media informasi untuk semua pengguna'}
+                        {media.targetUserId ? (media.targetUserPosition || 'Tidak ada jabatan') : 'Jadwal untuk semua pengguna'}
                       </p>
                     </div>
                     <div className="bg-white p-2 rounded-full shadow-sm border border-slate-200 text-slate-400 shrink-0">
@@ -583,7 +582,7 @@ export const BukuSaku: React.FC<BukuSakuProps> = ({ user }) => {
                           onClick={(e) => handleDownload(media.fileUrl, e)}
                           disabled={downloadingUrl === media.fileUrl}
                           className="p-2 text-slate-400 hover:text-emerald-600 transition-colors rounded-full bg-slate-50 relative"
-                          title="Unduh Media"
+                          title="Unduh Jadwal"
                         >
                           {downloadingUrl === media.fileUrl ? <Loader2 size={16} className="animate-spin" /> : <Download size={16} />}
                         </button>
@@ -593,14 +592,14 @@ export const BukuSaku: React.FC<BukuSakuProps> = ({ user }) => {
                           <button
                             onClick={() => handleEditClick(media)}
                             className="p-2 text-slate-400 hover:text-amber-500 transition-colors rounded-full bg-slate-50 ml-1"
-                            title="Edit Media"
+                            title="Edit Jadwal"
                           >
                             <Edit size={16} />
                           </button>
                           <button
                             onClick={() => handleDelete(media.id, media.fileUrl)}
                             className="p-2 text-slate-400 hover:text-rose-500 transition-colors rounded-full bg-slate-50 ml-1"
-                            title="Hapus Media"
+                            title="Hapus Jadwal"
                           >
                             <Trash2 size={16} />
                           </button>
@@ -613,9 +612,9 @@ export const BukuSaku: React.FC<BukuSakuProps> = ({ user }) => {
             ) : (
               <div className="p-8 text-center text-slate-500">
                 <div className="flex justify-center mb-2 text-slate-300">
-                  <FileText size={32} />
+                  <Calendar size={32} />
                 </div>
-                Belum ada data media.
+                Belum ada data jadwal.
               </div>
             )}
           </div>

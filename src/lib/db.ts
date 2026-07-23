@@ -949,3 +949,102 @@ export const getStaffList = async () => {
   if (error) throw error;
   return data;
 };
+
+// ================= JADWAL GURU =================
+
+export const getJadwalGuru = async (): Promise<any[]> => {
+  const { data, error } = await supabase
+    .from('jadwal_guru')
+    .select(`
+      *,
+      uploader:uploader_id(name, position),
+      targetUser:target_user_id(name, position)
+    `)
+    .order('created_at', { ascending: false });
+
+  if (error) {
+    console.error('Error fetching jadwal guru:', error);
+    return [];
+  }
+
+  return data.map((item: any) => ({
+    id: item.id,
+    judul: item.judul,
+    deskripsi: item.deskripsi,
+    fileUrl: item.file_url,
+    uploaderId: item.uploader_id,
+    targetUserId: item.target_user_id,
+    createdAt: item.created_at,
+    uploaderName: item.uploader?.name || 'Admin',
+    uploaderPosition: item.uploader?.position,
+    targetUserName: item.targetUser?.name,
+    targetUserPosition: item.targetUser?.position
+  }));
+};
+
+export const uploadJadwalFile = async (file: File, folderName?: string): Promise<string> => {
+  const dateStr = format(new Date(), 'ddMMMyyyy').toUpperCase();
+  const safeName = file.name.replace(/[^a-zA-Z0-9.-]/g, '_');
+  const fileName = `${dateStr}_${safeName}`;
+  const path = folderName ? `${folderName}/${fileName}` : `Global/${fileName}`;
+
+  const { error: uploadError } = await supabase.storage
+    .from('jadwal_guru_media')
+    .upload(path, file, { upsert: true });
+
+  if (uploadError) throw uploadError;
+
+  const { data } = supabase.storage
+    .from('jadwal_guru_media')
+    .getPublicUrl(path);
+
+  return data.publicUrl;
+};
+
+export const addJadwalGuru = async (media: any) => {
+  const { error } = await supabase
+    .from('jadwal_guru')
+    .insert([{
+      judul: media.judul,
+      deskripsi: media.deskripsi,
+      file_url: media.fileUrl,
+      uploader_id: media.uploaderId,
+      target_user_id: media.targetUserId || null
+    }]);
+  if (error) throw error;
+};
+
+export const updateJadwalGuru = async (id: string, media: any) => {
+  const { error } = await supabase
+    .from('jadwal_guru')
+    .update({
+      judul: media.judul,
+      deskripsi: media.deskripsi,
+      file_url: media.fileUrl,
+      target_user_id: media.targetUserId || null
+    })
+    .eq('id', id);
+  if (error) throw error;
+};
+
+export const deleteJadwalGuru = async (id: string, fileUrl: string) => {
+  const urlParts = fileUrl.split('/jadwal_guru_media/');
+  if (urlParts.length > 1) {
+    const path = urlParts[1];
+    await supabase.storage.from('jadwal_guru_media').remove([path]);
+  }
+
+  const { error } = await supabase
+    .from('jadwal_guru')
+    .delete()
+    .eq('id', id);
+  if (error) throw error;
+};
+
+export const deleteStorageFile = async (bucket: string, fileUrl: string) => {
+  const urlParts = fileUrl.split(`/${bucket}/`);
+  if (urlParts.length > 1) {
+    const path = urlParts[1];
+    await supabase.storage.from(bucket).remove([path]);
+  }
+};

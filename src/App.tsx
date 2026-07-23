@@ -18,6 +18,7 @@ import { KPI } from './pages/staff/Nilai-Kpi';
 import { Settings } from './pages/staff/Settings';
 import { Absensi } from './pages/staff/Absensi';
 import { BukuSaku } from './pages/BukuSaku';
+import { JadwalGuru } from './pages/JadwalGuru';
 import { initializeDB } from './lib/db';
 import { supabase } from './lib/supabase';
 import { User } from './lib/types';
@@ -84,6 +85,7 @@ function App() {
           <Route path="tugas-staff" element={<AdminTugasStaff />} />
           <Route path="settings" element={<AdminSettings user={user!} onUserUpdate={handleUpdateUser} />} />
           <Route path="buku-saku" element={<BukuSaku user={user!} />} />
+          <Route path="jadwal-guru" element={<JadwalGuru user={user!} />} />
         </Route>
 
         {/* Staff Routes */}
@@ -94,6 +96,7 @@ function App() {
           <Route path="nilai-kpi" element={<KPI user={user!} />} />
           <Route path="settings" element={<Settings user={user!} onUserUpdate={handleUpdateUser} />} />
           <Route path="buku-saku" element={<BukuSaku user={user!} />} />
+          <Route path="jadwal-guru" element={<JadwalGuru user={user!} />} />
         </Route>
 
         <Route path="*" element={<Navigate to="/" replace />} />
