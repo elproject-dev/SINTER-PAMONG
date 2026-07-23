@@ -5,7 +5,7 @@
   "start_url": "/SINTER-PAMONG/",
   "scope": "/SINTER-PAMONG/",
   "display": "standalone",
-  "orientation": "portrait",
+  "orientation": "any",
   "theme_color": "#000000",
   "background_color": "#ffffff",
   "icons": [
