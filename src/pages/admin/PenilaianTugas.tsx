@@ -424,7 +424,7 @@ export const AdminReviewLaporanTugas: React.FC = () => {
                             </div>
                           </td>
                           <td className="px-4 py-3 border border-slate-200 text-center font-bold text-amber-500">
-                            {selectedReport.score ? selectedReport.score : '-'}
+                            {selectedReport.score ? Number(selectedReport.score).toFixed(1) : '-'}
                           </td>
                           <td className="px-4 py-3 border border-slate-200 text-center">
                             <button
@@ -477,7 +477,7 @@ export const AdminReviewLaporanTugas: React.FC = () => {
                             </div>
                           </td>
                           <td className="px-4 py-3 border border-slate-200 text-center font-bold text-amber-500">
-                            {att.score ? att.score : '-'}
+                            {att.score ? Number(att.score).toFixed(1) : '-'}
                           </td>
                           <td className="px-4 py-3 border border-slate-200 text-center">
                             <div className="flex items-center justify-center">
@@ -556,7 +556,7 @@ export const AdminReviewLaporanTugas: React.FC = () => {
                             {selectedReport.score ? (
                               <>
                                 <StarRating score={selectedReport.score} size={14} className="flex items-center gap-0.5 text-slate-300" />
-                                <span className="ml-1 text-xs font-bold text-amber-500">{selectedReport.score}</span>
+                                <span className="ml-1 text-xs font-bold text-amber-500">{Number(selectedReport.score).toFixed(1)}</span>
                               </>
                             ) : (
                               <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider bg-slate-100 px-2 py-0.5 rounded-md border border-slate-200/50">Belum Dinilai</span>
@@ -622,7 +622,7 @@ export const AdminReviewLaporanTugas: React.FC = () => {
                             {att.score ? (
                               <>
                                 <StarRating score={att.score} size={14} className="flex items-center gap-0.5 text-slate-300" />
-                                <span className="ml-1 text-xs font-bold text-amber-500">{att.score}</span>
+                                <span className="ml-1 text-xs font-bold text-amber-500">{Number(att.score).toFixed(1)}</span>
                               </>
                             ) : (
                               <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider bg-slate-100 px-2 py-0.5 rounded-md border border-slate-200/50">Belum Dinilai</span>
@@ -818,7 +818,7 @@ export const AdminReviewLaporanTugas: React.FC = () => {
                         <StarRating score={report.averageScore ?? report.score} />
                       </td>
                       <td className="px-4 py-3 border border-slate-200 text-center font-bold text-amber-500">
-                        {(report.averageScore ?? report.score) ? (report.averageScore ?? report.score) : '-'}
+                        {(report.averageScore ?? report.score) ? Number(report.averageScore ?? report.score).toFixed(1) : '-'}
                       </td>
                       <td className="px-4 py-3 border border-slate-200 text-center">
                         <button
@@ -906,7 +906,7 @@ export const AdminReviewLaporanTugas: React.FC = () => {
                           {(report.averageScore || report.score) ? (
                             <>
                               <StarRating score={report.averageScore ?? report.score} size={14} className="flex items-center gap-0.5 text-slate-300" />
-                              <span className="ml-1 text-xs font-bold text-amber-500">{report.averageScore ?? report.score}</span>
+                              <span className="ml-1 text-xs font-bold text-amber-500">{Number(report.averageScore ?? report.score).toFixed(1)}</span>
                             </>
                           ) : (
                             <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider bg-slate-100 px-2 py-0.5 rounded-md border border-slate-200/50">Belum Dinilai</span>

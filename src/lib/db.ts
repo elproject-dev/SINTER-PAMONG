@@ -227,7 +227,7 @@ export const getKPIs = async (): Promise<KPIEvaluation[]> => {
     month: d.month,
     notes: d.notes,
     createdAt: d.created_at,
-    taskScores: d.nilai_kpi.map((s: any) => ({ task: s.task, score: s.score }))
+    taskScores: d.nilai_kpi.map((s: any) => ({ task: s.task, score: s.score, category: s.category }))
   }));
 };
 
@@ -263,7 +263,8 @@ export const saveKPI = async (kpi: KPIEvaluation) => {
   const scoresToInsert = kpi.taskScores.map(score => ({
     kpi_id: kpi.id,
     task: score.task,
-    score: score.score
+    score: score.score,
+    category: score.category
   }));
 
   await supabase.from('nilai_kpi').insert(scoresToInsert);
@@ -284,7 +285,7 @@ export const getUserKPIs = async (userId: string): Promise<KPIEvaluation[]> => {
     month: d.month,
     notes: d.notes,
     createdAt: d.created_at,
-    taskScores: d.nilai_kpi.map((s: any) => ({ task: s.task, score: s.score }))
+    taskScores: d.nilai_kpi.map((s: any) => ({ task: s.task, score: s.score, category: s.category }))
   }));
 };
 

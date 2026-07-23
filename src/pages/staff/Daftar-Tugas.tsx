@@ -293,12 +293,20 @@ export const DaftarTugas: React.FC<DaftarTugasProps> = ({ user }) => {
   const availableTasks = Array.from(new Set(adminTasks.map(t => t.namaTugas)));
 
   const todayLocal = new Date().toLocaleDateString('en-CA');
-  const todayUtc = new Date().toISOString().split('T')[0];
+
+  const uniqueReports = Object.values(
+    taskReports.reduce((acc, report) => {
+      if (!acc[report.taskName] || new Date(report.createdAt).getTime() > new Date(acc[report.taskName].createdAt).getTime()) {
+        acc[report.taskName] = report;
+      }
+      return acc;
+    }, {} as Record<string, TaskReport>)
+  );
 
   const combinedTasks = [
-    ...taskReports.map(r => ({ taskName: r.taskName, report: r, date: r.date })),
+    ...uniqueReports.map(r => ({ taskName: r.taskName, report: r, date: r.date })),
     ...availableTasks
-      .filter(taskName => !taskReports.some(r => r.taskName === taskName && (r.date === todayLocal || r.date === todayUtc)))
+      .filter(taskName => !uniqueReports.some(r => r.taskName === taskName))
       .map(taskName => ({ taskName, report: null, date: todayLocal }))
   ]
     .filter(t => {
@@ -905,9 +913,9 @@ export const DaftarTugas: React.FC<DaftarTugasProps> = ({ user }) => {
                       <div className="flex flex-col gap-2 pt-3 border-t border-slate-100 mt-3">
                         <div className="flex items-center justify-between w-full pr-1.5">
                           <span className="text-xs text-slate-400 font-bold uppercase tracking-wider">Total Penilaian</span>
-                          <div className="flex items-center gap-1.5 text-slate-300" title={`Nilai Rata-rata: ${selectedReport.averageScore ?? selectedReport.score} Bintang`}>
+                          <div className="flex items-center gap-1.5 text-slate-300" title={`Nilai Rata-rata: ${Number(selectedReport.averageScore ?? selectedReport.score).toFixed(1)} Bintang`}>
                             <StarRating score={selectedReport.averageScore ?? selectedReport.score!} size={14} />
-                            <span className="text-xs font-bold text-amber-500 ml-1">{selectedReport.averageScore ?? selectedReport.score} Bintang</span>
+                            <span className="text-xs font-bold text-amber-500 ml-1">{Number(selectedReport.averageScore ?? selectedReport.score).toFixed(1)} Bintang</span>
                           </div>
                         </div>
                       </div>
@@ -1020,12 +1028,12 @@ export const DaftarTugas: React.FC<DaftarTugasProps> = ({ user }) => {
                             </div>
                           </td>
                           <td className="px-4 py-3 border border-slate-200 text-center">
-                            <div className="flex items-center justify-center gap-1 text-slate-300" title={selectedReport?.score ? `Nilai: ${Math.round(selectedReport.score)} Bintang` : 'Belum Dinilai'}>
-                              <StarRating score={selectedReport?.score ? Math.round(selectedReport.score) : 0} size={16} />
+                            <div className="flex items-center justify-center gap-1 text-slate-300" title={selectedReport?.score ? `Nilai: ${selectedReport.score.toFixed(1)} Bintang` : 'Belum Dinilai'}>
+                              <StarRating score={selectedReport?.score ?? 0} size={16} />
                             </div>
                           </td>
                           <td className="px-4 py-3 border border-slate-200 text-center font-bold text-amber-500">
-                            {selectedReport?.score ? Math.round(selectedReport.score) : '-'}
+                            {selectedReport?.score ? selectedReport.score.toFixed(1) : '-'}
                           </td>
                           <td className="px-4 py-3 border border-slate-200 text-center">
                             <div className="flex items-center justify-center">
@@ -1090,12 +1098,12 @@ export const DaftarTugas: React.FC<DaftarTugasProps> = ({ user }) => {
                             </div>
                           </td>
                           <td className="px-4 py-3 border border-slate-200 text-center">
-                            <div className="flex items-center justify-center gap-1 text-slate-300" title={att?.score ? `Nilai: ${Math.round(att.score)} Bintang` : 'Belum Dinilai'}>
-                              <StarRating score={att?.score ? Math.round(att.score) : 0} size={16} />
+                            <div className="flex items-center justify-center gap-1 text-slate-300" title={att?.score ? `Nilai: ${att.score.toFixed(1)} Bintang` : 'Belum Dinilai'}>
+                              <StarRating score={att?.score ?? 0} size={16} />
                             </div>
                           </td>
                           <td className="px-4 py-3 border border-slate-200 text-center font-bold text-amber-500">
-                            {att?.score ? Math.round(att.score) : '-'}
+                            {att?.score ? att.score.toFixed(1) : '-'}
                           </td>
                           <td className="px-4 py-3 border border-slate-200 text-center">
                             <div className="flex items-center justify-center">
@@ -1190,7 +1198,7 @@ export const DaftarTugas: React.FC<DaftarTugasProps> = ({ user }) => {
                         <div className="flex items-center justify-between gap-2 mt-1 pt-2 border-t border-slate-100">
                           <div className="flex items-center gap-2">
                             <span className="text-[10px] font-bold text-slate-500 uppercase">Penilaian</span>
-                            <StarRating score={selectedReport?.score ? Math.round(selectedReport.score) : 0} size={14} />
+                            <StarRating score={selectedReport?.score ?? 0} size={14} />
                           </div>
                           
                           <div className="flex items-center gap-1.5 shrink-0">
@@ -1258,7 +1266,7 @@ export const DaftarTugas: React.FC<DaftarTugasProps> = ({ user }) => {
                         <div className="flex items-center justify-between gap-2 mt-1 pt-2 border-t border-slate-100">
                           <div className="flex items-center gap-2">
                             <span className="text-[10px] font-bold text-slate-500 uppercase">Penilaian</span>
-                            <StarRating score={att?.score ? Math.round(att.score) : 0} size={14} />
+                            <StarRating score={att?.score ?? 0} size={14} />
                           </div>
                           
                           <div className="flex items-center gap-1.5 shrink-0">
@@ -1499,12 +1507,12 @@ export const DaftarTugas: React.FC<DaftarTugasProps> = ({ user }) => {
                         {item.taskName}
                       </td>
                       <td className="px-4 py-3 border border-slate-200 text-center">
-                        <div className="flex items-center justify-center gap-0.5 text-slate-300" title={(report?.averageScore ?? report?.score) ? `Nilai: ${report?.averageScore ?? report?.score} Bintang` : 'Belum Dinilai'}>
+                        <div className="flex items-center justify-center gap-0.5 text-slate-300" title={(report?.averageScore ?? report?.score) ? `Nilai: ${Number(report?.averageScore ?? report?.score).toFixed(1)} Bintang` : 'Belum Dinilai'}>
                           <StarRating score={report?.averageScore ?? report?.score} size={16} />
                         </div>
                       </td>
                       <td className="px-4 py-3 border border-slate-200 text-center font-bold text-amber-500">
-                        {(report?.averageScore ?? report?.score) ? (report?.averageScore ?? report?.score) : '-'}
+                        {(report?.averageScore ?? report?.score) ? Number(report?.averageScore ?? report?.score).toFixed(1) : '-'}
                       </td>
                       <td className="px-4 py-3 border border-slate-200 text-center">
                         <div className="flex items-center justify-center gap-1">

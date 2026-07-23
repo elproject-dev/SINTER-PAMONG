@@ -44,7 +44,6 @@ export const BottomNavigation: React.FC<BottomNavigationProps> = ({ user, onLogo
         { href: "/admin/jadwal-guru", label: "Jadwal", icon: Calendar },
         { href: "/admin/buku-saku", label: "Buku Saku", icon: BiBookBookmark },
         { href: "/admin/settings", label: "Pengaturan", icon: Settings },
-        { href: "#logout", label: "Keluar", icon: LogOut, isLogout: true },
       ];
     }
     return [

@@ -1,22 +1,13 @@
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import { getStaff, saveKPI, getKPIs, getStaffTasks } from '../../lib/db';
-import { User, KPIEvaluation, KPITaskScore, StaffTask } from '../../lib/types';
+import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
+import { getStaff, getKPIs, getStaffTasks, getAllTaskReports, getAttendance, saveKPI } from '../../lib/db';
+import { User, KPIEvaluation, StaffTask, TaskReport, AttendanceRecord } from '../../lib/types';
 import { KPIDictionary } from '../../lib/kpiDictionary';
 import { format } from 'date-fns';
-import { id } from 'date-fns/locale';
-import { Save, Star, RefreshCcw, Search, Award, Loader2 } from 'lucide-react';
-import { useRealtimeSubscription } from '../../lib/useRealtime';
 
-const formatMonth = (monthStr: string) => {
-  if (!monthStr) return 'Belum Tersedia';
-  try {
-    const [year, month] = monthStr.split('-');
-    const date = new Date(parseInt(year), parseInt(month) - 1);
-    return format(date, 'MMMM yyyy', { locale: id });
-  } catch {
-    return monthStr;
-  }
-};
+import { Search, Award, Loader2, Eye, SlidersHorizontal, X, Plus, Star, ChevronDown, Check, User as UserIcon, Layers, Edit } from 'lucide-react';
+import { AiOutlineStop } from "react-icons/ai";
+import { useRealtimeSubscription } from '../../lib/useRealtime';
+import { StarRating } from '../../components/StarRating';
 
 interface KPIEvaluationProps {
   currentUser: User;
@@ -26,13 +17,32 @@ export const AdminKPIEvaluation: React.FC<KPIEvaluationProps> = ({ currentUser }
   const [staff, setStaff] = useState<User[]>([]);
   const [allKPIs, setAllKPIs] = useState<KPIEvaluation[]>([]);
   const [allStaffTasks, setAllStaffTasks] = useState<StaffTask[]>([]);
+  const [allTaskReports, setAllTaskReports] = useState<TaskReport[]>([]);
+  const [allAttendance, setAllAttendance] = useState<AttendanceRecord[]>([]);
   const [selectedStaff, setSelectedStaff] = useState('');
-  const [selectedMonth, setSelectedMonth] = useState(format(new Date(), 'yyyy-MM'));
+  const [selectedMonth] = useState(format(new Date(), 'yyyy-MM'));
   const [taskScores, setTaskScores] = useState<Record<string, number>>({});
-  const [notes, setNotes] = useState('');
-  const [showSuccess, setShowSuccess] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
-  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const [showFilterPopup, setShowFilterPopup] = useState(false);
+  const [filterStartDate, setFilterStartDate] = useState('');
+  const [filterEndDate, setFilterEndDate] = useState('');
+  const filterPopupRef = useRef<HTMLDivElement>(null);
+
+  const [showAddManualForm, setShowAddManualForm] = useState(false);
+  const [manualStaffId, setManualStaffId] = useState('');
+  const [manualCategory, setManualCategory] = useState('Umum');
+  const [manualIndicatorName, setManualIndicatorName] = useState('');
+  const [manualIndicatorScore, setManualIndicatorScore] = useState(0);
+
+  const formRef = useRef<HTMLDivElement>(null);
+  const staffDropdownRef = useRef<HTMLDivElement>(null);
+  const categoryDropdownRef = useRef<HTMLDivElement>(null);
+  const [isStaffDropdownOpen, setIsStaffDropdownOpen] = useState(false);
+  const [isCategoryDropdownOpen, setIsCategoryDropdownOpen] = useState(false);
+  const [staffSearch, setStaffSearch] = useState('');
+  const [categories, setCategories] = useState(['Umum', 'Tugas', 'Absensi']);
+  const [categorySearch, setCategorySearch] = useState('');
 
   const [isLoading, setIsLoading] = useState(true);
 
@@ -45,6 +55,10 @@ export const AdminKPIEvaluation: React.FC<KPIEvaluationProps> = ({ currentUser }
       setAllKPIs(kpis);
       const staffTasks = await getStaffTasks();
       setAllStaffTasks(staffTasks);
+      const reports = await getAllTaskReports();
+      setAllTaskReports(reports);
+      const attendance = await getAttendance();
+      setAllAttendance(attendance);
     } finally {
       setIsLoading(false);
     }
@@ -54,16 +68,34 @@ export const AdminKPIEvaluation: React.FC<KPIEvaluationProps> = ({ currentUser }
     fetchData();
   }, [fetchData]);
 
-  useRealtimeSubscription(['penilaian_kpi', 'nilai_kpi', 'profil_pengguna', 'tugas_staff'], fetchData);
+  useRealtimeSubscription(['penilaian_kpi', 'nilai_kpi', 'profil_pengguna', 'tugas_staff', 'data_absensi'], fetchData);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (filterPopupRef.current && !filterPopupRef.current.contains(event.target as Node)) {
+        setShowFilterPopup(false);
+      }
+      if (staffDropdownRef.current && !staffDropdownRef.current.contains(event.target as Node)) {
+        setIsStaffDropdownOpen(false);
+        setStaffSearch('');
+      }
+      if (categoryDropdownRef.current && !categoryDropdownRef.current.contains(event.target as Node)) {
+        setIsCategoryDropdownOpen(false);
+        setCategorySearch('');
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   const selectedUser = staff.find(s => s.id === selectedStaff);
-  
+
   // Ambil gabungan semua tugas berdasarkan jobRoles dari staf terpilih dan tugas spesifik staf
   const getCombinedTasks = useCallback((user?: User, userTasks?: StaffTask[]): string[] => {
     if (!user) return [];
-    
+
     const tasks = new Set<string>();
-    
+
     if (user.jobRoles && user.jobRoles.length > 0) {
       user.jobRoles.forEach(role => {
         const roleTasks = KPIDictionary[role] || [];
@@ -74,139 +106,172 @@ export const AdminKPIEvaluation: React.FC<KPIEvaluationProps> = ({ currentUser }
     if (userTasks && userTasks.length > 0) {
       userTasks.forEach(t => tasks.add(t.namaTugas));
     }
-    
+
     if (tasks.size === 0) {
       return [
         'Kedisiplinan & Etos Kerja',
         'Tanggung Jawab & Penyelesaian Tugas',
         'Inisiatif & Problem Solving',
         'Kemampuan Komunikasi & Kerjasama Tim',
-        'Kehadiran dan Ketepatan Waktu'
+        'Kehadiran dan Ketepatan Waktu',
+        'Data Absensi'
       ];
     }
-    
-    return Array.from(tasks);
+
+    const allTasks = Array.from(tasks);
+    if (!allTasks.includes('Data Absensi')) {
+      allTasks.push('Data Absensi');
+    }
+    return allTasks;
   }, []);
 
   const tasks = useMemo(() => {
     const userTasks = allStaffTasks.filter(t => t.userId === selectedStaff);
-    return getCombinedTasks(selectedUser, userTasks);
-  }, [selectedUser, selectedStaff, allStaffTasks, getCombinedTasks]);
+    const combined = getCombinedTasks(selectedUser, userTasks);
+
+    // Sertakan indikator manual yang sudah tersimpan di database agar muncul di tabel
+    const existingKPI = allKPIs.find(k => k.userId === selectedStaff && k.month === selectedMonth);
+    if (existingKPI) {
+      existingKPI.taskScores.forEach(s => {
+        if (!combined.includes(s.task)) {
+          combined.push(s.task);
+        }
+      });
+    }
+
+    return combined;
+  }, [selectedUser, selectedStaff, allStaffTasks, getCombinedTasks, allKPIs, selectedMonth]);
 
   // Initialize scores when selected staff or month changes
   useEffect(() => {
     if (!selectedStaff) return;
-    
+
     const existingKPI = allKPIs.find(k => k.userId === selectedStaff && k.month === selectedMonth);
-    
+
     if (existingKPI) {
       const savedScores: Record<string, number> = {};
       existingKPI.taskScores.forEach(s => {
         savedScores[s.task] = s.score;
       });
       setTaskScores(savedScores);
-      setNotes(existingKPI.notes || '');
     } else {
       const initialScores: Record<string, number> = {};
       tasks.forEach(task => {
-        initialScores[task] = 0; // Default score 0
+        const reportsForTask = allTaskReports.filter(r =>
+          r.userId === selectedStaff &&
+          r.taskName === task &&
+          r.date.startsWith(selectedMonth)
+        );
+
+        const ratedReports = reportsForTask.filter(r => r.averageScore || r.score);
+
+        if (ratedReports.length > 0) {
+          const totalScore = ratedReports.reduce((sum, r) => sum + Number(r.averageScore || r.score || 0), 0);
+          initialScores[task] = Number((totalScore / ratedReports.length).toFixed(1));
+        } else {
+          initialScores[task] = 0; // Default score 0
+        }
       });
       setTaskScores(initialScores);
-      setNotes('');
     }
   }, [selectedStaff, selectedMonth, allKPIs, tasks]);
 
-  const handleScoreChange = (task: string, score: number) => {
-    setTaskScores(prev => ({
-      ...prev,
-      [task]: score
-    }));
-  };
 
-  const averageScore = useMemo(() => {
-    if (tasks.length === 0) return 0;
-    const total = tasks.reduce((sum, task) => sum + (taskScores[task] ?? 0), 0);
-    return (total / tasks.length).toFixed(1);
-  }, [tasks, taskScores]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!selectedStaff || tasks.length === 0) return;
 
-    const finalTaskScores: KPITaskScore[] = tasks.map(task => ({
-      task,
-      score: taskScores[task] ?? 0
-    }));
-
-    const kpi: KPIEvaluation = {
-      id: crypto.randomUUID(),
-      userId: selectedStaff,
-      evaluatorId: currentUser.id,
-      month: selectedMonth,
-      taskScores: finalTaskScores,
-      notes,
-      createdAt: new Date().toISOString()
-    };
-
-    await saveKPI(kpi);
-    
-    const updatedKPIs = await getKPIs();
-    setAllKPIs(updatedKPIs);
-    
-    setShowSuccess(true);
-    setIsModalOpen(false);
-    setTimeout(() => setShowSuccess(false), 3000);
-  };
-
-  // Helper untuk hitung rata-rata tersimpan per staff untuk bulan terpilih
+  // Helper untuk hitung rata-rata tersimpan per staff untuk bulan terpilih (menyamakan persis dengan Detail Penilaian KPI)
   const getSavedAverage = (staffId: string) => {
+    let totalScore = 0;
+    let count = 0;
+
+    const userObj = staff.find(s => s.id === staffId);
+    const userTasks = allStaffTasks.filter(t => t.userId === staffId);
+    const tasksForUser = getCombinedTasks(userObj, userTasks);
+
     const kpi = allKPIs.find(k => k.userId === staffId && k.month === selectedMonth);
-    if (!kpi || kpi.taskScores.length === 0) return null;
-    const total = kpi.taskScores.reduce((sum, s) => sum + s.score, 0);
-    return (total / kpi.taskScores.length).toFixed(1);
+    if (kpi) {
+      kpi.taskScores.forEach(s => {
+        if (!tasksForUser.includes(s.task)) {
+          tasksForUser.push(s.task);
+        }
+      });
+    }
+
+    tasksForUser.forEach(task => {
+      let score = 0;
+      let hasScore = false;
+
+      if (task.toLowerCase().includes('absensi')) {
+        const monthRecords = allAttendance.filter(r => r.date.startsWith(selectedMonth));
+        if (monthRecords.length > 0) {
+          const uniqueDates = new Set(monthRecords.map(r => r.date));
+          const totalWorkingDays = uniqueDates.size || 1;
+          const staffRecords = monthRecords.filter(r => r.userId === staffId);
+          const totalHadir = staffRecords.filter(r => r.status === 'present').length;
+          score = (totalHadir / totalWorkingDays) * 5.0;
+          if (score > 5.0) score = 5.0;
+          hasScore = true;
+        }
+      } else {
+        const kpi = allKPIs.find(k => k.userId === staffId && k.month === selectedMonth);
+        const savedTask = kpi?.taskScores.find(s => s.task === task);
+        if (savedTask) {
+          score = savedTask.score;
+          hasScore = true;
+        } else {
+          const reportsForTask = allTaskReports.filter(r =>
+            r.userId === staffId &&
+            r.taskName === task &&
+            r.date.startsWith(selectedMonth)
+          );
+          const ratedReports = reportsForTask.filter(r => r.averageScore || r.score);
+          if (ratedReports.length > 0) {
+            const sumScore = ratedReports.reduce((sum, r) => sum + Number(r.averageScore || r.score || 0), 0);
+            score = sumScore / ratedReports.length;
+            hasScore = true;
+          }
+        }
+      }
+
+      if (hasScore) {
+        totalScore += score;
+        count += 1;
+      }
+    });
+
+    if (count === 0) return null;
+    return (totalScore / count).toFixed(1);
   };
 
-  const filteredStaff = staff.filter(s =>
-    s.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    (s.position || '').toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredStaff = staff.filter(s => {
+    const matchesSearch = s.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (s.position || '').toLowerCase().includes(searchTerm.toLowerCase());
 
-  const openEvaluationModal = (staffId: string) => {
+    let matchesDate = true;
+    if (filterStartDate || filterEndDate) {
+      const kpi = allKPIs.find(k => k.userId === s.id && k.month === selectedMonth);
+      if (kpi && kpi.createdAt) {
+        const kpiDate = new Date(kpi.createdAt).toISOString().split('T')[0];
+        if (filterStartDate && kpiDate < filterStartDate) matchesDate = false;
+        if (filterEndDate && kpiDate > filterEndDate) matchesDate = false;
+      } else {
+        matchesDate = false; // Exclude if no KPI data exists to match dates
+      }
+    }
+
+    return matchesSearch && matchesDate;
+  });
+
+  const openEvaluationPanel = (staffId: string) => {
     setSelectedStaff(staffId);
-    setIsModalOpen(true);
   };
-
-  const RatingScale = ({ label, value, onChange }: { label: string, value: number, onChange: (val: number) => void }) => (
-    <div className="mb-4 p-4 bg-slate-50 rounded-xl border border-slate-100 flex flex-col justify-between">
-      <div className="flex flex-col sm:flex-row sm:justify-between mb-2 items-start gap-2">
-        <label className="block text-sm font-medium text-slate-700 leading-snug w-full sm:w-3/4">{label}</label>
-        <span className="text-school-blue font-bold text-base bg-blue-100 px-2.5 py-0.5 rounded-lg shrink-0">{value} / 5</span>
-      </div>
-      <div className="flex space-x-1 mt-1">
-        {[1, 2, 3, 4, 5].map(num => (
-          <button
-            key={num}
-            type="button"
-            onClick={() => onChange(num)}
-            className={`p-1 transition-all focus:outline-none ${
-              value >= num 
-                ? 'text-amber-400 hover:text-amber-500 scale-105' 
-                : 'text-slate-300 hover:text-slate-400'
-            }`}
-          >
-            <Star size={24} fill={value >= num ? "currentColor" : "none"} strokeWidth={1.5} />
-          </button>
-        ))}
-      </div>
-    </div>
-  );
 
   return (
     <div className="w-full space-y-8 animate-in fade-in duration-300">
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div>
-          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-slate-800 mb-1 sm:mb-2 tracking-tight">Penilaian KPI Staf</h1>
-          <p className="text-slate-500 text-sm sm:text-base lg:text-lg">Evaluasi kinerja bulanan berdasarkan rincian tugas (Skala 1 - 5)</p>
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-slate-800 mb-1 sm:mb-2 tracking-tight">Penilaian KPI</h1>
+          <p className="text-slate-500 text-sm sm:text-base lg:text-lg">Rekapitulasi evaluasi total kinerja secara keseluruhan</p>
         </div>
 
         <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto shrink-0">
@@ -222,265 +287,785 @@ export const AdminKPIEvaluation: React.FC<KPIEvaluationProps> = ({ currentUser }
               className="w-full bg-white border border-slate-200 rounded-xl py-2 pr-4 pl-10 text-slate-700 focus:ring-4 focus:ring-school-blue/10 focus:border-school-blue outline-none transition-all shadow-sm font-medium text-sm"
             />
           </div>
-
-          <div className="relative w-full sm:w-48 shrink-0">
-            <input
-              type="month"
-              value={selectedMonth}
-              onChange={(e) => setSelectedMonth(e.target.value)}
-              className="w-full bg-white border border-slate-200 rounded-xl py-2 px-4 text-slate-700 focus:ring-4 focus:ring-school-blue/10 focus:border-school-blue outline-none transition-all shadow-sm font-bold cursor-pointer text-sm"
-            />
-          </div>
+          <button
+            type="button"
+            onClick={() => {
+              setShowAddManualForm(!showAddManualForm);
+              if (showAddManualForm) {
+                setManualStaffId('');
+                setManualCategory('Umum');
+                setManualIndicatorName('');
+                setManualIndicatorScore(0);
+              }
+            }}
+            className={`px-8 py-2 text-white font-bold border border-transparent rounded-xl transition-all shadow-md hover:shadow-lg text-sm flex items-center justify-center gap-2 whitespace-nowrap ${showAddManualForm
+              ? 'bg-gradient-to-r from-slate-500 to-slate-600 hover:from-slate-600 hover:to-slate-700'
+              : 'bg-gradient-to-r from-school-blue to-indigo-600 hover:from-blue-700 hover:to-indigo-700'
+              }`}
+          >
+            {showAddManualForm ? 'Tutup Form' : <><Plus size={18} /> <span>Tambah Penilaian</span></>}
+          </button>
         </div>
       </div>
 
-      {showSuccess && (
-        <div className="bg-emerald-50 border border-emerald-200 text-emerald-700 px-6 py-4 rounded-2xl flex items-center shadow-sm font-medium animate-in fade-in slide-in-from-top-4">
-          <div className="mr-3 bg-emerald-100 p-1.5 rounded-full">✅</div>
-          Penilaian KPI berhasil disimpan!
+      {showAddManualForm && (
+        <div ref={formRef} className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 animate-in slide-in-from-top-4 fade-in duration-300 scroll-mt-24">
+          <h2 className="font-bold text-slate-800 text-lg mb-4 flex items-center gap-2 border-b border-slate-100 pb-3">
+            <Plus size={20} className="text-school-blue" />
+            Tambah Penilaian Manual
+          </h2>
+
+          <div className="flex flex-col gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-4 gap-5 items-end">
+              <div className="lg:col-span-3 space-y-1.5">
+                <label className="text-sm font-bold text-slate-700">Nama Indikator / Tugas <span className="text-rose-500">*</span></label>
+                <input
+                  type="text"
+                  value={manualIndicatorName}
+                  onChange={(e) => setManualIndicatorName(e.target.value)}
+                  placeholder="Masukkan indikator..."
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 h-[46px] text-sm text-slate-700 focus:ring-4 focus:ring-school-blue/10 focus:border-school-blue outline-none transition-all shadow-sm font-medium"
+                />
+              </div>
+
+              <div className="space-y-1.5 flex flex-col justify-end">
+                <label className="block text-right mr-2 text-lg font-black bg-gradient-to-r from-amber-500 to-orange-500 text-transparent bg-clip-text uppercase tracking-wider">
+                  Beri Penilaian
+                </label>
+                <div className="w-full h-[46px] bg-slate-50 border border-slate-200 rounded-xl px-4 flex items-center justify-between shadow-sm">
+                  <div className={`font-black text-xl transition-colors ${manualIndicatorScore > 0 ? 'text-amber-500' : 'text-slate-300'}`}>
+                    {manualIndicatorScore > 0 ? `${manualIndicatorScore}.0` : '0.0'}
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    {[1, 2, 3, 4, 5].map((star) => (
+                      <Star
+                        key={star}
+                        size={28}
+                        onClick={() => setManualIndicatorScore(star)}
+                        className={`cursor-pointer transition-transform hover:scale-110 ${(manualIndicatorScore > 0 && star <= manualIndicatorScore)
+                          ? 'fill-amber-400 text-amber-400'
+                          : 'fill-transparent text-slate-300 hover:text-amber-400'
+                          }`}
+                      />
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+              <div className="bg-slate-50/70 border border-slate-200 rounded-xl p-5 shadow-sm space-y-4">
+                <div className="flex items-center gap-2.5 text-slate-700 border-b border-slate-200/60 pb-3">
+                  <div className="bg-school-blue/10 p-2 rounded-lg text-school-blue">
+                    <UserIcon size={18} />
+                  </div>
+                  <h3 className="font-bold text-sm">Ditugaskan Kepada <span className="text-rose-500">*</span></h3>
+                </div>
+
+                <div className="relative" ref={staffDropdownRef}>
+                  <div
+                    className={`w-full h-[42px] bg-white border ${isStaffDropdownOpen ? 'border-school-blue ring-4 ring-school-blue/10' : 'border-slate-200 hover:border-slate-300'} rounded-xl px-3 text-slate-700 flex justify-between items-center cursor-pointer transition-all font-medium shadow-sm`}
+                    onClick={() => setIsStaffDropdownOpen(!isStaffDropdownOpen)}
+                  >
+                    <span className={manualStaffId ? 'text-slate-800 text-sm truncate pr-2' : 'text-slate-400 text-sm'}>
+                      {manualStaffId ? staff.find(s => s.id === manualStaffId)?.name || 'Pilih Staf...' : '-- Pilih Staf --'}
+                    </span>
+                    <ChevronDown size={18} className={`text-slate-400 shrink-0 transition-transform duration-300 ${isStaffDropdownOpen ? 'rotate-180' : ''}`} />
+                  </div>
+
+                  {isStaffDropdownOpen && (
+                    <div className="absolute z-20 w-full mt-2 bg-white border border-slate-100 rounded-xl shadow-xl overflow-hidden animate-in fade-in slide-in-from-top-2">
+                      <div className="p-2 border-b border-slate-100 sticky top-0 bg-white z-10">
+                        <div className="relative">
+                          <div className="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none text-slate-400">
+                            <Search size={14} />
+                          </div>
+                          <input
+                            type="text"
+                            placeholder="Cari nama staf..."
+                            value={staffSearch}
+                            onChange={(e) => setStaffSearch(e.target.value)}
+                            className="w-full bg-slate-50 border border-slate-200 rounded-lg py-2 pr-3 pl-8 text-slate-700 text-xs focus:ring-2 focus:ring-school-blue/20 focus:border-school-blue outline-none transition-all"
+                            autoFocus
+                            onClick={(e) => e.stopPropagation()}
+                          />
+                        </div>
+                      </div>
+                      <div className="max-h-[200px] overflow-y-auto py-1 custom-scrollbar">
+                        {staff.filter(s => s.name.toLowerCase().includes(staffSearch.toLowerCase()) || (s.position || '').toLowerCase().includes(staffSearch.toLowerCase())).map(s => (
+                          <div
+                            key={s.id}
+                            className={`px-3 py-2 mx-1.5 mb-1 rounded-lg cursor-pointer flex flex-col justify-center transition-colors group ${manualStaffId === s.id ? 'bg-school-blue/10' : 'hover:bg-school-blue/5'}`}
+                            onClick={() => {
+                              setManualStaffId(s.id);
+                              setIsStaffDropdownOpen(false);
+                              setStaffSearch('');
+                            }}
+                          >
+                            <div className="flex items-center justify-between">
+                              <span className={`text-sm transition-colors truncate pr-2 ${manualStaffId === s.id ? 'font-bold text-school-blue' : 'text-slate-700 font-bold group-hover:text-school-blue'}`}>{s.name}</span>
+                              {manualStaffId === s.id && <Check size={16} className="text-school-blue shrink-0" />}
+                            </div>
+                            <span className="text-xs text-slate-500 truncate">{s.position || 'Tidak ada jabatan'}</span>
+                          </div>
+                        ))}
+                        {staff.filter(s => s.name.toLowerCase().includes(staffSearch.toLowerCase()) || (s.position || '').toLowerCase().includes(staffSearch.toLowerCase())).length === 0 && (
+                          <div className="px-4 py-4 text-center text-slate-500 text-xs">
+                            Pencarian tidak ditemukan.
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div className="bg-slate-50/70 border border-slate-200 rounded-xl p-5 shadow-sm space-y-4">
+                <div className="flex items-center gap-2.5 text-slate-700 border-b border-slate-200/60 pb-3">
+                  <div className="bg-school-blue/10 p-2 rounded-lg text-school-blue">
+                    <Layers size={18} />
+                  </div>
+                  <h3 className="font-bold text-sm">Kategori Penilaian <span className="text-rose-500">*</span></h3>
+                </div>
+
+                <div className="relative" ref={categoryDropdownRef}>
+                  <div
+                    className={`w-full h-[42px] bg-white border ${isCategoryDropdownOpen ? 'border-school-blue ring-4 ring-school-blue/10' : 'border-slate-200 hover:border-slate-300'} rounded-xl px-3 text-slate-700 flex justify-between items-center cursor-pointer transition-all font-medium shadow-sm`}
+                    onClick={() => setIsCategoryDropdownOpen(!isCategoryDropdownOpen)}
+                  >
+                    <span className={manualCategory ? 'text-slate-800 text-sm' : 'text-slate-400 text-sm'}>
+                      {manualCategory || '-- Pilih Kategori --'}
+                    </span>
+                    <ChevronDown size={18} className={`text-slate-400 transition-transform duration-300 ${isCategoryDropdownOpen ? 'rotate-180' : ''}`} />
+                  </div>
+
+                  {isCategoryDropdownOpen && (
+                    <div className="absolute z-20 w-full mt-2 bg-white border border-slate-100 rounded-xl shadow-xl overflow-hidden animate-in fade-in slide-in-from-top-2">
+                      <div className="p-2 border-b border-slate-100 sticky top-0 bg-white z-10">
+                        <div className="relative">
+                          <div className="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none text-slate-400">
+                            <Search size={14} />
+                          </div>
+                          <input
+                            type="text"
+                            placeholder="Cari atau tambah..."
+                            value={categorySearch}
+                            onChange={(e) => setCategorySearch(e.target.value)}
+                            className="w-full bg-slate-50 border border-slate-200 rounded-lg py-2 pr-3 pl-8 text-slate-700 text-xs focus:ring-2 focus:ring-school-blue/20 focus:border-school-blue outline-none transition-all"
+                            autoFocus
+                            onClick={(e) => e.stopPropagation()}
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter' && categorySearch.trim()) {
+                                e.preventDefault();
+                                const newCat = categorySearch.trim();
+                                if (!categories.includes(newCat)) {
+                                  setCategories([...categories, newCat]);
+                                }
+                                setManualCategory(newCat);
+                                setIsCategoryDropdownOpen(false);
+                                setCategorySearch('');
+                              }
+                            }}
+                          />
+                        </div>
+                      </div>
+                      <div className="max-h-[160px] overflow-y-auto py-1 custom-scrollbar p-1">
+                        {categories.filter(c => c.toLowerCase().includes(categorySearch.toLowerCase())).map((cat) => (
+                          <div
+                            key={cat}
+                            className={`px-3 py-2 mx-0.5 mb-1 rounded-lg cursor-pointer flex justify-between items-center transition-colors group ${manualCategory === cat ? 'bg-school-blue/10' : 'hover:bg-school-blue/5'}`}
+                            onClick={() => {
+                              setManualCategory(cat);
+                              setIsCategoryDropdownOpen(false);
+                              setCategorySearch('');
+                            }}
+                          >
+                            <span className={`text-sm transition-colors truncate pr-2 ${manualCategory === cat ? 'font-bold text-school-blue' : 'text-slate-700 font-bold group-hover:text-school-blue'}`}>{cat}</span>
+                            <div className="flex items-center gap-1.5 shrink-0">
+                              {manualCategory === cat && <Check size={16} className="text-school-blue" />}
+                              {!['Umum', 'Tugas', 'Absensi'].includes(cat) && (
+                                <button
+                                  type="button"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setCategories(categories.filter(c => c !== cat));
+                                    if (manualCategory === cat) setManualCategory('');
+                                  }}
+                                  className="p-1 rounded-md text-slate-300 hover:text-rose-500 hover:bg-rose-50 transition-all opacity-0 group-hover:opacity-100 focus:opacity-100"
+                                  title="Hapus kategori"
+                                >
+                                  <X size={14} />
+                                </button>
+                              )}
+                            </div>
+                          </div>
+                        ))}
+
+                        {categorySearch.trim() && !categories.some(c => c.toLowerCase() === categorySearch.trim().toLowerCase()) && (
+                          <div
+                            className="px-3 py-2.5 mx-0.5 mt-1 rounded-lg cursor-pointer flex items-center gap-2 text-orange-500 hover:bg-orange-50 transition-colors"
+                            onClick={() => {
+                              const newCat = categorySearch.trim();
+                              setCategories([...categories, newCat]);
+                              setManualCategory(newCat);
+                              setIsCategoryDropdownOpen(false);
+                              setCategorySearch('');
+                            }}
+                          >
+                            <Plus size={16} className="shrink-0" />
+                            <span className="text-sm font-bold truncate">Tambah "{categorySearch.trim()}"</span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            <div className="flex justify-end pt-5 mt-2 border-t border-slate-100">
+              <button
+                type="button"
+                onClick={async () => {
+                  if (!manualStaffId || !manualIndicatorName || manualIndicatorScore === 0) {
+                    alert("Mohon lengkapi semua data (Staf, Indikator, dan Skor)");
+                    return;
+                  }
+                  let baseScores: Record<string, number> = {};
+                  let baseCategories: Record<string, string> = {};
+                  const existingKPI = allKPIs.find(k => k.userId === manualStaffId && k.month === selectedMonth);
+
+                  // Gunakan input pencarian jika user mengetik kategori baru tapi lupa menekan enter/tambah
+                  const finalCategory = categorySearch.trim() ? categorySearch.trim() : manualCategory;
+
+                  if (categorySearch.trim() && !categories.includes(categorySearch.trim())) {
+                    setCategories([...categories, categorySearch.trim()]);
+                  }
+
+                  if (existingKPI) {
+                    existingKPI.taskScores.forEach(s => {
+                      baseScores[s.task] = s.score;
+                      if (s.category) {
+                        baseCategories[s.task] = s.category;
+                      } else {
+                        const isAbs = s.task.toLowerCase().includes('absensi');
+                        const isSpec = allStaffTasks.some(t => t.userId === manualStaffId && t.namaTugas === s.task);
+                        baseCategories[s.task] = isAbs ? 'Absensi' : isSpec ? 'Tugas' : 'Umum';
+                      }
+                    });
+                  } else {
+                    const staffTasks = allStaffTasks.filter(t => t.userId === manualStaffId);
+                    const manualStaffObj = staff.find(s => s.id === manualStaffId);
+                    const combinedTasks = getCombinedTasks(manualStaffObj, staffTasks);
+
+                    combinedTasks.forEach(task => {
+                      const isAbs = task.toLowerCase().includes('absensi');
+                      const isSpec = staffTasks.some(t => t.namaTugas === task);
+                      baseCategories[task] = isAbs ? 'Absensi' : isSpec ? 'Tugas' : 'Umum';
+                      if (isAbs) {
+                        const monthRecords = allAttendance.filter(r => r.date.startsWith(selectedMonth));
+                        if (monthRecords.length > 0) {
+                          const uniqueDates = new Set(monthRecords.map(r => r.date));
+                          const totalWorkingDays = uniqueDates.size || 1;
+                          const staffRecords = monthRecords.filter(r => r.userId === manualStaffId);
+                          const totalHadir = staffRecords.filter(r => r.status === 'present').length;
+                          let val = (totalHadir / totalWorkingDays) * 5.0;
+                          if (val > 5.0) val = 5.0;
+                          baseScores[task] = Number(val.toFixed(1));
+                        } else {
+                          baseScores[task] = 0;
+                        }
+                      } else {
+                        const reportsForTask = allTaskReports.filter(r =>
+                          r.userId === manualStaffId &&
+                          r.taskName === task &&
+                          r.date.startsWith(selectedMonth)
+                        );
+                        const ratedReports = reportsForTask.filter(r => r.averageScore || r.score);
+                        if (ratedReports.length > 0) {
+                          const totalScore = ratedReports.reduce((sum, r) => sum + Number(r.averageScore || r.score || 0), 0);
+                          baseScores[task] = Number((totalScore / ratedReports.length).toFixed(1));
+                        } else {
+                          baseScores[task] = 0;
+                        }
+                      }
+                    });
+                  }
+
+                  baseScores[manualIndicatorName] = manualIndicatorScore;
+                  baseCategories[manualIndicatorName] = finalCategory;
+
+                  const taskScoresArray = Object.entries(baseScores).map(([task, score]) => ({
+                    task,
+                    score,
+                    category: baseCategories[task] || 'Umum'
+                  }));
+
+                  const newKPI: KPIEvaluation = {
+                    id: existingKPI?.id || crypto.randomUUID(),
+                    userId: manualStaffId,
+                    evaluatorId: currentUser.id,
+                    month: selectedMonth,
+                    taskScores: taskScoresArray,
+                    notes: existingKPI?.notes || '',
+                    createdAt: existingKPI?.createdAt || new Date().toISOString()
+                  };
+
+                  try {
+                    await saveKPI(newKPI);
+                    const newAllKPIs = allKPIs.filter(k => k.id !== newKPI.id);
+                    newAllKPIs.push(newKPI);
+                    setAllKPIs(newAllKPIs);
+
+                    alert("Penilaian manual berhasil disimpan!");
+                    setShowAddManualForm(false);
+                    setManualStaffId('');
+                    setManualCategory('Umum');
+                    setCategorySearch('');
+                    setManualIndicatorName('');
+                    setManualIndicatorScore(0);
+                  } catch (error) {
+                    console.error("Gagal menyimpan KPI:", error);
+                    alert("Gagal menyimpan penilaian.");
+                  }
+                }}
+                className="w-full sm:w-auto px-10 py-2.5 text-white font-bold border border-transparent rounded-xl transition-all shadow-md hover:shadow-lg text-sm flex items-center justify-center gap-2 whitespace-nowrap bg-gradient-to-r from-school-blue to-indigo-600 hover:from-blue-700 hover:to-indigo-700 shrink-0"
+              >
+                Simpan Penilaian
+              </button>
+            </div>
+          </div>
         </div>
       )}
 
-      <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-        <div className="p-4 border-b border-slate-200 flex items-center space-x-2 bg-white">
-          <Award size={20} className="text-slate-600" />
-          <h2 className="font-bold text-slate-800 text-lg">Data Kinerja Staf & Guru</h2>
-        </div>
-        <div className="overflow-x-auto">
-          {/* Desktop Table View */}
-          <table className="w-full text-left border-collapse min-w-[800px] hidden lg:table">
-            <thead>
-              <tr className="bg-slate-50 text-slate-500 text-xs uppercase tracking-wider">
-                <th className="px-4 py-3 font-bold border border-slate-200 w-12 text-center">NO</th>
-                <th className="px-4 py-3 font-bold border border-slate-200">NAMA LENGKAP</th>
-                <th className="px-4 py-3 font-bold border border-slate-200">PROFESI / JABATAN</th>
-                <th className="px-4 py-3 font-bold border border-slate-200 text-center w-40">PERIODE</th>
-                <th className="px-4 py-3 font-bold border border-slate-200 text-center w-40">SKOR KPI</th>
-                <th className="px-4 py-3 font-bold border border-slate-200 text-center w-28">AKSI</th>
-              </tr>
-            </thead>
-            <tbody>
-              {isLoading ? (
-                <tr>
-                  <td colSpan={6} className="p-8 text-center text-slate-500 border border-slate-200">
-                    <div className="flex justify-center mb-3 text-school-blue">
-                      <Loader2 size={32} className="animate-spin" />
+      {/* Main Table Container */}
+      {!selectedStaff ? (
+        <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-visible animate-in fade-in slide-in-from-bottom-4">
+          <div className="p-4 border-b border-slate-200 flex flex-row items-center justify-between bg-white gap-3 relative">
+            <div className="flex items-center space-x-2 truncate">
+              <Award size={20} className="text-slate-600 shrink-0" />
+              <h2 className="font-bold text-slate-800 text-lg truncate">Data Kinerja Staf & Guru</h2>
+            </div>
+
+            <div className="flex items-center gap-2 relative" ref={filterPopupRef}>
+              <button
+                onClick={() => setShowFilterPopup(!showFilterPopup)}
+                className={`flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-bold border transition-all ${showFilterPopup || filterStartDate || filterEndDate
+                  ? 'bg-school-blue/10 border-school-blue text-school-blue shadow-sm'
+                  : 'bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100 shadow-sm'
+                  }`}
+              >
+                <SlidersHorizontal size={16} />
+                Filter
+              </button>
+
+              {/* Pop-up Filter */}
+              {showFilterPopup && (
+                <div className="absolute right-0 top-full mt-2 w-64 bg-white rounded-xl shadow-xl border border-slate-200 p-4 z-[60] animate-in fade-in slide-in-from-top-2">
+                  <div className="flex justify-between items-center mb-4">
+                    <h3 className="font-bold text-slate-800 text-sm">Filter Data</h3>
+                    <button onClick={() => setShowFilterPopup(false)} className="text-slate-400 hover:text-slate-600 bg-slate-50 hover:bg-slate-100 p-1 rounded-md transition-colors">
+                      <X size={16} />
+                    </button>
+                  </div>
+
+                  <div className="space-y-3">
+                    <div>
+                      <label className="text-xs font-bold text-slate-500 mb-1 block">Tanggal Mulai</label>
+                      <input
+                        type={filterStartDate ? "date" : "text"}
+                        placeholder="Tanggal Mulai"
+                        onFocus={(e) => {
+                          e.target.type = 'date';
+                          e.target.showPicker && e.target.showPicker();
+                        }}
+                        onBlur={(e) => {
+                          if (!e.target.value) e.target.type = 'text';
+                        }}
+                        value={filterStartDate}
+                        onChange={(e) => setFilterStartDate(e.target.value)}
+                        className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-school-blue/20 outline-none text-slate-700 font-bold text-center cursor-pointer transition-all hover:bg-slate-100"
+                      />
                     </div>
-                    <p className="font-bold text-lg text-slate-600 mb-1">Memuat Data...</p>
-                  </td>
+                    <div>
+                      <label className="text-xs font-bold text-slate-500 mb-1 block">Tanggal Akhir</label>
+                      <input
+                        type={filterEndDate ? "date" : "text"}
+                        placeholder="Tanggal Akhir"
+                        onFocus={(e) => {
+                          e.target.type = 'date';
+                          e.target.showPicker && e.target.showPicker();
+                        }}
+                        onBlur={(e) => {
+                          if (!e.target.value) e.target.type = 'text';
+                        }}
+                        value={filterEndDate}
+                        onChange={(e) => setFilterEndDate(e.target.value)}
+                        className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-school-blue/20 outline-none text-slate-700 font-bold text-center cursor-pointer transition-all hover:bg-slate-100"
+                      />
+                    </div>
+                    {(filterStartDate || filterEndDate) && (
+                      <button
+                        onClick={() => {
+                          setFilterStartDate('');
+                          setFilterEndDate('');
+                        }}
+                        className="w-full mt-3 bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold py-2 rounded-lg text-sm transition-colors"
+                      >
+                        Reset Filter
+                      </button>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+          <div className="overflow-x-auto">
+            {/* Desktop Table View */}
+            <table className="w-full text-left border-collapse min-w-[800px] hidden lg:table">
+              <thead>
+                <tr className="bg-slate-50 text-slate-500 text-xs uppercase tracking-wider">
+                  <th className="px-4 py-3 font-bold border border-slate-200 w-12 text-center">NO</th>
+                  <th className="px-4 py-3 font-bold border border-slate-200">NAMA LENGKAP</th>
+                  <th className="px-4 py-3 font-bold border border-slate-200">PROFESI / JABATAN</th>
+                  <th className="px-4 py-3 font-bold border border-slate-200 text-center w-[180px]">PENILAIAN</th>
+                  <th className="px-4 py-3 font-bold border border-slate-200 text-center w-24">SKOR</th>
+                  <th className="px-4 py-3 font-bold border border-slate-200 text-center w-32">AKSI</th>
                 </tr>
+              </thead>
+              <tbody>
+                {isLoading ? (
+                  <tr>
+                    <td colSpan={6} className="p-8 text-center text-slate-500 border border-slate-200">
+                      <div className="flex justify-center mb-3 text-school-blue">
+                        <Loader2 size={32} className="animate-spin" />
+                      </div>
+                      <p className="font-bold text-lg text-slate-600 mb-1">Memuat Data...</p>
+                    </td>
+                  </tr>
+                ) : filteredStaff.length > 0 ? (
+                  filteredStaff.map((user, index) => {
+                    const score = getSavedAverage(user.id);
+                    return (
+                      <tr key={user.id} className="hover:bg-slate-50 transition-colors">
+                        <td className="px-4 py-3 border border-slate-200 text-center text-sm font-medium text-slate-500">
+                          {index + 1}
+                        </td>
+                        <td className="px-4 py-3 border border-slate-200 text-sm font-bold text-slate-800">
+                          {user.name}
+                        </td>
+                        <td className="px-4 py-3 border border-slate-200 text-sm text-slate-700">
+                          {user.position || 'Belum ada jabatan'}
+                        </td>
+                        <td className="px-4 py-3 border border-slate-200 text-center">
+                          {score ? (
+                            <div className="flex justify-center">
+                              <StarRating score={Number(score)} size={16} />
+                            </div>
+                          ) : (
+                            <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-medium bg-slate-100 text-slate-500 border border-slate-200">
+                              Belum Dinilai
+                            </span>
+                          )}
+                        </td>
+                        <td className="px-4 py-3 border border-slate-200 text-center font-bold text-amber-500">
+                          {score ? score : '-'}
+                        </td>
+                        <td className="px-4 py-3 border border-slate-200 text-center">
+                          <button
+                            onClick={() => openEvaluationPanel(user.id)}
+                            title="Periksa / Beri Nilai"
+                            className="p-2 rounded-lg text-school-blue hover:bg-blue-50 transition-colors mx-auto flex items-center justify-center"
+                          >
+                            <Eye size={18} />
+                          </button>
+                        </td>
+                      </tr>
+                    );
+                  })
+                ) : (
+                  <tr>
+                    <td colSpan={6} className="p-8 text-center text-slate-500 border border-slate-200">
+                      <div className="flex justify-center mb-2 text-slate-300">
+                        <Award size={32} />
+                      </div>
+                      Tidak ada staf yang ditemukan berdasarkan pencarian Anda.
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+
+            {/* Mobile Card View */}
+            <div className="lg:hidden flex flex-col divide-y divide-slate-100">
+              {isLoading ? (
+                <div className="p-8 text-center text-slate-500">
+                  <div className="flex justify-center mb-3 text-school-blue">
+                    <Loader2 size={32} className="animate-spin" />
+                  </div>
+                  <p className="font-bold text-lg text-slate-600 mb-1">Memuat Data...</p>
+                </div>
               ) : filteredStaff.length > 0 ? (
-                filteredStaff.map((user, index) => {
+                filteredStaff.map(user => {
                   const score = getSavedAverage(user.id);
                   return (
-                    <tr key={user.id} className="hover:bg-slate-50 transition-colors">
-                      <td className="px-4 py-3 border border-slate-200 text-center text-sm font-medium text-slate-500">
-                        {index + 1}
-                      </td>
-                      <td className="px-4 py-3 border border-slate-200 text-sm font-bold text-slate-800">
-                        {user.name}
-                      </td>
-                      <td className="px-4 py-3 border border-slate-200 text-sm text-slate-700">
-                        {user.position || 'Belum ada jabatan'}
-                      </td>
-                      <td className="px-4 py-3 border border-slate-200 text-center text-sm text-slate-700 font-semibold">
-                        {selectedMonth}
-                      </td>
-                      <td className="px-4 py-3 border border-slate-200 text-center">
-                        {score ? (
-                          <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-800 border border-amber-200">
-                            ⭐ {score} / 5
-                          </span>
-                        ) : (
-                          <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-slate-100 text-slate-500 border border-slate-200">
-                            Belum Dinilai
-                          </span>
-                        )}
-                      </td>
-                      <td className="px-4 py-3 border border-slate-200 text-center">
+                    <div key={user.id} className="p-4 hover:bg-slate-50 transition-colors flex flex-col gap-3">
+                      <div className="flex justify-between items-start">
+                        <div className="flex flex-col">
+                          <h3 className="font-extrabold text-slate-800 text-base">{user.name}</h3>
+                          <p className="text-sm font-medium text-school-blue">{user.position || 'Belum ada jabatan'}</p>
+                        </div>
+                        <div>
+                          {score ? (
+                            <div className="flex flex-col items-end gap-1">
+                              <StarRating score={Number(score)} size={14} />
+                              <span className="text-sm font-bold text-amber-500">{score}</span>
+                            </div>
+                          ) : (
+                            <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-medium bg-slate-100 text-slate-500 border border-slate-200">
+                              Belum Dinilai
+                            </span>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="pt-2 flex justify-end gap-2 mt-1">
                         <button
-                          onClick={() => openEvaluationModal(user.id)}
-                          title="Beri Nilai KPI"
-                          className="p-2 rounded-full text-school-blue hover:bg-blue-50 hover:text-blue-700 transition-colors"
+                          onClick={() => openEvaluationPanel(user.id)}
+                          title="Periksa / Beri Nilai"
+                          className="p-2 rounded-full bg-slate-50 text-slate-400 hover:text-school-blue transition-colors flex items-center justify-center"
                         >
-                          <Star size={18} fill={score ? "currentColor" : "none"} />
+                          <Eye size={16} />
                         </button>
-                      </td>
-                    </tr>
+                      </div>
+                    </div>
                   );
                 })
               ) : (
-                <tr>
-                  <td colSpan={6} className="p-8 text-center text-slate-500 border border-slate-200">
-                    <div className="flex justify-center mb-2 text-slate-300">
-                      <Award size={32} />
-                    </div>
-                    Tidak ada staf yang ditemukan berdasarkan pencarian Anda.
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-
-          {/* Mobile Card View */}
-          <div className="lg:hidden flex flex-col divide-y divide-slate-100">
-            {isLoading ? (
-              <div className="p-8 text-center text-slate-500">
-                <div className="flex justify-center mb-3 text-school-blue">
-                  <Loader2 size={32} className="animate-spin" />
-                </div>
-                <p className="font-bold text-lg text-slate-600 mb-1">Memuat Data...</p>
-              </div>
-            ) : filteredStaff.length > 0 ? (
-              filteredStaff.map(user => {
-                const score = getSavedAverage(user.id);
-                return (
-                  <div key={user.id} className="p-4 hover:bg-slate-50 transition-colors flex flex-col gap-3">
-                    <div className="flex justify-between items-start">
-                      <div className="flex flex-col">
-                        <h3 className="font-extrabold text-slate-800 text-base">{user.name}</h3>
-                        <p className="text-sm font-medium text-school-blue">{user.position || 'Belum ada jabatan'}</p>
-                      </div>
-                      <div>
-                        {score ? (
-                          <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-800 border border-amber-200">
-                            ⭐ {score} / 5
-                          </span>
-                        ) : (
-                          <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-slate-100 text-slate-500 border border-slate-200">
-                            Belum Dinilai
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                    
-                    <div className="pt-2 flex justify-end gap-2 mt-1">
-                      <button
-                        onClick={() => openEvaluationModal(user.id)}
-                        className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl text-sm font-bold bg-blue-50 text-school-blue hover:bg-blue-100 transition-all"
-                      >
-                        <Star size={16} fill={score ? "currentColor" : "none"}/> Beri Nilai KPI
-                      </button>
-                    </div>
+                <div className="p-8 text-center text-slate-500">
+                  <div className="flex justify-center mb-2 text-slate-300">
+                    <Award size={32} />
                   </div>
-                );
-              })
-            ) : (
-              <div className="p-8 text-center text-slate-500">
-                <div className="flex justify-center mb-2 text-slate-300">
-                  <Award size={32} />
+                  Tidak ada staf yang ditemukan berdasarkan pencarian Anda.
                 </div>
-                Tidak ada staf yang ditemukan berdasarkan pencarian Anda.
-              </div>
-            )}
+              )}
+            </div>
           </div>
         </div>
-      </div>
-
-      {/* Modal Penilaian KPI */}
-      {isModalOpen && selectedStaff && selectedUser && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm animate-in fade-in">
-          <div className="bg-white rounded-3xl shadow-xl border border-slate-100 w-full max-w-2xl flex flex-col max-h-[90vh]">
-            <div className="p-6 border-b border-slate-100 flex items-center justify-between bg-slate-50 rounded-t-3xl shrink-0">
-              <div>
-                <h3 className="font-extrabold text-slate-800 text-xl tracking-tight">Form Evaluasi KPI</h3>
-                <p className="text-sm text-slate-500 mt-1 font-semibold">
-                  {selectedUser.name} • {selectedUser.position || 'Belum ada jabatan'}
-                </p>
-              </div>
-              <button
-                onClick={() => setIsModalOpen(false)}
-                className="text-slate-400 hover:text-slate-600 transition-colors p-2 rounded-full hover:bg-slate-200"
-              >
-                ✕
-              </button>
+      ) : (
+        /* Inline Evaluation Panel (Table View) */
+        <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden animate-in fade-in slide-in-from-bottom-4">
+          <div className="p-4 border-b border-slate-200 flex items-center justify-between bg-white">
+            <div className="flex items-center space-x-2">
+              <Award size={20} className="text-slate-600" />
+              <h2 className="font-bold text-slate-800 text-lg">Detail Penilaian KPI</h2>
             </div>
+            <button
+              type="button"
+              onClick={() => setSelectedStaff('')}
+              className="px-4 py-1.5 rounded-lg border border-slate-200 text-slate-600 text-sm font-bold hover:bg-slate-100 transition-colors"
+            >
+              Tutup
+            </button>
+          </div>
 
-            <form onSubmit={handleSubmit} className="flex flex-col flex-1 min-h-0">
-              <div className="p-6 overflow-y-auto space-y-6 flex-1 scrollbar-none">
-                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center bg-slate-50 p-4 rounded-2xl border border-slate-100 gap-3">
-                  <div>
-                    <p className="text-xs text-slate-400 font-bold uppercase tracking-wider">Periode Bulan</p>
-                    <p className="font-bold text-slate-700 mt-0.5">{formatMonth(selectedMonth)}</p>
+          <div className="flex flex-col">
+            {(() => {
+              const rowData = tasks.map((task, idx) => {
+                const isSpecific = allStaffTasks.find(st => st.userId === selectedStaff && st.namaTugas === task);
+                const isAbsensi = task.toLowerCase().includes('absensi');
+
+                let val = taskScores[task] ?? 0;
+                if (isAbsensi) {
+                  const monthRecords = allAttendance.filter(r => r.date.startsWith(selectedMonth));
+                  if (monthRecords.length > 0) {
+                    const uniqueDates = new Set(monthRecords.map(r => r.date));
+                    const totalWorkingDays = uniqueDates.size || 1;
+                    const staffRecords = monthRecords.filter(r => r.userId === selectedStaff);
+                    const totalHadir = staffRecords.filter(r => r.status === 'present').length;
+                    val = (totalHadir / totalWorkingDays) * 5.0;
+                    if (val > 5.0) val = 5.0;
+                  } else {
+                    val = 0;
+                  }
+                }
+
+                let categoryBadge = (
+                  <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-600">Umum</span>
+                );
+                
+                let origCat = 'Umum';
+
+                if (isAbsensi) {
+                  categoryBadge = <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-blue-500 text-white shadow-sm">Absensi</span>;
+                  origCat = 'Absensi';
+                } else if (isSpecific) {
+                  categoryBadge = <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500 text-white shadow-sm">Tugas</span>;
+                  origCat = 'Tugas';
+                } else {
+                  const existingKPI = allKPIs.find(k => k.userId === selectedStaff && k.month === selectedMonth);
+                  const scoreObj = existingKPI?.taskScores.find(s => s.task === task);
+                  if (scoreObj && scoreObj.category) {
+                    const catName = scoreObj.category;
+                    origCat = catName;
+                    if (catName === 'Umum') {
+                      categoryBadge = <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-600">Umum</span>;
+                    } else if (catName === 'Tugas') {
+                      categoryBadge = <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500 text-white shadow-sm">Tugas</span>;
+                    } else if (catName.toLowerCase() === 'absensi') {
+                      categoryBadge = <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-blue-500 text-white shadow-sm">Absensi</span>;
+                    } else {
+                      categoryBadge = <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-orange-500 text-white shadow-sm">{catName}</span>;
+                    }
+                  } else {
+                    if (existingKPI?.notes) {
+                      try {
+                        const parsed = JSON.parse(existingKPI.notes);
+                        if (parsed[task]) {
+                          const catName = parsed[task];
+                          origCat = catName;
+                          if (catName === 'Umum') {
+                            categoryBadge = <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-600">Umum</span>;
+                          } else if (catName === 'Tugas') {
+                            categoryBadge = <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500 text-white shadow-sm">Tugas</span>;
+                          } else if (catName.toLowerCase() === 'absensi') {
+                            categoryBadge = <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-blue-500 text-white shadow-sm">Absensi</span>;
+                          } else {
+                            categoryBadge = <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-orange-500 text-white shadow-sm">{catName}</span>;
+                          }
+                        }
+                      } catch (e) { }
+                    }
+                  }
+                }
+                
+                return { idx, task, isSpecific, isAbsensi, val, categoryBadge, origCat };
+              });
+
+              return (
+                <>
+                  <div className="overflow-x-auto hidden xl:block">
+                    <table className="w-full text-left border-collapse min-w-[700px]">
+                      <thead>
+                        <tr className="bg-slate-50 text-slate-500 text-xs uppercase tracking-wider">
+                          <th className="px-4 py-3 font-bold border border-slate-200 w-12 text-center">NO</th>
+                          <th className="px-4 py-3 font-bold border border-slate-200 w-64">NAMA LENGKAP</th>
+                          <th className="px-4 py-3 font-bold border border-slate-200 w-72">PROFESI / JABATAN</th>
+                          <th className="px-4 py-3 font-bold border border-slate-200 uppercase">Indikator tugas / kinerja</th>
+                          <th className="px-4 py-3 font-bold border border-slate-200 text-center w-32">KATEGORI</th>
+                          <th className="px-4 py-3 font-bold border border-slate-200 text-center w-32">SKOR</th>
+                          <th className="px-4 py-3 font-bold border border-slate-200 text-center w-[180px]">PENILAIAN</th>
+                          <th className="px-4 py-3 font-bold border border-slate-200 text-center w-16">AKSI</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {rowData.map((row) => (
+                          <tr key={row.idx} className="hover:bg-slate-50 transition-colors">
+                            <td className="px-4 py-3 border border-slate-200 text-center text-sm font-medium text-slate-500">{row.idx + 1}</td>
+                            <td className="px-4 py-3 border border-slate-200 text-sm font-bold text-slate-800">{selectedUser?.name}</td>
+                            <td className="px-4 py-3 border border-slate-200 text-sm text-slate-700">{selectedUser?.position || 'Belum ada jabatan'}</td>
+                            <td className="px-4 py-3 border border-slate-200 text-sm font-bold text-slate-800">
+                              <div className="line-clamp-2" title={row.task}>
+                                {row.task}
+                              </div>
+                            </td>
+                            <td className="px-4 py-3 border border-slate-200 text-center">
+                              {row.categoryBadge}
+                            </td>
+                            <td className="px-4 py-3 border border-slate-200 text-center font-bold text-amber-500">
+                              {row.val > 0 ? row.val.toFixed(1) : "-"}
+                            </td>
+                            <td className="px-4 py-3 border border-slate-200 text-center">
+                              <StarRating score={row.val} />
+                            </td>
+                            <td className="px-4 py-3 border border-slate-200 text-center">
+                              {row.isAbsensi || row.isSpecific ? (
+                                <div className="p-2 mx-auto flex items-center justify-center text-slate-300" title="Penilaian ini terhitung otomatis dan tidak dapat diedit manual">
+                                  <AiOutlineStop size={18} />
+                                </div>
+                              ) : (
+                                <button
+                                  onClick={() => {
+                                    setManualStaffId(selectedStaff);
+                                    setManualIndicatorName(row.task);
+                                    setManualIndicatorScore(row.val);
+                                    setManualCategory(row.origCat);
+                                    setShowAddManualForm(true);
+                                    setTimeout(() => {
+                                      formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                                    }, 100);
+                                  }}
+                                  className="p-2 rounded-lg text-amber-500 hover:bg-amber-50 transition-colors mx-auto flex items-center justify-center"
+                                  title="Edit Penilaian Manual"
+                                >
+                                  <Edit size={18} />
+                                </button>
+                              )}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
                   </div>
-                  <div className="bg-school-blue text-white px-3.5 py-1.5 rounded-xl shadow-md border border-blue-500 flex items-center gap-1.5 font-bold shrink-0 text-sm">
-                    <Star size={16} className="text-amber-300" />
-                    Rata-rata: {averageScore} / 5
-                  </div>
-                </div>
 
-                {allKPIs.find(k => k.userId === selectedStaff && k.month === selectedMonth) && (
-                  <div className="bg-amber-50 border border-amber-200 text-amber-700 px-4 py-3 rounded-xl flex items-center text-xs">
-                    <RefreshCcw size={16} className="mr-2 shrink-0 animate-spin-slow" />
-                    Staf ini sudah memiliki nilai KPI untuk bulan {formatMonth(selectedMonth)}. Menyimpan akan memperbarui nilai yang ada.
-                  </div>
-                )}
-
-                <div className="space-y-4">
-                  {/* General / Role-based Tasks */}
-                  {tasks.filter(t => !allStaffTasks.find(st => st.userId === selectedStaff && st.namaTugas === t)).length > 0 && (
-                    <div className="space-y-1">
-                      <h4 className="font-bold text-slate-800 text-base mb-3 border-b border-slate-100 pb-2">Indikator Kinerja Utama (Umum & Jabatan)</h4>
-                      {tasks.filter(t => !allStaffTasks.find(st => st.userId === selectedStaff && st.namaTugas === t)).map((task, idx) => (
-                        <RatingScale 
-                          key={`general-${idx}`} 
-                          label={task} 
-                          value={taskScores[task] ?? 0} 
-                          onChange={(val) => handleScoreChange(task, val)} 
-                        />
-                      ))}
-                    </div>
-                  )}
-
-                  {/* Specific Staff Tasks */}
-                  {tasks.filter(t => allStaffTasks.find(st => st.userId === selectedStaff && st.namaTugas === t)).length > 0 && (
-                    <div className="space-y-1 mt-6">
-                      <h4 className="font-bold text-slate-800 text-base mb-3 border-b border-slate-100 pb-2 flex items-center gap-2">
-                        <Award size={18} className="text-school-blue" />
-                        Tugas Khusus (dari Daftar Tugas)
-                      </h4>
-                      {tasks.filter(t => allStaffTasks.find(st => st.userId === selectedStaff && st.namaTugas === t)).map((task, idx) => (
-                        <div key={`specific-${idx}`} className="relative">
-                          <RatingScale 
-                            label={task} 
-                            value={taskScores[task] ?? 0} 
-                            onChange={(val) => handleScoreChange(task, val)} 
-                          />
+                  {/* Mobile Card View */}
+                  <div className="xl:hidden flex flex-col divide-y divide-slate-100">
+                    {rowData.map((row) => (
+                      <div key={row.idx} className="p-4 bg-white hover:bg-slate-50 transition-colors flex flex-col gap-3">
+                        <div className="flex justify-between items-start gap-2">
+                          <div className="flex-1 pr-2">
+                            <h3 className="font-bold text-slate-800 text-sm mb-1 line-clamp-2" title={row.task}>{row.task}</h3>
+                          </div>
+                          
+                          <div className="shrink-0 flex flex-col items-end gap-2">
+                            {row.categoryBadge}
+                            {row.isAbsensi || row.isSpecific ? (
+                              <div className="p-2 text-slate-300" title="Penilaian ini terhitung otomatis dan tidak dapat diedit manual">
+                                <AiOutlineStop size={18} />
+                              </div>
+                            ) : (
+                              <button
+                                onClick={() => {
+                                  setManualStaffId(selectedStaff);
+                                  setManualIndicatorName(row.task);
+                                  setManualIndicatorScore(row.val);
+                                  setManualCategory(row.origCat);
+                                  setShowAddManualForm(true);
+                                  setTimeout(() => {
+                                    formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                                  }, 100);
+                                }}
+                                className="p-2 rounded-lg text-amber-500 bg-amber-50/50 hover:bg-amber-100 transition-colors"
+                                title="Edit Penilaian Manual"
+                              >
+                                <Edit size={16} />
+                              </button>
+                            )}
+                          </div>
                         </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
 
-                <div>
-                  <label className="block text-sm font-bold text-slate-700 mb-2 mt-4">Catatan Evaluasi Umum</label>
-                  <textarea
-                    value={notes}
-                    onChange={(e) => setNotes(e.target.value)}
-                    placeholder="Berikan feedback umum atau catatan kinerja bulan ini..."
-                    className="w-full text-sm bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 h-28 resize-none focus:ring-4 focus:ring-school-blue/10 focus:border-school-blue outline-none transition-all"
-                    required
-                  />
-                </div>
-              </div>
-
-              <div className="p-6 border-t border-slate-100 flex gap-3 bg-slate-50 rounded-b-3xl shrink-0">
-                <button
-                  type="button"
-                  onClick={() => setIsModalOpen(false)}
-                  className="flex-1 px-4 py-3 rounded-xl border border-slate-200 text-slate-600 font-bold hover:bg-slate-50 transition-colors"
-                >
-                  Batal
-                </button>
-                <button
-                  type="submit"
-                  className="flex-1 bg-school-blue hover:bg-blue-700 text-white py-3 rounded-xl font-bold transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2"
-                >
-                  <Save size={18} />
-                  {allKPIs.find(k => k.userId === selectedStaff && k.month === selectedMonth) ? 'Update Nilai' : 'Simpan Nilai'}
-                </button>
-              </div>
-            </form>
+                        <div className="flex items-center justify-between bg-slate-50 rounded-lg p-3 border border-slate-100">
+                          <div className="flex items-center gap-2">
+                            <div className="bg-amber-100 p-1.5 rounded-full">
+                              <Star size={14} className="text-amber-500 fill-amber-500" />
+                            </div>
+                            <span className="text-xs font-bold text-slate-500 uppercase">Skor</span>
+                          </div>
+                          <div className="flex items-center gap-3">
+                            <span className="text-base font-extrabold text-amber-500">
+                              {row.val > 0 ? row.val.toFixed(1) : "-"}
+                            </span>
+                            <div className="scale-75 origin-right">
+                              <StarRating score={row.val} />
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </>
+              );
+            })()}
           </div>
         </div>
       )}

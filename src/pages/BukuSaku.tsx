@@ -23,7 +23,7 @@ export const BukuSaku: React.FC<BukuSakuProps> = ({ user }) => {
   const [mediaList, setMediaList] = useState<MediaBukuSaku[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
-  
+
   // Upload state
   const [showForm, setShowForm] = useState(false);
   const [editingMediaId, setEditingMediaId] = useState<string | null>(null);
@@ -34,10 +34,10 @@ export const BukuSaku: React.FC<BukuSakuProps> = ({ user }) => {
   const [uploadProgress, setUploadProgress] = useState(0);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [downloadingUrl, setDownloadingUrl] = useState<string | null>(null);
-  
+
   // Target staff state
   const [targetUserId, setTargetUserId] = useState<string>('');
-  const [staffList, setStaffList] = useState<{id: string, name: string, position?: string}[]>([]);
+  const [staffList, setStaffList] = useState<{ id: string, name: string, position?: string }[]>([]);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [staffSearch, setStaffSearch] = useState('');
@@ -88,10 +88,10 @@ export const BukuSaku: React.FC<BukuSakuProps> = ({ user }) => {
     e.preventDefault();
     if (!judul) return;
     if (!editingMediaId && !fileToUpload) return;
-    
+
     setIsUploading(true);
     setUploadProgress(10);
-    
+
     try {
       let progressInterval = setInterval(() => {
         setUploadProgress(prev => prev >= 90 ? prev : prev + 10);
@@ -109,7 +109,7 @@ export const BukuSaku: React.FC<BukuSakuProps> = ({ user }) => {
 
       if (editingMediaId) {
         const oldMedia = mediaList.find(m => m.id === editingMediaId);
-        
+
         await updateMediaBukuSaku(editingMediaId, {
           judul,
           deskripsi,
@@ -130,10 +130,10 @@ export const BukuSaku: React.FC<BukuSakuProps> = ({ user }) => {
           targetUserId: targetUserId || undefined
         });
       }
-      
+
       clearInterval(progressInterval);
       setUploadProgress(100);
-      
+
       setShowForm(false);
       setEditingMediaId(null);
       setJudul('');
@@ -141,7 +141,7 @@ export const BukuSaku: React.FC<BukuSakuProps> = ({ user }) => {
       setTargetUserId('');
       setFileToUpload(null);
       if (fileInputRef.current) fileInputRef.current.value = '';
-      
+
       fetchData();
     } catch (error) {
       console.error('Error uploading media:', error);
@@ -176,7 +176,7 @@ export const BukuSaku: React.FC<BukuSakuProps> = ({ user }) => {
 
   const handleDownload = async (url: string, e: React.MouseEvent) => {
     e.preventDefault();
-    if (downloadingUrl) return; 
+    if (downloadingUrl) return;
     setDownloadingUrl(url);
     try {
       const response = await fetch(url);
@@ -203,8 +203,8 @@ export const BukuSaku: React.FC<BukuSakuProps> = ({ user }) => {
     }
   };
 
-  const filteredMedia = mediaList.filter(media => 
-    media.judul.toLowerCase().includes(searchTerm.toLowerCase()) || 
+  const filteredMedia = mediaList.filter(media =>
+    media.judul.toLowerCase().includes(searchTerm.toLowerCase()) ||
     (media.deskripsi && media.deskripsi.toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
@@ -212,10 +212,10 @@ export const BukuSaku: React.FC<BukuSakuProps> = ({ user }) => {
     <div className="w-full space-y-8 animate-in fade-in duration-300">
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div>
-          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-slate-800 mb-1 sm:mb-2 tracking-tight">Buku Saku (Media Tugas)</h1>
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-slate-800 mb-1 sm:mb-2 tracking-tight">Buku Saku</h1>
           <p className="text-slate-500 text-sm sm:text-base lg:text-lg">Kumpulan referensi, panduan, dan data media tugas</p>
         </div>
-        
+
         <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto shrink-0">
           <div className="relative w-full sm:w-64 shrink-0">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
@@ -229,7 +229,7 @@ export const BukuSaku: React.FC<BukuSakuProps> = ({ user }) => {
               className="w-full bg-white border border-slate-200 rounded-xl py-2 pr-4 pl-10 text-slate-700 focus:ring-4 focus:ring-school-blue/10 focus:border-school-blue outline-none transition-all shadow-sm font-medium text-sm"
             />
           </div>
-          
+
           {user.role === 'admin' && (
             <button
               onClick={() => {
@@ -272,7 +272,7 @@ export const BukuSaku: React.FC<BukuSakuProps> = ({ user }) => {
                   required
                 />
               </div>
-              
+
               <div className="space-y-1">
                 <label className="text-sm font-bold text-slate-700">File Upload {editingMediaId ? <span className="text-slate-400 font-medium">(Opsional)</span> : <span className="text-rose-500">*</span>}</label>
                 <input
@@ -283,7 +283,7 @@ export const BukuSaku: React.FC<BukuSakuProps> = ({ user }) => {
                   required={!editingMediaId}
                 />
               </div>
-              
+
               <div className="space-y-1">
                 <label className="text-sm font-bold text-slate-700">Deskripsi Singkat</label>
                 <textarea
@@ -384,13 +384,13 @@ export const BukuSaku: React.FC<BukuSakuProps> = ({ user }) => {
                 </div>
               </div>
             </div>
-            
+
             {isUploading && (
               <div className="w-full bg-slate-200 rounded-full h-2 mt-4 overflow-hidden">
                 <div className="bg-school-blue h-2 rounded-full transition-all duration-300 ease-out" style={{ width: `${uploadProgress}%` }}></div>
               </div>
             )}
-            
+
             <div className="flex gap-3 justify-end mt-2">
               <button
                 type="submit"
@@ -415,7 +415,7 @@ export const BukuSaku: React.FC<BukuSakuProps> = ({ user }) => {
             <h2 className="font-bold text-slate-800 text-lg">Daftar Media Buku Saku ({filteredMedia.length})</h2>
           </div>
         </div>
-        
+
         <div className="overflow-x-auto">
           {/* Desktop Table View */}
           <table className="w-full text-left border-collapse min-w-[900px] hidden xl:table">
@@ -553,9 +553,9 @@ export const BukuSaku: React.FC<BukuSakuProps> = ({ user }) => {
 
                   <div className="flex items-center justify-between gap-2 mt-1">
                     <span className="text-xs font-bold text-slate-500 uppercase">Lampiran</span>
-                    <button 
+                    <button
                       onClick={(e) => { e.preventDefault(); window.open(getPreviewUrl(media.fileUrl), '_blank'); }}
-                      className="text-school-blue hover:text-blue-700 transition-colors flex items-center gap-1 text-xs font-bold mr-1" 
+                      className="text-school-blue hover:text-blue-700 transition-colors flex items-center gap-1 text-xs font-bold mr-1"
                       title="Buka File Lampiran"
                     >
                       <Paperclip size={14} /> Buka File
@@ -575,7 +575,7 @@ export const BukuSaku: React.FC<BukuSakuProps> = ({ user }) => {
                       {media.targetUserId ? <UserIcon size={16} /> : <Users size={16} />}
                     </div>
                   </div>
-                  
+
                   <div className="flex items-center justify-end gap-2 mt-1">
                     <div className="flex items-center shrink-0">
                       {user.role !== 'admin' && (

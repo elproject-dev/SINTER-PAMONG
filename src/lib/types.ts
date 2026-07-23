@@ -35,6 +35,7 @@ export interface AttendanceRecord {
 export interface KPITaskScore {
   task: string;
   score: number; // 1-5
+  category?: string;
 }
 
 export interface KPIEvaluation {

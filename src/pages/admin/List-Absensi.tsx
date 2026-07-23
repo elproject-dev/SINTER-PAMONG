@@ -3,8 +3,10 @@ import { getAttendance, getUsers } from '../../lib/db';
 import { AttendanceRecord, User } from '../../lib/types';
 import { format } from 'date-fns';
 import { id } from 'date-fns/locale';
-import { Download, List, Eye, Loader2, MapPin, SlidersHorizontal, X, Layers, CheckCircle2, Clock, CheckCircle, XCircle } from 'lucide-react';
+import { List, Eye, Loader2, MapPin, SlidersHorizontal, X, Layers, CheckCircle2, Clock, CheckCircle, XCircle, Search } from 'lucide-react';
+import { BiChart, BiStreetView } from "react-icons/bi";
 import { useRealtimeSubscription } from '../../lib/useRealtime';
+import { StarRating } from '../../components/StarRating';
 
 export const ListAbsensi: React.FC = () => {
   const [records, setRecords] = useState<AttendanceRecord[]>([]);
@@ -19,6 +21,8 @@ export const ListAbsensi: React.FC = () => {
 
   const [showFilterPopup, setShowFilterPopup] = useState(false);
   const [isStatusDropdownOpen, setIsStatusDropdownOpen] = useState(false);
+  const [showNilaiView, setShowNilaiView] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
 
   const filterPopupRef = useRef<HTMLDivElement>(null);
   const statusDropdownRef = useRef<HTMLDivElement>(null);
@@ -79,6 +83,16 @@ export const ListAbsensi: React.FC = () => {
   };
 
   const displayRecords = records.filter(r => {
+    let matchesSearch = true;
+    if (searchQuery) {
+      const staffName = getStaffName(r.userId).toLowerCase();
+      const staffPosition = (getStaffPosition(r.userId) || '').toLowerCase();
+      const query = searchQuery.toLowerCase();
+      if (!staffName.includes(query) && !staffPosition.includes(query)) {
+        matchesSearch = false;
+      }
+    }
+
     let matchesDate = true;
     const isDefaultDateFilter = !filterStartDate && !filterEndDate;
 
@@ -93,45 +107,71 @@ export const ListAbsensi: React.FC = () => {
     let matchesStatus = true;
     if (filterStatus !== 'all' && r.status !== filterStatus) matchesStatus = false;
 
-    return matchesDate && matchesStatus;
+    return matchesSearch && matchesDate && matchesStatus;
   });
 
-  const handleExport = () => {
-    // Simple CSV export
-    let csv = 'Tanggal,Nama,Status,Jam Masuk,Jam Keluar,Catatan\n';
-    displayRecords.forEach(r => {
-      csv += `${r.date},${getStaffName(r.userId)},${r.status},${r.checkIn ? format(new Date(r.checkIn), 'HH:mm') : '-'},${r.checkOut ? format(new Date(r.checkOut), 'HH:mm') : '-'},${r.note || '-'}\n`;
-    });
+  const getNilaiAbsensi = () => {
+    // Determine unique working days in the filtered records
+    const uniqueDates = new Set(displayRecords.map(r => r.date));
+    const totalWorkingDays = uniqueDates.size || 1; // avoid division by zero
 
-    const blob = new Blob([csv], { type: 'text/csv' });
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `Rekap_Absensi_${format(new Date(), 'yyyyMMdd')}.csv`;
-    a.click();
+    return staff.map(s => {
+      const staffRecords = displayRecords.filter(r => r.userId === s.id);
+      const totalHadir = staffRecords.filter(r => r.status === 'present').length;
+      const totalIzinSakit = staffRecords.filter(r => r.status === 'sick' || r.status === 'leave').length;
+      
+      // Calculate score, max 5.0
+      let score = (totalHadir / totalWorkingDays) * 5.0;
+      if (score > 5.0) score = 5.0;
+
+      return {
+        ...s,
+        totalHadir,
+        totalIzinSakit,
+        score: score.toFixed(1)
+      };
+    }).sort((a, b) => parseFloat(b.score) - parseFloat(a.score)); // sort by score descending
   };
 
   return (
-    <div className="w-full space-y-6">
-      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-end gap-4 mb-8">
+    <div className="w-full space-y-8 animate-in fade-in duration-300">
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div>
           <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-slate-800 mb-1 sm:mb-2 tracking-tight">Daftar Absensi</h1>
           <p className="text-slate-500 text-sm sm:text-base lg:text-lg">Rekapitulasi kehadiran seluruh staff dan guru</p>
         </div>
-        <button
-          onClick={handleExport}
-          className="bg-white border-2 border-slate-200 hover:border-school-blue hover:text-school-blue text-slate-700 px-4 py-2 rounded-lg font-medium transition-all flex items-center space-x-2 w-full sm:w-auto justify-center"
-        >
-          <Download size={18} />
-          <span>Export CSV</span>
-        </button>
+
+        <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto shrink-0">
+          <div className="relative w-full sm:w-64 shrink-0">
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+              <Search size={20} />
+            </div>
+            <input
+              type="text"
+              placeholder="Cari nama atau jabatan..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full bg-white border border-slate-200 rounded-xl py-2 pr-4 pl-10 text-slate-700 focus:ring-4 focus:ring-school-blue/10 focus:border-school-blue outline-none transition-all shadow-sm font-medium text-sm"
+            />
+          </div>
+
+          <button
+            onClick={() => setShowNilaiView(!showNilaiView)}
+            className="px-8 py-2 text-white font-bold border border-transparent rounded-xl transition-all shadow-md hover:shadow-lg text-sm flex items-center justify-center gap-2 whitespace-nowrap bg-gradient-to-r from-school-blue to-indigo-600 hover:from-blue-700 hover:to-indigo-700"
+          >
+            {showNilaiView ? <BiStreetView size={18} /> : <BiChart size={18} />}
+            <span>{showNilaiView ? 'Lihat Kehadiran' : 'Nilai Absensi'}</span>
+          </button>
+        </div>
       </div>
 
       <div className="bg-white rounded-xl shadow-sm border border-slate-200">
         <div className="p-4 border-b border-slate-200 flex flex-row items-center justify-between bg-white gap-3 relative">
           <div className="flex items-center space-x-2 truncate">
-            <List size={20} className="text-slate-600 shrink-0" />
-            <h2 className="font-bold text-slate-800 text-lg">Data Kehadiran ({displayRecords.length})</h2>
+            {showNilaiView ? <BiChart size={20} className="text-slate-600 shrink-0" /> : <BiStreetView size={20} className="text-slate-600 shrink-0" />}
+            <h2 className="font-bold text-slate-800 text-lg">
+              {showNilaiView ? `Rekap Nilai Absensi (${getNilaiAbsensi().length})` : `Data Kehadiran (${displayRecords.length})`}
+            </h2>
           </div>
           <div className="flex items-center gap-2 relative" ref={filterPopupRef}>
             <button
@@ -246,8 +286,45 @@ export const ListAbsensi: React.FC = () => {
           </div>
         </div>
         <div className="overflow-x-auto">
-          {/* Desktop Table View */}
-          <table className="w-full text-left border-collapse min-w-[900px] hidden lg:table">
+          {showNilaiView ? (
+            <>
+              <table className="w-full text-left border-collapse min-w-[500px]">
+                <thead>
+                  <tr className="bg-slate-50 text-slate-500 text-xs uppercase tracking-wider">
+                    <th className="px-4 py-3 font-bold border border-slate-200 w-12 text-center">NO</th>
+                    <th className="px-4 py-3 font-bold border border-slate-200 w-96">NAMA STAFF</th>
+                    <th className="px-4 py-3 font-bold border border-slate-200">PROFESI / JABATAN</th>
+                    <th className="px-4 py-3 font-bold border border-slate-200 text-center w-28">HADIR</th>
+                    <th className="px-4 py-3 font-bold border border-slate-200 text-center w-28">IZIN / SAKIT</th>
+                    <th className="px-4 py-3 font-bold border border-slate-200 text-center w-[120px]">PENILAIAN</th>
+                    <th className="px-4 py-3 font-bold border border-slate-200 text-center w-20">SKOR</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {getNilaiAbsensi().map((s, idx) => (
+                    <tr key={s.id} className="hover:bg-slate-50 transition-colors">
+                      <td className="px-4 py-3 border border-slate-200 text-center text-sm font-medium text-slate-500">{idx + 1}</td>
+                      <td className="px-4 py-3 border border-slate-200 text-sm font-bold text-school-blue">{s.name}</td>
+                      <td className="px-4 py-3 border border-slate-200 text-sm text-slate-600">{s.position || '-'}</td>
+                      <td className="px-4 py-3 border border-slate-200 text-center text-sm font-bold">{s.totalHadir}</td>
+                      <td className="px-4 py-3 border border-slate-200 text-center text-sm font-bold text-amber-600">{s.totalIzinSakit}</td>
+                      <td className="px-4 py-3 border border-slate-200 text-center">
+                        <div className="flex items-center justify-center">
+                          <StarRating score={Number(s.score)} size={16} className="flex items-center gap-0.5" />
+                        </div>
+                      </td>
+                      <td className="px-4 py-3 border border-slate-200 text-center font-bold text-amber-500">
+                        {s.score}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </>
+          ) : (
+            <>
+              {/* Desktop Table View */}
+              <table className="w-full text-left border-collapse min-w-[900px] hidden lg:table">
             <thead>
               <tr className="bg-slate-50 text-slate-500 text-xs uppercase tracking-wider">
                 <th className="px-4 py-3 font-bold border border-slate-200 w-12 text-center">NO</th>
@@ -320,9 +397,10 @@ export const ListAbsensi: React.FC = () => {
                           href={`https://www.google.com/maps/search/?api=1&query=${record.latitude},${record.longitude}`}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="inline-flex items-center text-xs font-bold text-white bg-[#00bcd4] hover:bg-cyan-500 px-3 py-1.5 rounded-md transition-colors shadow-sm"
+                          title="Lihat Lokasi GPS"
+                          className="p-2 rounded-lg text-school-blue hover:bg-blue-50 transition-colors inline-flex items-center justify-center mx-auto"
                         >
-                          <Eye size={14} className="mr-1.5" /> Lihat
+                          <Eye size={18} />
                         </a>
                       ) : (
                         <span className="text-slate-400 text-xs">-</span>
@@ -419,9 +497,10 @@ export const ListAbsensi: React.FC = () => {
               </div>
             )}
           </div>
+            </>
+          )}
         </div>
       </div>
-
     </div>
   );
 };

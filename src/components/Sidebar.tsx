@@ -50,11 +50,11 @@ export const Sidebar: React.FC<SidebarProps> = ({ user, onLogout }) => {
       <div className="h-16 flex items-center justify-center border-b border-slate-200">
         <GraduationCap className="h-8 w-8 text-school-blue" />
       </div>
-      
+
       <nav className="flex-1 py-4 px-2 space-y-1">
         {links.map((link) => {
           const Icon = link.icon;
-          
+
           return (
             <NavLink
               key={link.to}
@@ -62,10 +62,9 @@ export const Sidebar: React.FC<SidebarProps> = ({ user, onLogout }) => {
               end={link.to === '/staff' || link.to === '/admin'}
               title={link.label}
               className={({ isActive }) =>
-                `flex items-center p-3 rounded-md text-sm font-medium transition-colors justify-center relative ${
-                  isActive
-                    ? 'bg-school-blue text-white shadow-sm'
-                    : 'text-slate-500 hover:bg-slate-100 hover:text-slate-900'
+                `flex items-center p-3 rounded-md text-sm font-medium transition-colors justify-center relative ${isActive
+                  ? 'bg-school-blue text-white shadow-sm'
+                  : 'text-slate-500 hover:bg-slate-100 hover:text-slate-900'
                 }`
               }
             >
@@ -74,10 +73,10 @@ export const Sidebar: React.FC<SidebarProps> = ({ user, onLogout }) => {
           );
         })}
       </nav>
-      
+
       <div className="p-2 border-t border-slate-200 relative">
-        <div 
-          className="flex items-center justify-center cursor-pointer transition-transform hover:scale-105" 
+        <div
+          className="flex items-center justify-center cursor-pointer transition-transform hover:scale-105"
           title={user.name}
           onClick={() => setIsProfileOpen(!isProfileOpen)}
         >
@@ -86,7 +85,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ user, onLogout }) => {
           </div>
         </div>
 
-        <ProfileModal 
+        <ProfileModal
           user={user}
           isOpen={isProfileOpen}
           onClose={() => setIsProfileOpen(false)}
