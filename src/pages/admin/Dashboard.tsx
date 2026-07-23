@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { getUsers, getTodayAttendance, getAllTaskReports, uploadProfilePicture, getStaffTasks } from '../../lib/db';
 import { User, AttendanceRecord } from '../../lib/types';
-import { Users, UserCheck, UserX, ClipboardList, CheckCircle2, LogOut, User as UserIcon, Camera, Loader2, X } from 'lucide-react';
+import { Users, UserCheck, UserX, ClipboardList, LogOut, User as UserIcon, Camera, Loader2, X, Paperclip } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, PieChart, Pie } from 'recharts';
 import { BiHappyBeaming } from "react-icons/bi";
 import { supabase } from '../../lib/supabase';
@@ -12,6 +12,8 @@ export const AdminDashboard: React.FC = () => {
   const [attendance, setAttendance] = useState<AttendanceRecord[]>([]);
   const [totalTasks, setTotalTasks] = useState(0);
   const [tasksSelesai, setTasksSelesai] = useState(0);
+  const [totalLampiran, setTotalLampiran] = useState(0);
+  const [lampiranMenunggu, setLampiranMenunggu] = useState(0);
   const [tasksMenunggu, setTasksMenunggu] = useState(0);
   const [tasksDitolak, setTasksDitolak] = useState(0);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
@@ -48,6 +50,8 @@ export const AdminDashboard: React.FC = () => {
     setTasksSelesai(reportsData.filter(r => r.status === 'reviewed').length);
     setTasksMenunggu(reportsData.filter(r => r.status === 'pending').length);
     setTasksDitolak(reportsData.filter(r => r.status === 'rejected').length);
+    setTotalLampiran(reportsData.reduce((acc, r) => acc + (r.totalUpdates || 0), 0));
+    setLampiranMenunggu(reportsData.reduce((acc, r) => acc + (r.totalMenunggu || 0), 0));
   }, []);
 
   useEffect(() => {
@@ -106,6 +110,9 @@ export const AdminDashboard: React.FC = () => {
       </div>
     </div>
   );
+
+  const percentMenunggu = totalTasks > 0 ? Math.round((tasksMenunggu / totalTasks) * 100) : 0;
+  const percentLampiranMenunggu = totalLampiran > 0 ? Math.round((lampiranMenunggu / totalLampiran) * 100) : 0;
 
   return (
     <div className="w-full space-y-10 overflow-x-clip pb-8">
@@ -266,10 +273,10 @@ export const AdminDashboard: React.FC = () => {
           gradientClass="bg-gradient-to-tr from-blue-600 via-indigo-600 to-violet-600"
         />
         <StatCard
-          title="Tugas Selesai"
-          value={tasksSelesai}
-          subtitle="Disetujui admin"
-          icon={<CheckCircle2 />}
+          title="Total Lampiran"
+          value={totalLampiran}
+          subtitle="Total file diunggah"
+          icon={<Paperclip />}
           gradientClass="bg-gradient-to-tr from-sky-500 via-cyan-500 to-teal-400"
           className="hidden sm:block"
         />
@@ -420,21 +427,21 @@ export const AdminDashboard: React.FC = () => {
               <div className="relative w-24 h-24 flex items-center justify-center">
                 <svg className="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
                   <circle cx="50" cy="50" r="40" fill="none" stroke="#f1f5f9" strokeWidth="12" />
-                  <circle cx="50" cy="50" r="40" fill="none" stroke="#991b1b" strokeWidth="12" strokeDasharray="251.2" strokeDashoffset={251.2 - (251.2 * 42) / 100} strokeLinecap="round" />
+                  <circle cx="50" cy="50" r="40" fill="none" stroke="#10b981" strokeWidth="12" strokeDasharray="251.2" strokeDashoffset={251.2 - (251.2 * percentMenunggu) / 100} strokeLinecap="round" />
                 </svg>
-                <span className="absolute text-xl font-bold text-slate-800">42%</span>
+                <span className="absolute text-xl font-bold text-slate-800">{percentMenunggu}%</span>
 
                 {/* Decorative Icon Bubble */}
                 <div className="absolute -top-1 -left-1 bg-white p-1 rounded-full shadow-md z-20">
-                  <div className="bg-[#991b1b] rounded-full p-1.5">
+                  <div className="bg-[#10b981] rounded-full p-1.5">
                     <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                   </div>
                 </div>
               </div>
             </div>
             <div className="relative z-10 text-right w-1/2">
-              <h3 className="text-4xl font-extrabold text-slate-700 mb-2">40,614</h3>
-              <p className="text-xs text-slate-500 leading-tight">A wonderful serenity has taken possession of my entire</p>
+              <h3 className="text-4xl font-extrabold text-slate-700 mb-2">{tasksMenunggu}</h3>
+              <p className="text-xs text-slate-500 leading-tight">Status Menunggu Laporan</p>
             </div>
           </div>
 
@@ -443,9 +450,9 @@ export const AdminDashboard: React.FC = () => {
               <div className="relative w-24 h-24 flex items-center justify-center">
                 <svg className="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
                   <circle cx="50" cy="50" r="40" fill="none" stroke="#f1f5f9" strokeWidth="12" />
-                  <circle cx="50" cy="50" r="40" fill="none" stroke="#ea580c" strokeWidth="12" strokeDasharray="251.2" strokeDashoffset={251.2 - (251.2 * 30) / 100} strokeLinecap="round" />
+                  <circle cx="50" cy="50" r="40" fill="none" stroke="#ea580c" strokeWidth="12" strokeDasharray="251.2" strokeDashoffset={251.2 - (251.2 * percentLampiranMenunggu) / 100} strokeLinecap="round" />
                 </svg>
-                <span className="absolute text-xl font-bold text-slate-800">30%</span>
+                <span className="absolute text-xl font-bold text-slate-800">{percentLampiranMenunggu}%</span>
 
                 <div className="absolute -top-1 -left-1 bg-white p-1 rounded-full shadow-md z-20">
                   <div className="bg-[#ea580c] rounded-full p-1.5">
@@ -455,8 +462,8 @@ export const AdminDashboard: React.FC = () => {
               </div>
             </div>
             <div className="relative z-10 text-right w-1/2">
-              <h3 className="text-4xl font-extrabold text-slate-700 mb-2">13,256</h3>
-              <p className="text-xs text-slate-500 leading-tight">A wonderful serenity has taken possession of my entire</p>
+              <h3 className="text-4xl font-extrabold text-slate-700 mb-2">{lampiranMenunggu}</h3>
+              <p className="text-xs text-slate-500 leading-tight">Lampiran Belum Dinilai Admin</p>
             </div>
           </div>
         </div>

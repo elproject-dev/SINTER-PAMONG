@@ -137,8 +137,8 @@ export const ListAbsensi: React.FC = () => {
             <button
               onClick={() => setShowFilterPopup(!showFilterPopup)}
               className={`flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-bold border transition-all ${showFilterPopup || filterStartDate !== '' || filterEndDate !== '' || filterStatus !== 'all'
-                  ? 'bg-school-blue/10 border-school-blue text-school-blue shadow-sm'
-                  : 'bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100 shadow-sm'
+                ? 'bg-school-blue/10 border-school-blue text-school-blue shadow-sm'
+                : 'bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100 shadow-sm'
                 }`}
             >
               <SlidersHorizontal size={16} />
