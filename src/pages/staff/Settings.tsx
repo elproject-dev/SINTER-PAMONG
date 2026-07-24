@@ -204,8 +204,8 @@ export const Settings: React.FC<SettingsProps> = ({ user, onUserUpdate }) => {
                   key={size}
                   onClick={() => handleFontSizeChange(size)}
                   className={`px-3 sm:px-4 py-1.5 text-xs sm:text-sm font-bold rounded-lg transition-all ${fontSize === size
-                      ? 'bg-white dark:bg-slate-800 text-school-blue dark:text-white shadow-sm'
-                      : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:text-slate-200'
+                    ? 'bg-white dark:bg-slate-800 text-school-blue dark:text-white shadow-sm'
+                    : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:text-slate-200'
                     }`}
                 >
                   {size === 'small' ? 'Kecil' : size === 'normal' ? 'Normal' : 'Besar'}

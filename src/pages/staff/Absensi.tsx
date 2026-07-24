@@ -1,8 +1,8 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { User, AttendanceRecord } from '../../lib/types';
 import { getUserTodayAttendance, saveAttendance, getSchoolSettings, getUserAllAttendance } from '../../lib/db';
 import { supabase } from '../../lib/supabase';
-import { Clock, Calendar, CheckCircle, XCircle, MapPin, Loader2, Camera, List, Eye } from 'lucide-react';
+import { Clock, Calendar, CheckCircle, XCircle, MapPin, Loader2, Camera, List, Eye, SlidersHorizontal, X, ArrowDown, ArrowUp } from 'lucide-react';
 import { format } from 'date-fns';
 import { id } from 'date-fns/locale';
 import { useRealtimeSubscription } from '../../lib/useRealtime';
@@ -36,6 +36,15 @@ export const Absensi: React.FC<AbsensiProps> = ({ user }) => {
   const [selfiePreview, setSelfiePreview] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
 
+  const [showStatusCard, setShowStatusCard] = useState(true);
+  const [showFilterPopup, setShowFilterPopup] = useState(false);
+  const [filterStartDate, setFilterStartDate] = useState('');
+  const [filterEndDate, setFilterEndDate] = useState('');
+  const [sortOrder, setSortOrder] = useState<'newest' | 'oldest'>('newest');
+  const filterPopupRef = useRef<HTMLDivElement>(null);
+  const [isSortDropdownOpen, setIsSortDropdownOpen] = useState(false);
+  const sortDropdownRef = useRef<HTMLDivElement>(null);
+
   const fetchAttendance = useCallback(async () => {
     setIsLoading(true);
     const record = await getUserTodayAttendance(user.id);
@@ -49,6 +58,17 @@ export const Absensi: React.FC<AbsensiProps> = ({ user }) => {
 
   useEffect(() => {
     fetchAttendance();
+
+    const handleClickOutside = (event: MouseEvent) => {
+      if (filterPopupRef.current && !filterPopupRef.current.contains(event.target as Node)) {
+        setShowFilterPopup(false);
+      }
+      if (sortDropdownRef.current && !sortDropdownRef.current.contains(event.target as Node)) {
+        setIsSortDropdownOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [fetchAttendance]);
 
   useRealtimeSubscription(['data_absensi'], fetchAttendance);
@@ -97,6 +117,17 @@ export const Absensi: React.FC<AbsensiProps> = ({ user }) => {
     setSelfiePreview(previewUrl);
     setShowCamera(false);
   };
+
+  const filteredRecords = allRecords.filter(record => {
+    let matchesDate = true;
+    const recordDate = format(new Date(record.date), 'yyyy-MM-dd');
+    if (filterStartDate && recordDate < filterStartDate) matchesDate = false;
+    if (filterEndDate && recordDate > filterEndDate) matchesDate = false;
+    return matchesDate;
+  }).sort((a, b) => {
+    if (sortOrder === 'newest') return new Date(b.date).getTime() - new Date(a.date).getTime();
+    return new Date(a.date).getTime() - new Date(b.date).getTime();
+  });
 
   const handleCheckIn = () => {
     if (!selfieBlob) {
@@ -223,7 +254,7 @@ export const Absensi: React.FC<AbsensiProps> = ({ user }) => {
           </div>
         ) : !attendance ? (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="bg-gradient-to-br from-blue-50 to-indigo-50 p-4 rounded-xl border border-blue-100 shadow-sm relative overflow-hidden">
+            <div className="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/30 dark:to-indigo-900/30 p-4 rounded-xl border border-blue-100 dark:border-blue-800/50 shadow-sm relative overflow-hidden">
               <div className="absolute top-0 right-0 -mt-2 -mr-2 w-24 h-24 bg-white dark:bg-slate-800 opacity-40 rounded-full blur-xl"></div>
               <h3 className="font-bold text-slate-800 dark:text-slate-50 text-base mb-3 relative z-10">Absen Reguler</h3>
 
@@ -237,7 +268,7 @@ export const Absensi: React.FC<AbsensiProps> = ({ user }) => {
               {/* Selfie Preview */}
               {selfiePreview && (
                 <div className="relative z-10 mb-3 flex flex-col items-center gap-1.5">
-                  <div className="relative w-20 h-20 rounded-full overflow-hidden border-2 border-emerald-200 shadow-md shadow-emerald-500/10">
+                  <div className="relative w-20 h-20 rounded-full overflow-hidden border-2 border-emerald-200 dark:border-emerald-700/50 shadow-md shadow-emerald-500/10">
                     <img src={selfiePreview} alt="Selfie Preview" className="w-full h-full object-cover" />
                   </div>
                   <div className="flex items-center gap-1 text-emerald-600">
@@ -277,7 +308,7 @@ export const Absensi: React.FC<AbsensiProps> = ({ user }) => {
               </button>
             </div>
 
-            <div className="bg-gradient-to-br from-slate-50 to-slate-100 p-4 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm">
+            <div className="bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-800 dark:to-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm">
               <h3 className="font-bold text-slate-800 dark:text-slate-50 text-base mb-3">Pengajuan Izin/Sakit</h3>
               <form onSubmit={handleLeaveRequest} className="space-y-3">
                 <textarea
@@ -296,23 +327,30 @@ export const Absensi: React.FC<AbsensiProps> = ({ user }) => {
               </form>
             </div>
           </div>
-        ) : (
-          <div className="bg-gradient-to-br from-emerald-50 to-teal-50 rounded-xl p-4 sm:p-6 border border-emerald-100 shadow-sm relative overflow-hidden">
+        ) : showStatusCard ? (
+          <div className="bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-slate-900 dark:to-black rounded-xl p-4 sm:p-6 border border-emerald-100 dark:border-slate-800 shadow-sm relative overflow-hidden">
+            <button
+              onClick={() => setShowStatusCard(false)}
+              className="absolute top-3 right-3 p-1.5 text-slate-400 hover:text-slate-600 dark:text-slate-500 dark:hover:text-slate-300 bg-white/50 hover:bg-white dark:bg-slate-800/50 dark:hover:bg-slate-700 rounded-md transition-colors z-20"
+              title="Tutup Status Hari Ini"
+            >
+              <X size={16} />
+            </button>
             <div className="absolute top-0 right-0 -mt-2 -mr-2 w-24 h-24 bg-white dark:bg-slate-800 opacity-40 rounded-full blur-xl"></div>
             <div className="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between mb-5 gap-3 sm:gap-0">
               <div className="text-center sm:text-left">
-                <p className="text-xs font-semibold text-emerald-600/80 uppercase tracking-widest mb-1">Status Hari Ini</p>
+                <p className="text-xs font-semibold text-emerald-600/80 dark:text-emerald-400/80 uppercase tracking-widest mb-1">Status Hari Ini</p>
                 <div className="flex flex-col sm:flex-row items-center justify-center sm:justify-start space-y-2 sm:space-y-0 sm:space-x-3 mt-1">
                   {attendance.selfieUrl ? (
                     <div className="hidden sm:block w-10 h-10 rounded-full overflow-hidden border border-emerald-300 shadow-sm shrink-0">
                       <img src={attendance.selfieUrl} alt="Selfie" className="w-full h-full object-cover" />
                     </div>
                   ) : attendance.status === 'present' ? (
-                    <div className="bg-emerald-100 p-1.5 rounded-full text-emerald-600">
+                    <div className="bg-emerald-100 dark:bg-emerald-900/60 p-1.5 rounded-full text-emerald-600 dark:text-emerald-400">
                       <CheckCircle size={20} />
                     </div>
                   ) : (
-                    <div className="bg-amber-100 dark:bg-amber-900/60 p-1.5 rounded-full text-amber-600">
+                    <div className="bg-amber-100 dark:bg-amber-900/60 p-1.5 rounded-full text-amber-600 dark:text-amber-400">
                       <XCircle size={20} />
                     </div>
                   )}
@@ -331,10 +369,10 @@ export const Absensi: React.FC<AbsensiProps> = ({ user }) => {
               )}
             </div>
 
-            <div className="grid grid-cols-1 gap-3 text-xs sm:text-sm relative z-10 bg-white dark:bg-slate-800/50 p-3 rounded-lg border border-emerald-100/50">
+            <div className="grid grid-cols-1 gap-3 text-xs sm:text-sm relative z-10 bg-white dark:bg-slate-800/80 p-3 rounded-lg border border-emerald-100/50 dark:border-slate-700">
               {attendance.selfieUrl && (
-                <div className="flex justify-center pb-2 border-b border-emerald-100">
-                  <div className="w-20 h-20 rounded-full overflow-hidden border-2 border-emerald-200 shadow-sm">
+                <div className="flex justify-center pb-2 border-b border-emerald-100 dark:border-slate-700">
+                  <div className="w-20 h-20 rounded-full overflow-hidden border-2 border-emerald-200 dark:border-emerald-700/50 shadow-sm">
                     <img src={attendance.selfieUrl} alt="Foto Selfie Absensi" className="w-full h-full object-cover" />
                   </div>
                 </div>
@@ -364,7 +402,7 @@ export const Absensi: React.FC<AbsensiProps> = ({ user }) => {
                 </div>
               )}
               {attendance.latitude && attendance.longitude && (
-                <div className="flex items-center justify-between border-t border-emerald-100/60 pt-2 mt-1">
+                <div className="flex items-center justify-between border-t border-emerald-100/60 dark:border-slate-700 pt-2 mt-1">
                   <div>
                     <p className="text-slate-500 dark:text-slate-400 text-[10px] uppercase font-semibold">Lokasi</p>
                     <p className="font-medium text-slate-700 dark:text-slate-200 text-[10px]">
@@ -375,7 +413,7 @@ export const Absensi: React.FC<AbsensiProps> = ({ user }) => {
                     href={`https://www.google.com/maps/search/?api=1&query=${attendance.latitude},${attendance.longitude}`} 
                     target="_blank" 
                     rel="noopener noreferrer"
-                    className="text-emerald-600 hover:text-emerald-700 bg-emerald-100 hover:bg-emerald-200 px-2.5 py-1 rounded-md text-[10px] font-bold transition-colors"
+                    className="text-emerald-600 dark:text-emerald-300 hover:text-emerald-700 dark:hover:text-emerald-200 bg-emerald-100 dark:bg-emerald-900/60 hover:bg-emerald-200 dark:hover:bg-emerald-800/60 px-2.5 py-1 rounded-md text-[10px] font-bold transition-colors"
                   >
                     Buka Map
                   </a>
@@ -383,14 +421,122 @@ export const Absensi: React.FC<AbsensiProps> = ({ user }) => {
               )}
             </div>
           </div>
-        )}
+        ) : null}
       </div>
 
       {/* History Table */}
-      <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden mt-8">
-        <div className="p-4 border-b border-slate-200 dark:border-slate-700 flex items-center space-x-2 bg-white dark:bg-slate-800">
-          <List size={20} className="text-slate-600 dark:text-slate-300" />
-          <h2 className="font-bold text-slate-800 dark:text-slate-50 text-lg">Riwayat Kehadiran Anda</h2>
+      <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 mt-8">
+        <div className="p-4 border-b border-slate-200 dark:border-slate-700 flex flex-row items-center justify-between gap-4 bg-white dark:bg-slate-800 relative z-10 rounded-t-xl">
+          <div className="flex items-center space-x-2 truncate">
+            <List size={20} className="text-slate-600 dark:text-slate-300 shrink-0" />
+            <h2 className="font-bold text-slate-800 dark:text-slate-50 text-lg">Riwayat Kehadiran Anda</h2>
+          </div>
+          
+          <div className="flex items-center gap-2 relative" ref={filterPopupRef}>
+            <button
+              onClick={() => setShowFilterPopup(!showFilterPopup)}
+              className={`flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-bold transition-all border border-transparent ${showFilterPopup || filterStartDate || filterEndDate || sortOrder !== 'newest'
+                ? 'bg-school-blue text-white shadow-md'
+                : 'bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700 shadow-sm border'
+                }`}
+            >
+              <SlidersHorizontal size={16} />
+              Filter
+            </button>
+
+            {/* Pop-up Filter */}
+            {showFilterPopup && (
+              <div className="absolute right-0 top-full mt-2 w-[calc(100vw-32px)] sm:w-72 bg-white dark:bg-slate-800 rounded-xl shadow-xl border border-slate-200 dark:border-slate-700 p-4 z-50 animate-in fade-in slide-in-from-top-2">
+                <div className="flex justify-between items-center mb-4">
+                  <h3 className="font-bold text-slate-800 dark:text-slate-50 text-sm">Filter Data</h3>
+                  <button onClick={() => setShowFilterPopup(false)} className="text-slate-400 hover:text-slate-600 dark:text-slate-300 bg-slate-50 dark:bg-slate-900 hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700 p-1 rounded-md transition-colors">
+                    <X size={16} />
+                  </button>
+                </div>
+
+                <div className="space-y-3">
+                  <div>
+                    <input
+                      type={filterStartDate ? "date" : "text"}
+                      placeholder="Tanggal Mulai..."
+                      value={filterStartDate}
+                      onClick={(e) => {
+                        try { (e.target as HTMLInputElement).showPicker(); } catch (err) {}
+                      }}
+                      onFocus={(e) => {
+                        e.target.type = 'date';
+                        try { e.target.showPicker(); } catch (err) {}
+                      }}
+                      onBlur={(e) => { if (!e.target.value) e.target.type = 'text'; }}
+                      onChange={(e) => setFilterStartDate(e.target.value)}
+                      className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-school-blue/20 outline-none text-slate-700 dark:text-slate-200 font-bold text-center cursor-pointer transition-all hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700 dark:[color-scheme:dark]"
+                    />
+                  </div>
+                  <div>
+                    <input
+                      type={filterEndDate ? "date" : "text"}
+                      placeholder="Tanggal Akhir..."
+                      value={filterEndDate}
+                      onClick={(e) => {
+                        try { (e.target as HTMLInputElement).showPicker(); } catch (err) {}
+                      }}
+                      onFocus={(e) => {
+                        e.target.type = 'date';
+                        try { e.target.showPicker(); } catch (err) {}
+                      }}
+                      onBlur={(e) => { if (!e.target.value) e.target.type = 'text'; }}
+                      onChange={(e) => setFilterEndDate(e.target.value)}
+                      className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-school-blue/20 outline-none text-slate-700 dark:text-slate-200 font-bold text-center cursor-pointer transition-all hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700 dark:[color-scheme:dark]"
+                    />
+                  </div>
+                  <div className="relative" ref={sortDropdownRef}>
+                    <button
+                      type="button"
+                      onClick={() => setIsSortDropdownOpen(!isSortDropdownOpen)}
+                      className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-4 py-2.5 text-sm outline-none text-slate-700 dark:text-slate-200 font-bold flex justify-center items-center transition-all hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700 hover:border-slate-300 focus:ring-2 focus:ring-school-blue/20"
+                    >
+                      <span className="flex items-center gap-2">
+                        {sortOrder === 'newest' && <><ArrowDown size={16} className="text-school-blue dark:text-white" /> Terbaru</>}
+                        {sortOrder === 'oldest' && <><ArrowUp size={16} className="text-school-blue dark:text-white" /> Terlama</>}
+                      </span>
+                    </button>
+
+                    {isSortDropdownOpen && (
+                      <div className="absolute z-50 w-full mt-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-lg overflow-hidden animate-in fade-in zoom-in-95 duration-100">
+                        <button
+                          type="button"
+                          onClick={() => { setSortOrder('newest'); setIsSortDropdownOpen(false); }}
+                          className={`w-full text-left px-4 py-2.5 text-sm font-semibold flex items-center gap-2 transition-colors hover:bg-slate-50 dark:hover:bg-slate-700 ${sortOrder === 'newest' ? 'text-school-blue dark:text-white bg-blue-50/50 dark:bg-blue-900/40' : 'text-slate-700 dark:text-slate-200'}`}
+                        >
+                          <ArrowDown size={16} className={sortOrder === 'newest' ? 'text-school-blue dark:text-white' : 'text-slate-500 dark:text-slate-400'} /> Terbaru
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => { setSortOrder('oldest'); setIsSortDropdownOpen(false); }}
+                          className={`w-full text-left px-4 py-2.5 text-sm font-semibold flex items-center gap-2 transition-colors hover:bg-slate-50 dark:hover:bg-slate-700 ${sortOrder === 'oldest' ? 'text-school-blue dark:text-white bg-blue-50/50 dark:bg-blue-900/40' : 'text-slate-700 dark:text-slate-200'}`}
+                        >
+                          <ArrowUp size={16} className={sortOrder === 'oldest' ? 'text-school-blue dark:text-white' : 'text-slate-500 dark:text-slate-400'} /> Terlama
+                        </button>
+                      </div>
+                    )}
+                  </div>
+
+                  {(filterStartDate || filterEndDate || sortOrder !== 'newest') && (
+                    <button
+                      onClick={() => {
+                        setFilterStartDate('');
+                        setFilterEndDate('');
+                        setSortOrder('newest');
+                      }}
+                      className="w-full mt-2 pt-1 text-xs font-bold text-rose-500 hover:text-rose-600 dark:text-rose-400 dark:hover:text-rose-300 hover:underline transition-colors text-center"
+                    >
+                      Reset Filter
+                    </button>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
         </div>
         <div className="overflow-x-auto">
           {/* Desktop Table View */}
@@ -419,8 +565,8 @@ export const Absensi: React.FC<AbsensiProps> = ({ user }) => {
                     <p className="font-bold text-lg text-slate-600 dark:text-slate-300 mb-1">Memuat Data...</p>
                   </td>
                 </tr>
-              ) : allRecords.length > 0 ? (
-                allRecords.map((record, index) => (
+              ) : filteredRecords.length > 0 ? (
+                filteredRecords.map((record, index) => (
                   <tr key={record.id} className="hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
                     <td className="px-4 py-3 border border-slate-200 dark:border-slate-700 text-center text-sm font-medium text-slate-500 dark:text-slate-400">
                       {index + 1}
@@ -496,8 +642,8 @@ export const Absensi: React.FC<AbsensiProps> = ({ user }) => {
                 </div>
                 <p className="font-bold text-lg text-slate-600 dark:text-slate-300 mb-1">Memuat Data...</p>
               </div>
-            ) : allRecords.length > 0 ? (
-              allRecords.map(record => (
+            ) : filteredRecords.length > 0 ? (
+              filteredRecords.map(record => (
                 <div key={record.id} className="p-4 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors flex flex-col gap-3">
                   <div className="flex justify-between items-start">
                     <div className="flex items-center gap-3">

@@ -65,41 +65,43 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
           </div>
 
           {/* Content Area */}
-          <div className="bg-slate-50 dark:bg-slate-900 p-5 sm:p-6 rounded-xl border border-slate-100 dark:border-slate-700 flex flex-col sm:flex-row gap-6 items-start justify-between text-left">
+          <div className="bg-slate-50 dark:bg-slate-900 p-4 sm:p-6 rounded-xl border border-slate-100 dark:border-slate-700 flex flex-row gap-4 sm:gap-6 items-start justify-between text-left">
             {/* Info list (left) */}
-            <div className="flex-1 space-y-4 w-full">
+            <div className="flex-1 space-y-3 sm:space-y-4 min-w-0">
               <div>
-                <p className="text-xs text-slate-500 dark:text-slate-400 uppercase tracking-wider font-semibold mb-1">Nama Lengkap</p>
-                <p className="font-medium text-slate-900 text-base">{user.name || 'Admin'}</p>
+                <p className="text-[10px] sm:text-xs text-slate-500 dark:text-slate-400 uppercase tracking-wider font-semibold mb-0.5 sm:mb-1">Nama Lengkap</p>
+                <p className="font-medium text-slate-900 dark:text-slate-50 text-sm sm:text-base truncate">{user.name || 'Admin'}</p>
               </div>
               
               {user.email && (
                 <div>
-                  <p className="text-xs text-slate-500 dark:text-slate-400 uppercase tracking-wider font-semibold mb-1">Email</p>
-                  <p className="font-medium text-slate-900 text-base">{user.email}</p>
+                  <p className="text-[10px] sm:text-xs text-slate-500 dark:text-slate-400 uppercase tracking-wider font-semibold mb-0.5 sm:mb-1">Email</p>
+                  <p className="font-medium text-slate-900 dark:text-slate-50 text-xs sm:text-base truncate">{user.email}</p>
                 </div>
               )}
               
-              <div className="flex flex-col items-start">
-                <p className="text-xs text-slate-500 dark:text-slate-400 uppercase tracking-wider font-semibold mb-1">Peran</p>
-                <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-school-blue dark:bg-blue-600 text-white capitalize shadow-sm -ml-2.5">
-                  {user.jobRoles && user.jobRoles.length > 0 ? user.jobRoles.join(', ') : user.role}
-                </span>
-              </div>
+              {user.role === 'admin' && (
+                <div>
+                  <p className="text-[10px] sm:text-xs text-slate-500 dark:text-slate-400 uppercase tracking-wider font-semibold mb-0.5 sm:mb-1">Peran</p>
+                  <p className="font-bold text-orange-500 dark:text-orange-400 text-xs sm:text-base truncate capitalize">
+                    {user.jobRoles && user.jobRoles.length > 0 ? user.jobRoles.join(', ') : user.role}
+                  </p>
+                </div>
+              )}
 
               {user.role !== 'admin' && (
-                <div className="flex flex-col items-start">
-                  <p className="text-xs text-slate-500 dark:text-slate-400 uppercase tracking-wider font-semibold mb-1">Jabatan Utama</p>
-                  <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-bold capitalize shadow-sm -ml-2.5 ${user.position && user.position !== 'Belum Ditugaskan' ? 'bg-emerald-500 text-white' : 'bg-slate-200 text-slate-600 dark:text-slate-300'}`}>
+                <div>
+                  <p className="text-[10px] sm:text-xs text-slate-500 dark:text-slate-400 uppercase tracking-wider font-semibold mb-0.5 sm:mb-1">Jabatan Utama</p>
+                  <p className="font-bold text-orange-500 dark:text-orange-400 text-xs sm:text-base truncate capitalize">
                     {user.position || 'Belum Ditugaskan'}
-                  </span>
+                  </p>
                 </div>
               )}
             </div>
 
             {/* Avatar & Actions (right) */}
-            <div className="flex flex-col items-center gap-3 shrink-0 w-full sm:w-auto">
-              <div className="relative group w-20 h-20 rounded-full border-4 border-white shadow-md bg-slate-200 flex items-center justify-center overflow-hidden">
+            <div className="flex flex-col items-center gap-2 sm:gap-3 shrink-0">
+              <div className="relative group w-16 h-16 sm:w-20 sm:h-20 rounded-full border-2 sm:border-4 border-white shadow-md bg-slate-200 flex items-center justify-center overflow-hidden">
                 <img src={profilePic || `${import.meta.env.BASE_URL}check.png`} alt="Profile" className="w-full h-full object-cover" onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = `${import.meta.env.BASE_URL}check.png`; }} />
 
                 {/* Hover Overlay for Upload */}
@@ -108,10 +110,10 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
                   onClick={() => fileInputRef.current?.click()}
                 >
                   {isUploadingPic ? (
-                    <Loader2 className="w-5 h-5 text-white animate-spin" />
+                    <Loader2 className="w-4 h-4 sm:w-5 sm:h-5 text-white animate-spin" />
                   ) : (
                     <>
-                      <Camera className="w-5 h-5 text-white mb-0.5" />
+                      <Camera className="w-4 h-4 sm:w-5 sm:h-5 text-white mb-0.5" />
                       <span className="text-[8px] text-white font-bold uppercase tracking-wider">Ubah Foto</span>
                     </>
                   )}
@@ -127,9 +129,9 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
               
               <button
                 onClick={handleLogout}
-                className="w-full flex items-center justify-center gap-1.5 bg-rose-500 text-white hover:bg-rose-600 hover:shadow-md px-3 py-2 rounded-full transition-all text-sm font-semibold border border-transparent mt-5 shadow-sm"
+                className="w-full flex items-center justify-center gap-1.5 bg-rose-500 text-white hover:bg-rose-600 hover:shadow-md px-2 sm:px-3 py-1.5 sm:py-2 rounded-full transition-all text-xs sm:text-sm font-semibold border border-transparent mt-2 sm:mt-5 shadow-sm"
               >
-                <LogOut className="w-4 h-4" />
+                <LogOut className="w-3 h-3 sm:w-4 sm:h-4" />
                 Logout
               </button>
             </div>

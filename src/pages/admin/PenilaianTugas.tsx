@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { TaskReport, User, TaskAttachment } from '../../lib/types';
 import { getAllTaskReports, getUsers, updateTaskReportStatus, deleteTaskReport, getTaskAttachments, updateTaskAttachmentScore, updateTaskReportScore } from '../../lib/db';
-import { CheckCircle2, XCircle, BookOpen, Search, Eye, Star, Paperclip, Edit, Trash2, SlidersHorizontal, X, Download, Loader2, Clock } from 'lucide-react';
+import { CheckCircle2, XCircle, Search, Eye, Star, Paperclip, Edit, Trash2, SlidersHorizontal, X, Download, Loader2, Clock, ClipboardList } from 'lucide-react';
 import { format } from 'date-fns';
 import { id } from 'date-fns/locale';
 import { useRealtimeSubscription } from '../../lib/useRealtime';
@@ -280,14 +280,14 @@ export const AdminReviewLaporanTugas: React.FC = () => {
                       Beri nilai dan tanggapan untuk pembaruan tanggal <span className="font-bold text-slate-700 dark:text-slate-200">{format(new Date(selectedAttachmentForReview.createdAt), 'dd MMMM yyyy, HH:mm', { locale: id })}</span>
                     </p>
                   </div>
-                  
+
                   {selectedAttachmentForReview.link && (
                     <div className="flex items-center gap-2 shrink-0">
-                      <a 
-                        href={selectedAttachmentForReview.link} 
-                        target="_blank" 
-                        rel="noopener noreferrer" 
-                        className="p-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-school-blue dark:text-white hover:text-blue-700 dark:hover:text-slate-300 hover:bg-blue-50 dark:bg-slate-800 dark:hover:bg-slate-700 transition-colors rounded-xl shadow-sm flex items-center justify-center" 
+                      <a
+                        href={selectedAttachmentForReview.link}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="p-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-school-blue dark:text-white hover:text-blue-700 dark:hover:text-slate-300 hover:bg-blue-50 dark:bg-slate-800 dark:hover:bg-slate-700 transition-colors rounded-xl shadow-sm flex items-center justify-center"
                         title="Lihat Lampiran"
                       >
                         <Paperclip size={18} />
@@ -308,7 +308,7 @@ export const AdminReviewLaporanTugas: React.FC = () => {
                     </div>
                   )}
                 </div>
-                
+
                 <div className="flex flex-col md:flex-row gap-4 mb-5">
                   {/* Kolom Kiri: Catatan Guru */}
                   <div className="flex-1 bg-slate-50 dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-700 flex flex-col justify-center">
@@ -341,7 +341,7 @@ export const AdminReviewLaporanTugas: React.FC = () => {
 
                 <div className="mb-5">
                   <label className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 flex items-center gap-1.5">
-                     Tanggapan Admin (Opsional)
+                    Tanggapan Admin (Opsional)
                   </label>
                   <textarea
                     placeholder="Tuliskan alasan penolakan atau tanggapan Anda di sini..."
@@ -358,7 +358,7 @@ export const AdminReviewLaporanTugas: React.FC = () => {
                     disabled={isSavingAttachment}
                     className="px-5 py-2.5 bg-rose-500 hover:bg-rose-600 text-white rounded-xl font-bold transition-all shadow-sm flex items-center justify-center gap-2"
                   >
-                    {isSavingAttachment ? <Loader2 size={16} className="animate-spin" /> : <XCircle size={16} />} 
+                    {isSavingAttachment ? <Loader2 size={16} className="animate-spin" /> : <XCircle size={16} />}
                     Tolak
                   </button>
                   <button
@@ -366,7 +366,7 @@ export const AdminReviewLaporanTugas: React.FC = () => {
                     disabled={isSavingAttachment}
                     className="px-5 py-2.5 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl font-bold transition-all shadow-sm flex items-center justify-center gap-2"
                   >
-                    {isSavingAttachment ? <Loader2 size={16} className="animate-spin" /> : <CheckCircle2 size={16} />} 
+                    {isSavingAttachment ? <Loader2 size={16} className="animate-spin" /> : <CheckCircle2 size={16} />}
                     Setujui
                   </button>
                 </div>
@@ -546,7 +546,7 @@ export const AdminReviewLaporanTugas: React.FC = () => {
                       </div>
 
                       <div className="mt-1 border-b border-slate-100 dark:border-slate-700 pb-2">
-                         <p className="text-sm text-slate-700 dark:text-slate-200 italic">-</p>
+                        <p className="text-sm text-slate-700 dark:text-slate-200 italic">-</p>
                       </div>
 
                       <div className="flex items-center justify-between gap-2 mt-1">
@@ -612,7 +612,7 @@ export const AdminReviewLaporanTugas: React.FC = () => {
                       </div>
 
                       <div className="mt-1 border-b border-slate-100 dark:border-slate-700 pb-2">
-                         <p className="text-sm text-slate-700 dark:text-slate-200">{att.catatan || '-'}</p>
+                        <p className="text-sm text-slate-700 dark:text-slate-200">{att.catatan || '-'}</p>
                       </div>
 
                       <div className="flex items-center justify-between gap-2 mt-1">
@@ -666,7 +666,7 @@ export const AdminReviewLaporanTugas: React.FC = () => {
         <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700">
           <div className="p-4 border-b border-slate-200 dark:border-slate-700 flex flex-row items-center justify-between gap-4 bg-white dark:bg-slate-800">
             <div className="flex items-center space-x-2 truncate">
-              <BookOpen size={20} className="text-slate-600 dark:text-slate-300 shrink-0" />
+              <ClipboardList size={20} className="text-slate-600 dark:text-slate-300 shrink-0" />
               <h2 className="font-bold text-slate-800 dark:text-slate-50 text-lg">Daftar Laporan</h2>
             </div>
 
@@ -710,7 +710,7 @@ export const AdminReviewLaporanTugas: React.FC = () => {
                         }}
                         value={filterStartDate}
                         onChange={(e) => setFilterStartDate(e.target.value)}
-                        className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-school-blue/20 outline-none text-slate-700 dark:text-slate-200 font-bold text-center cursor-pointer transition-all hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700"
+                        className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-school-blue/20 outline-none text-slate-700 dark:text-slate-200 font-bold text-center cursor-pointer transition-all hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700 dark:[color-scheme:dark]"
                       />
                     </div>
                     <div>
@@ -729,7 +729,7 @@ export const AdminReviewLaporanTugas: React.FC = () => {
                         value={filterEndDate}
                         onChange={(e) => setFilterEndDate(e.target.value)}
                         min={filterStartDate}
-                        className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-school-blue/20 outline-none text-slate-700 dark:text-slate-200 font-bold text-center cursor-pointer transition-all hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700"
+                        className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-school-blue/20 outline-none text-slate-700 dark:text-slate-200 font-bold text-center cursor-pointer transition-all hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700 dark:[color-scheme:dark]"
                       />
                     </div>
 
@@ -849,7 +849,7 @@ export const AdminReviewLaporanTugas: React.FC = () => {
                   <tr>
                     <td colSpan={10} className="p-12 text-center text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-700">
                       <div className="flex justify-center mb-3 text-slate-300">
-                        <BookOpen size={48} strokeWidth={1} />
+                        <ClipboardList size={48} strokeWidth={1} />
                       </div>
                       <p className="font-bold text-lg text-slate-600 dark:text-slate-300 mb-1">Tidak Ada Laporan</p>
                       <p className="text-sm">Tidak ada laporan yang ditemukan berdasarkan pencarian atau filter.</p>
@@ -894,10 +894,10 @@ export const AdminReviewLaporanTugas: React.FC = () => {
                       </span>
                     </div>
 
-                      <div className="mt-1 border-b border-slate-100 dark:border-slate-700 pb-2">
-                        <p className="text-sm font-bold text-school-blue dark:text-white leading-tight">{report.user?.name || 'Staf Tidak Dikenal'}</p>
-                        <p className="text-xs text-slate-500 dark:text-slate-400">{report.user?.position || 'Belum ada jabatan'}</p>
-                      </div>
+                    <div className="mt-1 border-b border-slate-100 dark:border-slate-700 pb-2">
+                      <p className="text-sm font-bold text-school-blue dark:text-white leading-tight">{report.user?.name || 'Staf Tidak Dikenal'}</p>
+                      <p className="text-xs text-slate-500 dark:text-slate-400">{report.user?.position || 'Belum ada jabatan'}</p>
+                    </div>
 
                     <div className="flex items-center justify-between gap-2 mt-1">
                       <div className="flex items-center gap-2">
@@ -937,7 +937,7 @@ export const AdminReviewLaporanTugas: React.FC = () => {
               ) : (
                 <div className="p-8 text-center text-slate-500 dark:text-slate-400">
                   <div className="flex justify-center mb-2 text-slate-300">
-                    <BookOpen size={32} />
+                    <ClipboardList size={32} />
                   </div>
                   Tidak ada laporan yang ditemukan berdasarkan filter pencarian Anda.
                 </div>

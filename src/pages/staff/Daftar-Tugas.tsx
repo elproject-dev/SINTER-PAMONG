@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { User, TaskReport, StaffTask, TaskAttachment } from '../../lib/types';
 import { getUserTaskReports, saveTaskReport, getStaffTasks, updateTaskReport, getTaskAttachments, addTaskAttachment, reviseTaskAttachment } from '../../lib/db';
 
-import { Search, Eye, ClipboardList, Edit, Paperclip, MessageSquareMore, Loader2, SlidersHorizontal, X, Clock, CheckCircle2, XCircle, Layers, Download, Plus, RefreshCw } from 'lucide-react';
+import { Search, Eye, ClipboardList, Edit, Paperclip, MessageSquareMore, Loader2, SlidersHorizontal, X, Clock, CheckCircle2, XCircle, Layers, Download, Plus, RefreshCw, ArrowDown, ArrowUp } from 'lucide-react';
 import { format } from 'date-fns';
 import { id } from 'date-fns/locale';
 import { supabase } from '../../lib/supabase';
@@ -55,11 +55,20 @@ export const DaftarTugas: React.FC<DaftarTugasProps> = ({ user }) => {
   const [showFilterPopup, setShowFilterPopup] = useState(false);
   const [filterStartDate, setFilterStartDate] = useState('');
   const [filterEndDate, setFilterEndDate] = useState('');
-  const [filterStatus, setFilterStatus] = useState('all');
+  const [sortOrder, setSortOrder] = useState<'newest' | 'oldest'>('newest');
   const filterPopupRef = useRef<HTMLDivElement>(null);
-  const [isStatusDropdownOpen, setIsStatusDropdownOpen] = useState(false);
-  const statusDropdownRef = useRef<HTMLDivElement>(null);
+  const [isSortDropdownOpen, setIsSortDropdownOpen] = useState(false);
+  const sortDropdownRef = useRef<HTMLDivElement>(null);
   const [downloadingUrl, setDownloadingUrl] = useState<string | null>(null);
+
+  // Attachment Filter States
+  const [showAttFilterPopup, setShowAttFilterPopup] = useState(false);
+  const [attFilterStartDate, setAttFilterStartDate] = useState('');
+  const [attFilterEndDate, setAttFilterEndDate] = useState('');
+  const [attFilterStatus, setAttFilterStatus] = useState('all');
+  const attFilterPopupRef = useRef<HTMLDivElement>(null);
+  const [isAttStatusDropdownOpen, setIsAttStatusDropdownOpen] = useState(false);
+  const attStatusDropdownRef = useRef<HTMLDivElement>(null);
 
   // Unread feedback state
   const [readFeedbacks, setReadFeedbacks] = useState<Record<string, string>>({});
@@ -84,8 +93,14 @@ export const DaftarTugas: React.FC<DaftarTugasProps> = ({ user }) => {
       if (filterPopupRef.current && !filterPopupRef.current.contains(event.target as Node)) {
         setShowFilterPopup(false);
       }
-      if (statusDropdownRef.current && !statusDropdownRef.current.contains(event.target as Node)) {
-        setIsStatusDropdownOpen(false);
+      if (sortDropdownRef.current && !sortDropdownRef.current.contains(event.target as Node)) {
+        setIsSortDropdownOpen(false);
+      }
+      if (attFilterPopupRef.current && !attFilterPopupRef.current.contains(event.target as Node)) {
+        setShowAttFilterPopup(false);
+      }
+      if (attStatusDropdownRef.current && !attStatusDropdownRef.current.contains(event.target as Node)) {
+        setIsAttStatusDropdownOpen(false);
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
@@ -312,21 +327,18 @@ export const DaftarTugas: React.FC<DaftarTugasProps> = ({ user }) => {
     .filter(t => {
       const matchesSearch = t.taskName.toLowerCase().includes(searchTerm.toLowerCase());
 
-      let matchesStatus = true;
-      const statusForFilter = t.report ? (t.report.status || 'pending') : 'unassigned';
-
-      if (filterStatus !== 'all') {
-        matchesStatus = statusForFilter === filterStatus;
-      }
-
       let matchesDate = true;
       const taskDate = new Date(t.date).toISOString().split('T')[0];
       if (filterStartDate && taskDate < filterStartDate) matchesDate = false;
       if (filterEndDate && taskDate > filterEndDate) matchesDate = false;
 
-      return matchesSearch && matchesStatus && matchesDate;
+      return matchesSearch && matchesDate;
     })
-    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+    .sort((a, b) => {
+      const timeA = new Date(a.date).getTime();
+      const timeB = new Date(b.date).getTime();
+      return sortOrder === 'newest' ? timeB - timeA : timeA - timeB;
+    });
 
   const handleDetailClick = async (report: TaskReport) => {
     setSelectedReport(report);
@@ -506,7 +518,7 @@ export const DaftarTugas: React.FC<DaftarTugasProps> = ({ user }) => {
     <div className="w-full space-y-8 animate-in fade-in duration-300 relative">
       {/* Toast Notification */}
       {showAttachmentSubmitSuccess && (
-        <div className="fixed top-10 left-1/2 -translate-x-1/2 z-[100] bg-emerald-50 border border-emerald-200 text-emerald-700 px-6 py-3 rounded-xl shadow-lg flex items-center font-bold animate-in slide-in-from-top-4 fade-in duration-300">
+        <div className="fixed top-10 left-1/2 -translate-x-1/2 z-[100] bg-emerald-50 dark:bg-emerald-900/80 border border-emerald-200 dark:border-emerald-800/60 text-emerald-700 dark:text-emerald-300 px-6 py-3 rounded-xl shadow-lg flex items-center font-bold animate-in slide-in-from-top-4 fade-in duration-300 backdrop-blur-sm">
           <div className="mr-2 text-sm">✅</div>
           Data lampiran berhasil dikirim!
         </div>
@@ -647,8 +659,8 @@ export const DaftarTugas: React.FC<DaftarTugasProps> = ({ user }) => {
       </div>
 
       {showReportSuccess && (
-        <div className="bg-emerald-50 border border-emerald-200 text-emerald-700 px-6 py-4 rounded-2xl flex items-center shadow-sm font-medium animate-in fade-in slide-in-from-top-4">
-          <div className="mr-3 bg-emerald-100 p-1.5 rounded-full">✅</div>
+        <div className="bg-emerald-50 dark:bg-emerald-900/30 border border-emerald-200 dark:border-emerald-800/50 text-emerald-700 dark:text-emerald-400 px-6 py-4 rounded-2xl flex items-center shadow-sm font-medium animate-in fade-in slide-in-from-top-4">
+          <div className="mr-3 bg-emerald-100 dark:bg-emerald-900/60 p-1.5 rounded-full">✅</div>
           Laporan kegiatan berhasil dikirim!
         </div>
       )}
@@ -946,712 +958,827 @@ export const DaftarTugas: React.FC<DaftarTugasProps> = ({ user }) => {
           </div>
 
           {/* Tabel Riwayat Lampiran - Card Terpisah */}
-          <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 mb-6 animate-in slide-in-from-top-4 fade-in duration-300">
-            <div className="p-4 border-b border-slate-200 dark:border-slate-700 flex flex-col sm:flex-row items-center justify-between gap-4 bg-white dark:bg-slate-800 rounded-t-xl">
-              <div className="flex items-center space-x-2 w-full sm:w-auto">
-                <Paperclip size={20} className="text-slate-600 dark:text-slate-300" />
-                <h2 className="font-bold text-slate-800 dark:text-slate-50 text-lg">Riwayat Lampiran ({(selectedReport.link ? 1 : 0) + attachments.length})</h2>
+          {(() => {
+            const isMainVisible = selectedReport.link && (() => {
+              let matchesStatus = true;
+              if (attFilterStatus !== 'all') {
+                matchesStatus = (selectedReport.status || 'pending') === attFilterStatus;
+              }
+              let matchesDate = true;
+              const attDate = new Date(selectedReport.createdAt).toISOString().split('T')[0];
+              if (attFilterStartDate && attDate < attFilterStartDate) matchesDate = false;
+              if (attFilterEndDate && attDate > attFilterEndDate) matchesDate = false;
+              return matchesStatus && matchesDate;
+            })();
+
+            const filteredAttachments = attachments.filter(att => {
+              let matchesStatus = true;
+              if (attFilterStatus !== 'all') {
+                matchesStatus = (att.status || 'pending') === attFilterStatus;
+              }
+              let matchesDate = true;
+              const attDate = new Date(att.createdAt).toISOString().split('T')[0];
+              if (attFilterStartDate && attDate < attFilterStartDate) matchesDate = false;
+              if (attFilterEndDate && attDate > attFilterEndDate) matchesDate = false;
+              return matchesStatus && matchesDate;
+            });
+
+            return (
+              <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 mb-6 animate-in slide-in-from-top-4 fade-in duration-300">
+                <div className="p-4 border-b border-slate-200 dark:border-slate-700 flex flex-col sm:flex-row items-center justify-between gap-4 bg-white dark:bg-slate-800 relative z-10 rounded-t-xl">
+                  <div className="flex items-center space-x-2 w-full sm:w-auto">
+                    <Paperclip size={20} className="text-slate-600 dark:text-slate-300" />
+                    <h2 className="font-bold text-slate-800 dark:text-slate-50 text-lg">Riwayat Lampiran ({(selectedReport.link ? 1 : 0) + attachments.length})</h2>
+                  </div>
+                  <div className="flex items-center gap-2 w-full sm:w-auto justify-end relative" ref={attFilterPopupRef}>
+                    <button
+                      onClick={() => openAttachmentForm(selectedReport.id)}
+                      className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 text-sm font-bold text-school-blue dark:text-white hover:text-blue-700 dark:hover:text-slate-300 bg-blue-50 dark:bg-slate-800 hover:bg-blue-100 dark:bg-slate-700 dark:hover:bg-slate-600 px-4 py-2 rounded-xl transition-colors shadow-sm"
+                    >
+                      <Plus size={16} /> Tambah Lampiran
+                    </button>
+
+                    <button
+                      onClick={() => setShowAttFilterPopup(!showAttFilterPopup)}
+                      className={`flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-bold transition-all border border-transparent ${showAttFilterPopup || attFilterStartDate || attFilterEndDate || attFilterStatus !== 'all'
+                        ? 'bg-school-blue text-white shadow-md'
+                        : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-700 shadow-sm'
+                        }`}
+                    >
+                      <SlidersHorizontal size={16} />
+                      Filter
+                    </button>
+
+                    {/* Pop-up Filter for Attachments */}
+                    {showAttFilterPopup && (
+                      <div className="absolute right-0 top-full mt-2 w-[calc(100vw-32px)] sm:w-72 bg-white dark:bg-slate-800 rounded-xl shadow-xl border border-slate-200 dark:border-slate-700 p-4 z-50 animate-in fade-in slide-in-from-top-2 text-left">
+                        <div className="flex justify-between items-center mb-4">
+                          <h3 className="font-bold text-slate-800 dark:text-slate-50 text-sm">Filter Lampiran</h3>
+                          <button onClick={() => setShowAttFilterPopup(false)} className="text-slate-400 hover:text-slate-600 dark:text-slate-300 bg-slate-50 dark:bg-slate-900 hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700 p-1 rounded-md transition-colors">
+                            <X size={16} />
+                          </button>
+                        </div>
+                        <div className="space-y-3">
+                          <div>
+                            <input
+                              type={attFilterStartDate ? "date" : "text"}
+                              placeholder="Tanggal Mulai"
+                              onFocus={(e) => { e.target.type = 'date'; if ('showPicker' in e.target) (e.target as HTMLInputElement).showPicker(); }}
+                              onBlur={(e) => { if (!e.target.value) e.target.type = 'text'; }}
+                              value={attFilterStartDate}
+                              onChange={(e) => setAttFilterStartDate(e.target.value)}
+                              className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-school-blue/20 outline-none text-slate-700 dark:text-slate-200 font-bold text-center cursor-pointer transition-all hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700 dark:[color-scheme:dark]"
+                            />
+                          </div>
+                          <div>
+                            <input
+                              type={attFilterEndDate ? "date" : "text"}
+                              placeholder="Tanggal Akhir"
+                              onFocus={(e) => { e.target.type = 'date'; if ('showPicker' in e.target) (e.target as HTMLInputElement).showPicker(); }}
+                              onBlur={(e) => { if (!e.target.value) e.target.type = 'text'; }}
+                              value={attFilterEndDate}
+                              onChange={(e) => setAttFilterEndDate(e.target.value)}
+                              className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-school-blue/20 outline-none text-slate-700 dark:text-slate-200 font-bold text-center cursor-pointer transition-all hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700 dark:[color-scheme:dark]"
+                            />
+                          </div>
+                          <div className="relative" ref={attStatusDropdownRef}>
+                            <button
+                              type="button"
+                              onClick={() => setIsAttStatusDropdownOpen(!isAttStatusDropdownOpen)}
+                              className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-4 py-2.5 text-sm outline-none text-slate-700 dark:text-slate-200 font-bold flex justify-center items-center transition-all hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700 hover:border-slate-300 focus:ring-2 focus:ring-school-blue/20"
+                            >
+                              <span className="flex items-center gap-2">
+                                {attFilterStatus === 'all' && 'Semua Status'}
+                                {attFilterStatus === 'pending' && <><Clock size={16} className="text-amber-500" /> Menunggu</>}
+                                {attFilterStatus === 'reviewed' && <><CheckCircle2 size={16} className="text-emerald-500" /> Disetujui</>}
+                                {attFilterStatus === 'rejected' && <><XCircle size={16} className="text-rose-500" /> Ditolak</>}
+                              </span>
+                            </button>
+
+                            {isAttStatusDropdownOpen && (
+                              <div className="absolute z-50 w-full mt-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-lg overflow-hidden animate-in fade-in zoom-in-95 duration-100">
+                                <button
+                                  type="button"
+                                  onClick={() => { setAttFilterStatus('all'); setIsAttStatusDropdownOpen(false); }}
+                                  className={`w-full text-left px-4 py-2.5 text-sm font-semibold flex items-center gap-2 transition-colors hover:bg-slate-50 dark:hover:bg-slate-700 ${attFilterStatus === 'all' ? 'text-school-blue dark:text-white bg-blue-50/50 dark:bg-blue-900/40' : 'text-slate-700 dark:text-slate-200'}`}
+                                >
+                                  <Layers size={16} className={attFilterStatus === 'all' ? 'text-school-blue dark:text-white' : 'text-slate-500 dark:text-slate-400'} /> Semua Status
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => { setAttFilterStatus('pending'); setIsAttStatusDropdownOpen(false); }}
+                                  className={`w-full text-left px-4 py-2.5 text-sm font-semibold flex items-center gap-2 transition-colors hover:bg-slate-50 dark:hover:bg-slate-700 ${attFilterStatus === 'pending' ? 'text-amber-600 bg-amber-50/50' : 'text-slate-700 dark:text-slate-200'}`}
+                                >
+                                  <Clock size={16} className={attFilterStatus === 'pending' ? 'text-amber-600' : 'text-amber-500'} /> Menunggu
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => { setAttFilterStatus('reviewed'); setIsAttStatusDropdownOpen(false); }}
+                                  className={`w-full text-left px-4 py-2.5 text-sm font-semibold flex items-center gap-2 transition-colors hover:bg-slate-50 dark:hover:bg-slate-700 ${attFilterStatus === 'reviewed' ? 'text-emerald-600 bg-emerald-50/50 dark:bg-emerald-900/40' : 'text-slate-700 dark:text-slate-200'}`}
+                                >
+                                  <CheckCircle2 size={16} className={attFilterStatus === 'reviewed' ? 'text-emerald-600' : 'text-emerald-500'} /> Disetujui
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => { setAttFilterStatus('rejected'); setIsAttStatusDropdownOpen(false); }}
+                                  className={`w-full text-left px-4 py-2.5 text-sm font-semibold flex items-center gap-2 transition-colors hover:bg-slate-50 dark:hover:bg-slate-700 ${attFilterStatus === 'rejected' ? 'text-rose-600 bg-rose-50/50 dark:bg-rose-900/40' : 'text-slate-700 dark:text-slate-200'}`}
+                                >
+                                  <XCircle size={16} className={attFilterStatus === 'rejected' ? 'text-rose-600' : 'text-rose-500'} /> Ditolak
+                                </button>
+                              </div>
+                            )}
+                          </div>
+                          {(attFilterStartDate || attFilterEndDate || attFilterStatus !== 'all') && (
+                            <button
+                              onClick={() => { setAttFilterStartDate(''); setAttFilterEndDate(''); setAttFilterStatus('all'); }}
+                              className="w-full mt-2 pt-1 text-xs font-bold text-rose-500 hover:text-rose-600 dark:text-rose-400 dark:hover:text-rose-300 hover:underline transition-colors text-center"
+                            >
+                              Reset Filter
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    )}
+
+                  </div>
+                </div>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left border-collapse min-w-[600px] hidden xl:table">
+                    <thead>
+                      <tr className="bg-slate-50 dark:bg-slate-900 text-slate-500 dark:text-slate-400 text-xs uppercase tracking-wider">
+                        <th className="px-4 py-3 font-bold border border-slate-200 dark:border-slate-700 w-12 text-center">NO</th>
+                        <th className="px-4 py-3 font-bold border border-slate-200 dark:border-slate-700 text-center w-36">TANGGAL</th>
+                        <th className="px-4 py-3 font-bold border border-slate-200 dark:border-slate-700 text-center w-28">JAM</th>
+                        <th className="px-4 py-3 font-bold border border-slate-200 dark:border-slate-700 w-64">NAMA TUGAS</th>
+                        <th className="px-4 py-3 font-bold border border-slate-200 dark:border-slate-700 w-80">CATATAN</th>
+                        <th className="px-4 py-3 font-bold border border-slate-200 dark:border-slate-700 text-center w-32">STATUS</th>
+                        <th className="px-4 py-3 font-bold border border-slate-200 dark:border-slate-700 text-center w-28">NILAI</th>
+                        <th className="px-4 py-3 font-bold border border-slate-200 dark:border-slate-700 text-center w-16">SKOR</th>
+                        <th className="px-4 py-3 font-bold border border-slate-200 dark:border-slate-700 text-center w-24">LAMPIRAN</th>
+                        <th className="px-4 py-3 font-bold border border-slate-200 dark:border-slate-700 text-center w-24">UNDUH</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {isAttachmentsLoading ? (
+                        <tr>
+                          <td colSpan={10} className="p-12 text-center text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-700">
+                            <div className="flex justify-center mb-3 text-school-blue dark:text-white">
+                              <Loader2 size={32} className="animate-spin" />
+                            </div>
+                            <p className="font-bold text-lg text-slate-600 dark:text-slate-300 mb-1">Memuat Lampiran...</p>
+                          </td>
+                        </tr>
+                      ) : (
+                        <>
+                          {isMainVisible && (
+                            <tr className="hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors bg-white dark:bg-slate-800">
+                              <td className="px-4 py-3 border border-slate-200 dark:border-slate-700 text-center text-sm font-medium text-slate-500 dark:text-slate-400">1</td>
+                              <td className="px-4 py-3 border border-slate-200 dark:border-slate-700 text-center text-sm text-slate-700 dark:text-slate-200">{format(new Date(selectedReport.createdAt), 'dd MMM yyyy', { locale: id })}</td>
+                              <td className="px-4 py-3 border border-slate-200 dark:border-slate-700 text-center text-sm font-bold text-slate-600 dark:text-slate-300">{format(new Date(selectedReport.createdAt), 'HH:mm', { locale: id })}</td>
+                              <td className="px-4 py-3 border border-slate-200 dark:border-slate-700 text-sm font-bold text-slate-800 dark:text-slate-50 max-w-[200px] truncate" title={selectedReport.taskName}>{selectedReport.taskName}</td>
+                              <td className="px-4 py-3 border border-slate-200 dark:border-slate-700">
+                                <div className="flex items-center justify-between gap-2">
+                                  <span className="text-sm text-slate-700 dark:text-slate-200 truncate max-w-[260px]">-</span>
+                                  {selectedReport.adminFeedback && (
+                                    <button
+                                      onClick={() => {
+                                        setFeedbackModal({ show: true, taskName: selectedReport.taskName, catatan: '-', adminFeedback: selectedReport.adminFeedback! });
+                                        markFeedbackAsRead(selectedReport.id, selectedReport.adminFeedback!);
+                                      }}
+                                      className="text-school-blue dark:text-white hover:text-blue-700 dark:hover:text-slate-300 hover:bg-blue-50 dark:bg-slate-800 dark:hover:bg-slate-700 p-1.5 rounded-lg transition-colors shrink-0 relative"
+                                      title="Lihat Balasan Admin"
+                                    >
+                                      <MessageSquareMore size={16} />
+                                      {readFeedbacks[selectedReport.id] !== selectedReport.adminFeedback && (
+                                        <span className="absolute top-1 right-1 flex h-2 w-2">
+                                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
+                                          <span className="relative inline-flex rounded-full h-2 w-2 bg-rose-500"></span>
+                                        </span>
+                                      )}
+                                    </button>
+                                  )}
+                                </div>
+                              </td>
+                              <td className="px-4 py-3 border border-slate-200 dark:border-slate-700 text-center">
+                                <div className="flex items-center justify-center">
+                                  {selectedReport.status === 'reviewed' ? (
+                                    <span title="Disetujui"><CheckCircle2 size={20} className="fill-emerald-500 text-white" /></span>
+                                  ) : selectedReport.status === 'rejected' ? (
+                                    <span title="Ditolak"><XCircle size={20} className="fill-rose-500 text-white" /></span>
+                                  ) : (
+                                    <span title="Tertunda"><Clock size={20} className="fill-slate-400 text-white" /></span>
+                                  )}
+                                </div>
+                              </td>
+                              <td className="px-4 py-3 border border-slate-200 dark:border-slate-700 text-center">
+                                <div className="flex items-center justify-center gap-1 text-slate-300" title={selectedReport?.score ? `Nilai: ${selectedReport.score.toFixed(1)} Bintang` : 'Belum Dinilai'}>
+                                  <StarRating score={selectedReport?.score ?? 0} size={16} />
+                                </div>
+                              </td>
+                              <td className="px-4 py-3 border border-slate-200 dark:border-slate-700 text-center font-bold text-amber-500">
+                                {selectedReport?.score ? selectedReport.score.toFixed(1) : '-'}
+                              </td>
+                              <td className="px-4 py-3 border border-slate-200 dark:border-slate-700 text-center">
+                                <div className="flex items-center justify-center">
+                                  <a href={selectedReport.link} target="_blank" rel="noopener noreferrer" className="text-school-blue dark:text-white hover:text-blue-700 dark:hover:text-slate-300 transition-colors inline-block" title="Lihat Lampiran">
+                                    <Paperclip size={18} />
+                                  </a>
+                                </div>
+                              </td>
+                              <td className="px-4 py-3 border border-slate-200 dark:border-slate-700 text-center">
+                                <div className="flex items-center justify-center">
+                                  {selectedReport.status === 'rejected' ? (
+                                    <button onClick={() => openRevisionModal(selectedReport.id, true, selectedReport.taskName, selectedReport.description)} className="text-amber-500 hover:text-amber-600 transition-colors inline-block cursor-pointer" title="Revisi Lampiran">
+                                      <RefreshCw size={18} />
+                                    </button>
+                                  ) : (
+                                    <button onClick={(e) => handleDownload(selectedReport.link!, e)} disabled={downloadingUrl === selectedReport.link} className={`${downloadingUrl === selectedReport.link ? 'text-school-blue dark:text-white' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:text-slate-200'} transition-colors inline-block cursor-pointer`} title="Unduh Lampiran">
+                                      {downloadingUrl === selectedReport.link ? <Loader2 size={18} className="animate-spin" /> : <Download size={18} />}
+                                    </button>
+                                  )}
+                                </div>
+                              </td>
+                            </tr>
+                          )}
+                          {filteredAttachments.map((att) => (
+                            <tr key={att.id} className="hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors bg-white dark:bg-slate-800">
+                              <td className="px-4 py-3 border border-slate-200 dark:border-slate-700 text-center text-sm font-medium text-slate-500 dark:text-slate-400">{(selectedReport.link ? 1 : 0) + attachments.indexOf(att) + 1}</td>
+                              <td className="px-4 py-3 border border-slate-200 dark:border-slate-700 text-center text-sm text-slate-700 dark:text-slate-200">{format(new Date(att.createdAt), 'dd MMM yyyy', { locale: id })}</td>
+                              <td className="px-4 py-3 border border-slate-200 dark:border-slate-700 text-center text-sm font-bold text-slate-600 dark:text-slate-300">{format(new Date(att.createdAt), 'HH:mm', { locale: id })}</td>
+                              <td className="px-4 py-3 border border-slate-200 dark:border-slate-700 text-sm font-bold text-slate-800 dark:text-slate-50 max-w-[200px] truncate" title={selectedReport.taskName}>{selectedReport.taskName}</td>
+                              <td className="px-4 py-3 border border-slate-200 dark:border-slate-700">
+                                <div className="flex items-center justify-between gap-2">
+                                  <span className="text-sm text-slate-700 dark:text-slate-200 truncate max-w-[260px]" title={att.catatan}>{att.catatan || '-'}</span>
+                                  {att.adminFeedback && (
+                                    <button
+                                      onClick={() => {
+                                        setFeedbackModal({ show: true, taskName: selectedReport.taskName, catatan: att.catatan || '-', adminFeedback: att.adminFeedback! });
+                                        markFeedbackAsRead(att.id, att.adminFeedback!);
+                                      }}
+                                      className="text-school-blue dark:text-white hover:text-blue-700 dark:hover:text-slate-300 hover:bg-blue-50 dark:bg-slate-800 dark:hover:bg-slate-700 p-1.5 rounded-lg transition-colors shrink-0 relative"
+                                      title="Lihat Balasan Admin"
+                                    >
+                                      <MessageSquareMore size={16} />
+                                      {readFeedbacks[att.id] !== att.adminFeedback && (
+                                        <span className="absolute top-1 right-1 flex h-2 w-2">
+                                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
+                                          <span className="relative inline-flex rounded-full h-2 w-2 bg-rose-500"></span>
+                                        </span>
+                                      )}
+                                    </button>
+                                  )}
+                                </div>
+                              </td>
+                              <td className="px-4 py-3 border border-slate-200 dark:border-slate-700 text-center">
+                                <div className="flex items-center justify-center">
+                                  {att.status === 'reviewed' ? (
+                                    <span title="Disetujui"><CheckCircle2 size={20} className="fill-emerald-500 text-white" /></span>
+                                  ) : att.status === 'rejected' ? (
+                                    <span title="Ditolak"><XCircle size={20} className="fill-rose-500 text-white" /></span>
+                                  ) : (
+                                    <span title="Tertunda"><Clock size={20} className="fill-slate-400 text-white" /></span>
+                                  )}
+                                </div>
+                              </td>
+                              <td className="px-4 py-3 border border-slate-200 dark:border-slate-700 text-center">
+                                <div className="flex items-center justify-center gap-1 text-slate-300" title={att?.score ? `Nilai: ${att.score.toFixed(1)} Bintang` : 'Belum Dinilai'}>
+                                  <StarRating score={att?.score ?? 0} size={16} />
+                                </div>
+                              </td>
+                              <td className="px-4 py-3 border border-slate-200 dark:border-slate-700 text-center font-bold text-amber-500">
+                                {att?.score ? att.score.toFixed(1) : '-'}
+                              </td>
+                              <td className="px-4 py-3 border border-slate-200 dark:border-slate-700 text-center">
+                                <div className="flex items-center justify-center">
+                                  <a href={att.link} target="_blank" rel="noopener noreferrer" className="text-school-blue dark:text-white hover:text-blue-700 dark:hover:text-slate-300 transition-colors inline-block" title="Lihat Lampiran">
+                                    <Paperclip size={18} />
+                                  </a>
+                                </div>
+                              </td>
+                              <td className="px-4 py-3 border border-slate-200 dark:border-slate-700 text-center">
+                                <div className="flex items-center justify-center">
+                                  {att.status === 'rejected' ? (
+                                    <button onClick={() => openRevisionModal(att.id, false, selectedReport.taskName, selectedReport.description)} className="text-amber-500 hover:text-amber-600 transition-colors inline-block cursor-pointer" title="Revisi Lampiran">
+                                      <RefreshCw size={18} />
+                                    </button>
+                                  ) : (
+                                    <button onClick={(e) => handleDownload(att.link, e)} disabled={downloadingUrl === att.link} className={`${downloadingUrl === att.link ? 'text-school-blue dark:text-white' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:text-slate-200'} transition-colors inline-block cursor-pointer`} title="Unduh Lampiran">
+                                      {downloadingUrl === att.link ? <Loader2 size={18} className="animate-spin" /> : <Download size={18} />}
+                                    </button>
+                                  )}
+                                </div>
+                              </td>
+                            </tr>
+                          ))}
+                          {!isMainVisible && filteredAttachments.length === 0 && (
+                            <tr>
+                              <td colSpan={10} className="p-8 text-center text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-700">
+                                Belum ada lampiran.
+                              </td>
+                            </tr>
+                          )}
+                        </>
+                      )}
+                    </tbody>
+                  </table>
+
+                  {/* Mobile Card View */}
+                  <div className="xl:hidden flex flex-col divide-y divide-slate-100 dark:divide-slate-700 border-t border-slate-200 dark:border-slate-700">
+                    {isAttachmentsLoading ? (
+                      <div className="p-12 text-center text-slate-500 dark:text-slate-400">
+                        <div className="flex justify-center mb-3 text-school-blue dark:text-white">
+                          <Loader2 size={32} className="animate-spin" />
+                        </div>
+                        <p className="font-bold text-lg text-slate-600 dark:text-slate-300 mb-1">Memuat Lampiran...</p>
+                      </div>
+                    ) : (
+                      <>
+                        {isMainVisible && (
+                          <div className="p-4 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors flex flex-col gap-3 bg-white dark:bg-slate-800">
+                            <div className="flex justify-between items-start gap-2">
+                              <div className="flex flex-col min-w-0 flex-1">
+                                <h3 className="font-extrabold text-slate-800 dark:text-slate-50 text-sm leading-snug truncate" title={selectedReport.taskName}>{selectedReport.taskName}</h3>
+                                <p className="text-[11px] font-bold text-slate-400 mt-0.5 truncate">
+                                  {format(new Date(selectedReport.createdAt), 'dd MMM yyyy • HH:mm', { locale: id })}
+                                </p>
+                              </div>
+                              <div className="flex items-center shrink-0">
+                                {selectedReport.status === 'reviewed' ? (
+                                  <span className="bg-emerald-100 text-emerald-700 px-2 py-1 rounded-md text-[10px] font-bold uppercase flex items-center gap-1"><CheckCircle2 size={12} /> Disetujui</span>
+                                ) : selectedReport.status === 'rejected' ? (
+                                  <span className="bg-rose-100 text-rose-700 px-2 py-1 rounded-md text-[10px] font-bold uppercase flex items-center gap-1"><XCircle size={12} /> Ditolak</span>
+                                ) : (
+                                  <span className="bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 px-2 py-1 rounded-md text-[10px] font-bold uppercase flex items-center gap-1"><Clock size={12} /> Tertunda</span>
+                                )}
+                              </div>
+                            </div>
+
+                            <div className="bg-slate-50 dark:bg-slate-900 p-2.5 rounded-lg border border-slate-100 dark:border-slate-700 mt-1">
+                              <p className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Catatan:</p>
+                              <div className="flex items-start justify-between gap-2">
+                                <p className="text-xs text-slate-600 dark:text-slate-300 italic line-clamp-2">-</p>
+                                {selectedReport.adminFeedback && (
+                                  <button
+                                    onClick={() => {
+                                      setFeedbackModal({ show: true, taskName: selectedReport.taskName, catatan: '-', adminFeedback: selectedReport.adminFeedback! });
+                                      markFeedbackAsRead(selectedReport.id, selectedReport.adminFeedback!);
+                                    }}
+                                    className="text-school-blue dark:text-white hover:text-blue-700 dark:hover:text-slate-300 hover:bg-blue-50 dark:bg-slate-800 dark:hover:bg-slate-700 p-1.5 rounded-lg transition-colors shrink-0 relative bg-white dark:bg-slate-800 border border-blue-100"
+                                    title="Lihat Balasan Admin"
+                                  >
+                                    <MessageSquareMore size={14} />
+                                    {readFeedbacks[selectedReport.id] !== selectedReport.adminFeedback && (
+                                      <span className="absolute -top-1 -right-1 flex h-2.5 w-2.5">
+                                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
+                                        <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-rose-500"></span>
+                                      </span>
+                                    )}
+                                  </button>
+                                )}
+                              </div>
+                            </div>
+
+                            <div className="flex items-center justify-between gap-2 mt-1 pt-2 border-t border-slate-100 dark:border-slate-700">
+                              <div className="flex items-center gap-2">
+                                <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase">Penilaian</span>
+                                <StarRating score={selectedReport?.score ?? 0} size={14} />
+                              </div>
+
+                              <div className="flex items-center gap-1.5 shrink-0">
+                                <a href={selectedReport.link} target="_blank" rel="noopener noreferrer" className="p-2 text-school-blue dark:text-white bg-blue-50 dark:bg-slate-800 hover:bg-blue-100 dark:bg-slate-700 dark:hover:bg-slate-600 rounded-full transition-colors" title="Lihat Lampiran">
+                                  <Eye size={14} />
+                                </a>
+                                {selectedReport.status === 'rejected' ? (
+                                  <button onClick={() => openRevisionModal(selectedReport.id, true, selectedReport.taskName, selectedReport.description)} className="p-2 text-amber-600 bg-amber-50 hover:bg-amber-100 dark:bg-amber-900/60 dark:hover:bg-amber-900/70 rounded-full transition-colors" title="Revisi Lampiran">
+                                    <RefreshCw size={14} />
+                                  </button>
+                                ) : (
+                                  <button onClick={(e) => handleDownload(selectedReport.link!, e)} disabled={downloadingUrl === selectedReport.link} className={`p-2 rounded-full transition-colors ${downloadingUrl === selectedReport.link ? 'text-slate-400 bg-slate-100 dark:bg-slate-800' : 'text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-600'}`} title="Unduh Lampiran">
+                                    {downloadingUrl === selectedReport.link ? <Loader2 size={14} className="animate-spin" /> : <Download size={14} />}
+                                  </button>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        )}
+                        {filteredAttachments.map((att) => (
+                          <div key={att.id} className="p-4 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors flex flex-col gap-3 bg-white dark:bg-slate-800">
+                            <div className="flex justify-between items-start gap-2">
+                              <div className="flex flex-col min-w-0 flex-1">
+                                <h3 className="font-extrabold text-slate-800 dark:text-slate-50 text-sm leading-snug truncate" title={selectedReport.taskName}>{selectedReport.taskName}</h3>
+                                <p className="text-[11px] font-bold text-slate-400 mt-0.5 truncate">
+                                  {format(new Date(att.createdAt), 'dd MMM yyyy • HH:mm', { locale: id })}
+                                </p>
+                              </div>
+                              <div className="flex items-center shrink-0">
+                                {att.status === 'reviewed' ? (
+                                  <span className="bg-emerald-100 text-emerald-700 px-2 py-1 rounded-md text-[10px] font-bold uppercase flex items-center gap-1"><CheckCircle2 size={12} /> Disetujui</span>
+                                ) : att.status === 'rejected' ? (
+                                  <span className="bg-rose-100 text-rose-700 px-2 py-1 rounded-md text-[10px] font-bold uppercase flex items-center gap-1"><XCircle size={12} /> Ditolak</span>
+                                ) : (
+                                  <span className="bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 px-2 py-1 rounded-md text-[10px] font-bold uppercase flex items-center gap-1"><Clock size={12} /> Tertunda</span>
+                                )}
+                              </div>
+                            </div>
+
+                            <div className="bg-slate-50 dark:bg-slate-900 p-2.5 rounded-lg border border-slate-100 dark:border-slate-700 mt-1">
+                              <p className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Catatan:</p>
+                              <div className="flex items-start justify-between gap-2">
+                                <p className="text-xs text-slate-600 dark:text-slate-300 italic line-clamp-2">{att.catatan || '-'}</p>
+                                {att.adminFeedback && (
+                                  <button
+                                    onClick={() => {
+                                      setFeedbackModal({ show: true, taskName: selectedReport.taskName, catatan: att.catatan || '-', adminFeedback: att.adminFeedback! });
+                                      markFeedbackAsRead(att.id, att.adminFeedback!);
+                                    }}
+                                    className="text-school-blue dark:text-white hover:text-blue-700 dark:hover:text-slate-300 hover:bg-blue-50 dark:bg-slate-800 dark:hover:bg-slate-700 p-1.5 rounded-lg transition-colors shrink-0 relative bg-white dark:bg-slate-800 border border-blue-100"
+                                    title="Lihat Balasan Admin"
+                                  >
+                                    <MessageSquareMore size={14} />
+                                    {readFeedbacks[att.id] !== att.adminFeedback && (
+                                      <span className="absolute -top-1 -right-1 flex h-2.5 w-2.5">
+                                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
+                                        <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-rose-500"></span>
+                                      </span>
+                                    )}
+                                  </button>
+                                )}
+                              </div>
+                            </div>
+
+                            <div className="flex items-center justify-between gap-2 mt-1 pt-2 border-t border-slate-100 dark:border-slate-700">
+                              <div className="flex items-center gap-2">
+                                <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase">Penilaian</span>
+                                <StarRating score={att?.score ?? 0} size={14} />
+                              </div>
+
+                              <div className="flex items-center gap-1.5 shrink-0">
+                                <a href={att.link} target="_blank" rel="noopener noreferrer" className="p-2 text-school-blue dark:text-white bg-blue-50 dark:bg-slate-800 hover:bg-blue-100 dark:bg-slate-700 dark:hover:bg-slate-600 rounded-full transition-colors" title="Lihat Lampiran">
+                                  <Eye size={14} />
+                                </a>
+                                {att.status === 'rejected' ? (
+                                  <button onClick={() => openRevisionModal(att.id, false, selectedReport.taskName, selectedReport.description)} className="p-2 text-amber-600 bg-amber-50 hover:bg-amber-100 dark:bg-amber-900/60 dark:hover:bg-amber-900/70 rounded-full transition-colors" title="Revisi Lampiran">
+                                    <RefreshCw size={14} />
+                                  </button>
+                                ) : (
+                                  <button onClick={(e) => handleDownload(att.link, e)} disabled={downloadingUrl === att.link} className={`p-2 rounded-full transition-colors ${downloadingUrl === att.link ? 'text-slate-400 bg-slate-100 dark:bg-slate-800' : 'text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-600'}`} title="Unduh Lampiran">
+                                    {downloadingUrl === att.link ? <Loader2 size={14} className="animate-spin" /> : <Download size={14} />}
+                                  </button>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                        {!isMainVisible && filteredAttachments.length === 0 && (
+                          <div className="p-8 text-center text-slate-500 dark:text-slate-400">
+                            <div className="flex justify-center mb-2 text-slate-300">
+                              <ClipboardList size={32} />
+                            </div>
+                            Belum ada lampiran.
+                          </div>
+                        )}
+                      </>
+                    )}
+                  </div>
+                </div>
               </div>
-              <button
-                onClick={() => openAttachmentForm(selectedReport.id)}
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 text-sm font-bold text-school-blue dark:text-white hover:text-blue-700 dark:hover:text-slate-300 bg-blue-50 dark:bg-slate-800 hover:bg-blue-100 dark:bg-slate-700 dark:hover:bg-slate-600 px-4 py-2 rounded-xl transition-colors shadow-sm"
-              >
-                <Plus size={16} /> Tambah Lampiran
-              </button>
+            );
+          })()}
+        </>
+      )}
+
+      {!selectedReport && (
+        <>
+          {/* Ringkasan Status Keseluruhan */}
+          <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-3 sm:p-4 mb-6">
+            <h3 className="font-bold text-slate-800 dark:text-slate-50 text-sm mb-3">Ringkasan Status Lampiran</h3>
+            <div className="flex items-center justify-center gap-2 sm:gap-8 bg-slate-50 dark:bg-slate-900 p-2 sm:p-4 rounded-lg border border-slate-100 dark:border-slate-700 overflow-x-auto">
+              <div className="flex flex-col items-center justify-center text-center shrink-0">
+                <p className="text-xl sm:text-2xl font-black text-blue-600 leading-none">{taskReports.reduce((sum, r) => sum + (r.totalUpdates || 0), 0)}</p>
+                <p className="text-[9px] sm:text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mt-1 sm:mt-2">Lampiran</p>
+              </div>
+              <div className="w-px h-8 sm:h-10 bg-slate-200 shrink-0"></div>
+              <div className="flex flex-col items-center justify-center text-center shrink-0">
+                <p className="text-xl sm:text-2xl font-black text-orange-500 leading-none">{taskReports.reduce((sum, r) => sum + (r.totalMenunggu || 0), 0)}</p>
+                <p className="text-[9px] sm:text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mt-1 sm:mt-2">Menunggu</p>
+              </div>
+              <div className="w-px h-8 sm:h-10 bg-slate-200 shrink-0"></div>
+              <div className="flex flex-col items-center justify-center text-center shrink-0">
+                <p className="text-xl sm:text-2xl font-black text-emerald-500 leading-none">{taskReports.reduce((sum, r) => sum + (r.totalDisetujui || 0), 0)}</p>
+                <p className="text-[9px] sm:text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mt-1 sm:mt-2">Disetujui</p>
+              </div>
+              <div className="w-px h-8 sm:h-10 bg-slate-200 shrink-0"></div>
+              <div className="flex flex-col items-center justify-center text-center shrink-0">
+                <p className="text-xl sm:text-2xl font-black text-rose-500 leading-none">{taskReports.reduce((sum, r) => sum + (r.totalDitolak || 0), 0)}</p>
+                <p className="text-[9px] sm:text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mt-1 sm:mt-2">Ditolak</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700">
+            <div className="p-4 border-b border-slate-200 dark:border-slate-700 flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white dark:bg-slate-800 relative z-10 rounded-t-xl">
+              <div className="flex items-center space-x-2 truncate">
+                <ClipboardList size={20} className="text-slate-600 dark:text-slate-300 shrink-0" />
+                <h2 className="font-bold text-slate-800 dark:text-slate-50 text-lg">Riwayat Tugas Laporan</h2>
+              </div>
+
+              <div className="flex items-center gap-2 relative" ref={filterPopupRef}>
+                <button
+                  onClick={() => setShowFilterPopup(!showFilterPopup)}
+                  className={`flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-bold transition-all border border-transparent ${showFilterPopup || filterStartDate || filterEndDate || sortOrder !== 'newest'
+                    ? 'bg-school-blue text-white shadow-md'
+                    : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-700 shadow-sm'
+                    }`}
+                >
+                  <SlidersHorizontal size={16} />
+                  Filter
+                </button>
+
+                {/* Pop-up Filter */}
+                {showFilterPopup && (
+                  <div className="absolute right-0 top-full mt-2 w-[calc(100vw-32px)] sm:w-72 bg-white dark:bg-slate-800 rounded-xl shadow-xl border border-slate-200 dark:border-slate-700 p-4 z-50 animate-in fade-in slide-in-from-top-2">
+                    <div className="flex justify-between items-center mb-4">
+                      <h3 className="font-bold text-slate-800 dark:text-slate-50 text-sm">Filter Data</h3>
+                      <button onClick={() => setShowFilterPopup(false)} className="text-slate-400 hover:text-slate-600 dark:text-slate-300 bg-slate-50 dark:bg-slate-900 hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700 p-1 rounded-md transition-colors">
+                        <X size={16} />
+                      </button>
+                    </div>
+
+                    <div className="space-y-3">
+                      <div>
+                        <input
+                          type={filterStartDate ? "date" : "text"}
+                          placeholder="Tanggal Mulai"
+                          onClick={(e) => {
+                            try { (e.target as HTMLInputElement).showPicker(); } catch (err) { }
+                          }}
+                          onFocus={(e) => {
+                            e.target.type = 'date';
+                            try { (e.target as HTMLInputElement).showPicker(); } catch (err) { }
+                          }}
+                          onBlur={(e) => {
+                            if (!e.target.value) e.target.type = 'text';
+                          }}
+                          value={filterStartDate}
+                          onChange={(e) => setFilterStartDate(e.target.value)}
+                          className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-school-blue/20 outline-none text-slate-700 dark:text-slate-200 font-bold text-center cursor-pointer transition-all hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700 dark:[color-scheme:dark]"
+                        />
+                      </div>
+                      <div>
+                        <input
+                          type={filterEndDate ? "date" : "text"}
+                          placeholder="Tanggal Akhir"
+                          onClick={(e) => {
+                            try { (e.target as HTMLInputElement).showPicker(); } catch (err) { }
+                          }}
+                          onFocus={(e) => {
+                            e.target.type = 'date';
+                            try { (e.target as HTMLInputElement).showPicker(); } catch (err) { }
+                          }}
+                          onBlur={(e) => {
+                            if (!e.target.value) e.target.type = 'text';
+                          }}
+                          value={filterEndDate}
+                          onChange={(e) => setFilterEndDate(e.target.value)}
+                          className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-school-blue/20 outline-none text-slate-700 dark:text-slate-200 font-bold text-center cursor-pointer transition-all hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700 dark:[color-scheme:dark]"
+                        />
+                      </div>
+                      <div className="relative" ref={sortDropdownRef}>
+                        <button
+                          type="button"
+                          onClick={() => setIsSortDropdownOpen(!isSortDropdownOpen)}
+                          className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-4 py-2.5 text-sm outline-none text-slate-700 dark:text-slate-200 font-bold flex justify-center items-center transition-all hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700 hover:border-slate-300 focus:ring-2 focus:ring-school-blue/20"
+                        >
+                          <span className="flex items-center gap-2">
+                            {sortOrder === 'newest' && <><ArrowDown size={16} className="text-school-blue dark:text-white" /> Terbaru</>}
+                            {sortOrder === 'oldest' && <><ArrowUp size={16} className="text-school-blue dark:text-white" /> Terlama</>}
+                          </span>
+                        </button>
+
+                        {isSortDropdownOpen && (
+                          <div className="absolute z-50 w-full mt-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-lg overflow-hidden animate-in fade-in zoom-in-95 duration-100">
+                            <button
+                              type="button"
+                              onClick={() => { setSortOrder('newest'); setIsSortDropdownOpen(false); }}
+                              className={`w-full text-left px-4 py-2.5 text-sm font-semibold flex items-center gap-2 transition-colors hover:bg-slate-50 dark:hover:bg-slate-700 ${sortOrder === 'newest' ? 'text-school-blue dark:text-white bg-blue-50/50 dark:bg-blue-900/40' : 'text-slate-700 dark:text-slate-200'}`}
+                            >
+                              <ArrowDown size={16} className={sortOrder === 'newest' ? 'text-school-blue dark:text-white' : 'text-slate-500 dark:text-slate-400'} /> Terbaru
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => { setSortOrder('oldest'); setIsSortDropdownOpen(false); }}
+                              className={`w-full text-left px-4 py-2.5 text-sm font-semibold flex items-center gap-2 transition-colors hover:bg-slate-50 dark:hover:bg-slate-700 ${sortOrder === 'oldest' ? 'text-school-blue dark:text-white bg-blue-50/50 dark:bg-blue-900/40' : 'text-slate-700 dark:text-slate-200'}`}
+                            >
+                              <ArrowUp size={16} className={sortOrder === 'oldest' ? 'text-school-blue dark:text-white' : 'text-slate-500 dark:text-slate-400'} /> Terlama
+                            </button>
+                          </div>
+                        )}
+                      </div>
+
+                      {(filterStartDate || filterEndDate || sortOrder !== 'newest') && (
+                        <button
+                          onClick={() => {
+                            setFilterStartDate('');
+                            setFilterEndDate('');
+                            setSortOrder('newest');
+                          }}
+                          className="w-full mt-2 pt-1 text-xs font-bold text-rose-500 hover:text-rose-600 dark:text-rose-400 dark:hover:text-rose-300 hover:underline transition-colors text-center"
+                        >
+                          Reset Filter
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
             <div className="overflow-x-auto">
-              <table className="w-full text-left border-collapse min-w-[600px] hidden xl:table">
+              {/* Desktop Table View */}
+              <table className="w-full text-left border-collapse min-w-[800px] hidden xl:table">
                 <thead>
                   <tr className="bg-slate-50 dark:bg-slate-900 text-slate-500 dark:text-slate-400 text-xs uppercase tracking-wider">
                     <th className="px-4 py-3 font-bold border border-slate-200 dark:border-slate-700 w-12 text-center">NO</th>
                     <th className="px-4 py-3 font-bold border border-slate-200 dark:border-slate-700 text-center w-36">TANGGAL</th>
-                    <th className="px-4 py-3 font-bold border border-slate-200 dark:border-slate-700 text-center w-28">JAM</th>
-                    <th className="px-4 py-3 font-bold border border-slate-200 dark:border-slate-700 w-64">NAMA TUGAS</th>
-                    <th className="px-4 py-3 font-bold border border-slate-200 dark:border-slate-700 w-80">CATATAN</th>
-                    <th className="px-4 py-3 font-bold border border-slate-200 dark:border-slate-700 text-center w-32">STATUS</th>
+                    <th className="px-4 py-3 font-bold border border-slate-200 dark:border-slate-700 w-1/3">NAMA TUGAS</th>
                     <th className="px-4 py-3 font-bold border border-slate-200 dark:border-slate-700 text-center w-28">NILAI</th>
                     <th className="px-4 py-3 font-bold border border-slate-200 dark:border-slate-700 text-center w-16">SKOR</th>
-                    <th className="px-4 py-3 font-bold border border-slate-200 dark:border-slate-700 text-center w-24">LAMPIRAN</th>
-                    <th className="px-4 py-3 font-bold border border-slate-200 dark:border-slate-700 text-center w-24">UNDUH</th>
+                    <th className="px-4 py-3 font-bold border border-slate-200 dark:border-slate-700 text-center w-20">PERIKSA</th>
+                    <th className="px-4 py-3 font-bold border border-slate-200 dark:border-slate-700 text-center w-20">UPDATE</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {isAttachmentsLoading ? (
+                  {isLoading ? (
                     <tr>
                       <td colSpan={10} className="p-12 text-center text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-700">
                         <div className="flex justify-center mb-3 text-school-blue dark:text-white">
                           <Loader2 size={32} className="animate-spin" />
                         </div>
-                        <p className="font-bold text-lg text-slate-600 dark:text-slate-300 mb-1">Memuat Lampiran...</p>
+                        <p className="font-bold text-lg text-slate-600 dark:text-slate-300 mb-1">Memuat Data...</p>
                       </td>
                     </tr>
+                  ) : combinedTasks.length > 0 ? (
+                    combinedTasks.map((item, index) => {
+                      const report = item.report;
+
+                      return (
+                        <tr key={index} className={`transition-colors ${!report ? 'bg-white dark:bg-slate-800' : 'bg-slate-50 dark:bg-slate-900/50'} hover:bg-slate-50 dark:hover:bg-slate-700`}>
+                          <td className="px-4 py-3 border border-slate-200 dark:border-slate-700 text-center text-sm font-medium text-slate-500 dark:text-slate-400">
+                            {index + 1}
+                          </td>
+                          <td className="px-4 py-3 border border-slate-200 dark:border-slate-700 text-center text-sm text-slate-700 dark:text-slate-200">
+                            {format(new Date(item.date), 'dd MMM yyyy', { locale: id })}
+                          </td>
+                          <td className="px-4 py-3 border border-slate-200 dark:border-slate-700 text-sm font-bold text-slate-800 dark:text-slate-50 max-w-sm truncate" title={item.taskName}>
+                            {item.taskName}
+                          </td>
+                          <td className="px-4 py-3 border border-slate-200 dark:border-slate-700 text-center">
+                            <div className="flex items-center justify-center gap-0.5 text-slate-300" title={(report?.averageScore ?? report?.score) ? `Nilai: ${Number(report?.averageScore ?? report?.score).toFixed(1)} Bintang` : 'Belum Dinilai'}>
+                              <StarRating score={report?.averageScore ?? report?.score} size={16} />
+                            </div>
+                          </td>
+                          <td className="px-4 py-3 border border-slate-200 dark:border-slate-700 text-center font-bold text-amber-500">
+                            {(report?.averageScore ?? report?.score) ? Number(report?.averageScore ?? report?.score).toFixed(1) : '-'}
+                          </td>
+                          <td className="px-4 py-3 border border-slate-200 dark:border-slate-700 text-center">
+                            <div className="flex items-center justify-center gap-1">
+                              {report ? (
+                                <button
+                                  onClick={() => handleDetailClick(report)}
+                                  title="Lihat Detail"
+                                  className="p-2 rounded-full text-school-blue dark:text-white hover:bg-blue-50 dark:bg-slate-800 dark:hover:bg-slate-700 hover:text-blue-700 dark:hover:text-slate-300 transition-colors inline-flex"
+                                >
+                                  <Eye size={18} />
+                                </button>
+                              ) : (
+                                <button
+                                  onClick={() => {
+                                    setReportTaskName(item.taskName);
+                                    setReportDescription('');
+                                    setReportLink('');
+                                    setShowForm(true);
+                                    setTimeout(scrollToTop, 50);
+                                  }}
+                                  title="Kerjakan Tugas"
+                                  className="p-2 rounded-full text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/50 hover:text-emerald-700 transition-colors inline-flex"
+                                >
+                                  <Edit size={18} />
+                                </button>
+                              )}
+                            </div>
+                          </td>
+                          <td className="px-4 py-3 border border-slate-200 dark:border-slate-700 text-center">
+                            <div className="flex items-center justify-center gap-1">
+                              {report && (
+                                <button
+                                  onClick={() => openAttachmentForm(report.id)}
+                                  title="Update Lampiran"
+                                  className="p-2 rounded-full text-amber-500 hover:bg-amber-50 dark:hover:bg-amber-900/50 hover:text-amber-600 transition-colors inline-flex"
+                                >
+                                  <Plus size={18} />
+                                </button>
+                              )}
+                            </div>
+                          </td>
+                        </tr>
+                      )
+                    })
                   ) : (
-                    <>
-                      {selectedReport.link && (
-                        <tr className="hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors bg-white dark:bg-slate-800">
-                          <td className="px-4 py-3 border border-slate-200 dark:border-slate-700 text-center text-sm font-medium text-slate-500 dark:text-slate-400">1</td>
-                          <td className="px-4 py-3 border border-slate-200 dark:border-slate-700 text-center text-sm text-slate-700 dark:text-slate-200">{format(new Date(selectedReport.createdAt), 'dd MMM yyyy', { locale: id })}</td>
-                          <td className="px-4 py-3 border border-slate-200 dark:border-slate-700 text-center text-sm font-bold text-slate-600 dark:text-slate-300">{format(new Date(selectedReport.createdAt), 'HH:mm', { locale: id })}</td>
-                          <td className="px-4 py-3 border border-slate-200 dark:border-slate-700 text-sm font-bold text-slate-800 dark:text-slate-50 max-w-[200px] truncate" title={selectedReport.taskName}>{selectedReport.taskName}</td>
-                          <td className="px-4 py-3 border border-slate-200 dark:border-slate-700">
-                            <div className="flex items-center justify-between gap-2">
-                              <span className="text-sm text-slate-700 dark:text-slate-200 truncate max-w-[260px]">-</span>
-                              {selectedReport.adminFeedback && (
-                                <button
-                                  onClick={() => {
-                                    setFeedbackModal({ show: true, taskName: selectedReport.taskName, catatan: '-', adminFeedback: selectedReport.adminFeedback! });
-                                    markFeedbackAsRead(selectedReport.id, selectedReport.adminFeedback!);
-                                  }}
-                                  className="text-school-blue dark:text-white hover:text-blue-700 dark:hover:text-slate-300 hover:bg-blue-50 dark:bg-slate-800 dark:hover:bg-slate-700 p-1.5 rounded-lg transition-colors shrink-0 relative"
-                                  title="Lihat Balasan Admin"
-                                >
-                                  <MessageSquareMore size={16} />
-                                  {readFeedbacks[selectedReport.id] !== selectedReport.adminFeedback && (
-                                    <span className="absolute top-1 right-1 flex h-2 w-2">
-                                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
-                                      <span className="relative inline-flex rounded-full h-2 w-2 bg-rose-500"></span>
-                                    </span>
-                                  )}
-                                </button>
-                              )}
-                            </div>
-                          </td>
-                          <td className="px-4 py-3 border border-slate-200 dark:border-slate-700 text-center">
-                            <div className="flex items-center justify-center">
-                              {selectedReport.status === 'reviewed' ? (
-                                <span title="Disetujui"><CheckCircle2 size={20} className="fill-emerald-500 text-white" /></span>
-                              ) : selectedReport.status === 'rejected' ? (
-                                <span title="Ditolak"><XCircle size={20} className="fill-rose-500 text-white" /></span>
-                              ) : (
-                                <span title="Tertunda"><Clock size={20} className="fill-slate-400 text-white" /></span>
-                              )}
-                            </div>
-                          </td>
-                          <td className="px-4 py-3 border border-slate-200 dark:border-slate-700 text-center">
-                            <div className="flex items-center justify-center gap-1 text-slate-300" title={selectedReport?.score ? `Nilai: ${selectedReport.score.toFixed(1)} Bintang` : 'Belum Dinilai'}>
-                              <StarRating score={selectedReport?.score ?? 0} size={16} />
-                            </div>
-                          </td>
-                          <td className="px-4 py-3 border border-slate-200 dark:border-slate-700 text-center font-bold text-amber-500">
-                            {selectedReport?.score ? selectedReport.score.toFixed(1) : '-'}
-                          </td>
-                          <td className="px-4 py-3 border border-slate-200 dark:border-slate-700 text-center">
-                            <div className="flex items-center justify-center">
-                              <a href={selectedReport.link} target="_blank" rel="noopener noreferrer" className="text-school-blue dark:text-white hover:text-blue-700 dark:hover:text-slate-300 transition-colors inline-block" title="Lihat Lampiran">
-                                <Paperclip size={18} />
-                              </a>
-                            </div>
-                          </td>
-                          <td className="px-4 py-3 border border-slate-200 dark:border-slate-700 text-center">
-                            <div className="flex items-center justify-center">
-                              {selectedReport.status === 'rejected' ? (
-                                <button onClick={() => openRevisionModal(selectedReport.id, true, selectedReport.taskName, selectedReport.description)} className="text-amber-500 hover:text-amber-600 transition-colors inline-block cursor-pointer" title="Revisi Lampiran">
-                                  <RefreshCw size={18} />
-                                </button>
-                              ) : (
-                                <button onClick={(e) => handleDownload(selectedReport.link!, e)} disabled={downloadingUrl === selectedReport.link} className={`${downloadingUrl === selectedReport.link ? 'text-school-blue dark:text-white' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:text-slate-200'} transition-colors inline-block cursor-pointer`} title="Unduh Lampiran">
-                                  {downloadingUrl === selectedReport.link ? <Loader2 size={18} className="animate-spin" /> : <Download size={18} />}
-                                </button>
-                              )}
-                            </div>
-                          </td>
-                        </tr>
-                      )}
-                      {attachments.map((att, idx) => (
-                        <tr key={att.id} className="hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors bg-white dark:bg-slate-800">
-                          <td className="px-4 py-3 border border-slate-200 dark:border-slate-700 text-center text-sm font-medium text-slate-500 dark:text-slate-400">{(selectedReport.link ? 1 : 0) + idx + 1}</td>
-                          <td className="px-4 py-3 border border-slate-200 dark:border-slate-700 text-center text-sm text-slate-700 dark:text-slate-200">{format(new Date(att.createdAt), 'dd MMM yyyy', { locale: id })}</td>
-                          <td className="px-4 py-3 border border-slate-200 dark:border-slate-700 text-center text-sm font-bold text-slate-600 dark:text-slate-300">{format(new Date(att.createdAt), 'HH:mm', { locale: id })}</td>
-                          <td className="px-4 py-3 border border-slate-200 dark:border-slate-700 text-sm font-bold text-slate-800 dark:text-slate-50 max-w-[200px] truncate" title={selectedReport.taskName}>{selectedReport.taskName}</td>
-                          <td className="px-4 py-3 border border-slate-200 dark:border-slate-700">
-                            <div className="flex items-center justify-between gap-2">
-                              <span className="text-sm text-slate-700 dark:text-slate-200 truncate max-w-[260px]" title={att.catatan}>{att.catatan || '-'}</span>
-                              {att.adminFeedback && (
-                                <button
-                                  onClick={() => {
-                                    setFeedbackModal({ show: true, taskName: selectedReport.taskName, catatan: att.catatan || '-', adminFeedback: att.adminFeedback! });
-                                    markFeedbackAsRead(att.id, att.adminFeedback!);
-                                  }}
-                                  className="text-school-blue dark:text-white hover:text-blue-700 dark:hover:text-slate-300 hover:bg-blue-50 dark:bg-slate-800 dark:hover:bg-slate-700 p-1.5 rounded-lg transition-colors shrink-0 relative"
-                                  title="Lihat Balasan Admin"
-                                >
-                                  <MessageSquareMore size={16} />
-                                  {readFeedbacks[att.id] !== att.adminFeedback && (
-                                    <span className="absolute top-1 right-1 flex h-2 w-2">
-                                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
-                                      <span className="relative inline-flex rounded-full h-2 w-2 bg-rose-500"></span>
-                                    </span>
-                                  )}
-                                </button>
-                              )}
-                            </div>
-                          </td>
-                          <td className="px-4 py-3 border border-slate-200 dark:border-slate-700 text-center">
-                            <div className="flex items-center justify-center">
-                              {att.status === 'reviewed' ? (
-                                <span title="Disetujui"><CheckCircle2 size={20} className="fill-emerald-500 text-white" /></span>
-                              ) : att.status === 'rejected' ? (
-                                <span title="Ditolak"><XCircle size={20} className="fill-rose-500 text-white" /></span>
-                              ) : (
-                                <span title="Tertunda"><Clock size={20} className="fill-slate-400 text-white" /></span>
-                              )}
-                            </div>
-                          </td>
-                          <td className="px-4 py-3 border border-slate-200 dark:border-slate-700 text-center">
-                            <div className="flex items-center justify-center gap-1 text-slate-300" title={att?.score ? `Nilai: ${att.score.toFixed(1)} Bintang` : 'Belum Dinilai'}>
-                              <StarRating score={att?.score ?? 0} size={16} />
-                            </div>
-                          </td>
-                          <td className="px-4 py-3 border border-slate-200 dark:border-slate-700 text-center font-bold text-amber-500">
-                            {att?.score ? att.score.toFixed(1) : '-'}
-                          </td>
-                          <td className="px-4 py-3 border border-slate-200 dark:border-slate-700 text-center">
-                            <div className="flex items-center justify-center">
-                              <a href={att.link} target="_blank" rel="noopener noreferrer" className="text-school-blue dark:text-white hover:text-blue-700 dark:hover:text-slate-300 transition-colors inline-block" title="Lihat Lampiran">
-                                <Paperclip size={18} />
-                              </a>
-                            </div>
-                          </td>
-                          <td className="px-4 py-3 border border-slate-200 dark:border-slate-700 text-center">
-                            <div className="flex items-center justify-center">
-                              {att.status === 'rejected' ? (
-                                <button onClick={() => openRevisionModal(att.id, false, selectedReport.taskName, selectedReport.description)} className="text-amber-500 hover:text-amber-600 transition-colors inline-block cursor-pointer" title="Revisi Lampiran">
-                                  <RefreshCw size={18} />
-                                </button>
-                              ) : (
-                                <button onClick={(e) => handleDownload(att.link, e)} disabled={downloadingUrl === att.link} className={`${downloadingUrl === att.link ? 'text-school-blue dark:text-white' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:text-slate-200'} transition-colors inline-block cursor-pointer`} title="Unduh Lampiran">
-                                  {downloadingUrl === att.link ? <Loader2 size={18} className="animate-spin" /> : <Download size={18} />}
-                                </button>
-                              )}
-                            </div>
-                          </td>
-                        </tr>
-                      ))}
-                      {!selectedReport.link && attachments.length === 0 && (
-                        <tr>
-                          <td colSpan={9} className="p-8 text-center text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-700">
-                            Belum ada lampiran.
-                          </td>
-                        </tr>
-                      )}
-                    </>
+                    <tr>
+                      <td colSpan={10} className="p-8 text-center text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-700">
+                        <div className="flex justify-center mb-2 text-slate-300">
+                          <ClipboardList size={32} />
+                        </div>
+                        Belum ada tugas yang tersedia.
+                      </td>
+                    </tr>
                   )}
                 </tbody>
               </table>
 
               {/* Mobile Card View */}
               <div className="xl:hidden flex flex-col divide-y divide-slate-100 dark:divide-slate-700 border-t border-slate-200 dark:border-slate-700">
-                {isAttachmentsLoading ? (
+                {isLoading ? (
                   <div className="p-12 text-center text-slate-500 dark:text-slate-400">
                     <div className="flex justify-center mb-3 text-school-blue dark:text-white">
                       <Loader2 size={32} className="animate-spin" />
                     </div>
-                    <p className="font-bold text-lg text-slate-600 dark:text-slate-300 mb-1">Memuat Lampiran...</p>
-                  </div>
-                ) : (
-                  <>
-                    {selectedReport.link && (
-                      <div className="p-4 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors flex flex-col gap-3 bg-white dark:bg-slate-800">
-                        <div className="flex justify-between items-start gap-2">
-                          <div className="flex flex-col min-w-0 flex-1">
-                            <h3 className="font-extrabold text-slate-800 dark:text-slate-50 text-sm leading-snug truncate" title={selectedReport.taskName}>{selectedReport.taskName}</h3>
-                            <p className="text-[11px] font-bold text-slate-400 mt-0.5 truncate">
-                              {format(new Date(selectedReport.createdAt), 'dd MMM yyyy • HH:mm', { locale: id })}
-                            </p>
-                          </div>
-                          <div className="flex items-center shrink-0">
-                            {selectedReport.status === 'reviewed' ? (
-                              <span className="bg-emerald-100 text-emerald-700 px-2 py-1 rounded-md text-[10px] font-bold uppercase flex items-center gap-1"><CheckCircle2 size={12}/> Disetujui</span>
-                            ) : selectedReport.status === 'rejected' ? (
-                              <span className="bg-rose-100 text-rose-700 px-2 py-1 rounded-md text-[10px] font-bold uppercase flex items-center gap-1"><XCircle size={12}/> Ditolak</span>
-                            ) : (
-                              <span className="bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 px-2 py-1 rounded-md text-[10px] font-bold uppercase flex items-center gap-1"><Clock size={12}/> Tertunda</span>
-                            )}
-                          </div>
-                        </div>
-
-                        <div className="bg-slate-50 dark:bg-slate-900 p-2.5 rounded-lg border border-slate-100 dark:border-slate-700 mt-1">
-                          <p className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Catatan:</p>
-                          <div className="flex items-start justify-between gap-2">
-                            <p className="text-xs text-slate-600 dark:text-slate-300 italic line-clamp-2">-</p>
-                            {selectedReport.adminFeedback && (
-                              <button
-                                onClick={() => {
-                                  setFeedbackModal({ show: true, taskName: selectedReport.taskName, catatan: '-', adminFeedback: selectedReport.adminFeedback! });
-                                  markFeedbackAsRead(selectedReport.id, selectedReport.adminFeedback!);
-                                }}
-                                className="text-school-blue dark:text-white hover:text-blue-700 dark:hover:text-slate-300 hover:bg-blue-50 dark:bg-slate-800 dark:hover:bg-slate-700 p-1.5 rounded-lg transition-colors shrink-0 relative bg-white dark:bg-slate-800 border border-blue-100"
-                                title="Lihat Balasan Admin"
-                              >
-                                <MessageSquareMore size={14} />
-                                {readFeedbacks[selectedReport.id] !== selectedReport.adminFeedback && (
-                                  <span className="absolute -top-1 -right-1 flex h-2.5 w-2.5">
-                                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
-                                    <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-rose-500"></span>
-                                  </span>
-                                )}
-                              </button>
-                            )}
-                          </div>
-                        </div>
-                        
-                        <div className="flex items-center justify-between gap-2 mt-1 pt-2 border-t border-slate-100 dark:border-slate-700">
-                          <div className="flex items-center gap-2">
-                            <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase">Penilaian</span>
-                            <StarRating score={selectedReport?.score ?? 0} size={14} />
-                          </div>
-                          
-                          <div className="flex items-center gap-1.5 shrink-0">
-                            <a href={selectedReport.link} target="_blank" rel="noopener noreferrer" className="p-2 text-school-blue dark:text-white bg-blue-50 dark:bg-slate-800 hover:bg-blue-100 dark:bg-slate-700 dark:hover:bg-slate-600 rounded-full transition-colors" title="Lihat Lampiran">
-                              <Eye size={14} />
-                            </a>
-                            {selectedReport.status === 'rejected' ? (
-                              <button onClick={() => openRevisionModal(selectedReport.id, true, selectedReport.taskName, selectedReport.description)} className="p-2 text-amber-600 bg-amber-50 hover:bg-amber-100 dark:bg-amber-900/60 dark:hover:bg-amber-900/70 rounded-full transition-colors" title="Revisi Lampiran">
-                                <RefreshCw size={14} />
-                              </button>
-                            ) : (
-                              <button onClick={(e) => handleDownload(selectedReport.link!, e)} disabled={downloadingUrl === selectedReport.link} className={`p-2 rounded-full transition-colors ${downloadingUrl === selectedReport.link ? 'text-slate-400 bg-slate-100 dark:bg-slate-800' : 'text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-600'}`} title="Unduh Lampiran">
-                                {downloadingUrl === selectedReport.link ? <Loader2 size={14} className="animate-spin" /> : <Download size={14} />}
-                              </button>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                    )}
-                    {attachments.map((att) => (
-                      <div key={att.id} className="p-4 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors flex flex-col gap-3 bg-white dark:bg-slate-800">
-                        <div className="flex justify-between items-start gap-2">
-                          <div className="flex flex-col min-w-0 flex-1">
-                            <h3 className="font-extrabold text-slate-800 dark:text-slate-50 text-sm leading-snug truncate" title={selectedReport.taskName}>{selectedReport.taskName}</h3>
-                            <p className="text-[11px] font-bold text-slate-400 mt-0.5 truncate">
-                              {format(new Date(att.createdAt), 'dd MMM yyyy • HH:mm', { locale: id })}
-                            </p>
-                          </div>
-                          <div className="flex items-center shrink-0">
-                            {att.status === 'reviewed' ? (
-                              <span className="bg-emerald-100 text-emerald-700 px-2 py-1 rounded-md text-[10px] font-bold uppercase flex items-center gap-1"><CheckCircle2 size={12}/> Disetujui</span>
-                            ) : att.status === 'rejected' ? (
-                              <span className="bg-rose-100 text-rose-700 px-2 py-1 rounded-md text-[10px] font-bold uppercase flex items-center gap-1"><XCircle size={12}/> Ditolak</span>
-                            ) : (
-                              <span className="bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 px-2 py-1 rounded-md text-[10px] font-bold uppercase flex items-center gap-1"><Clock size={12}/> Tertunda</span>
-                            )}
-                          </div>
-                        </div>
-
-                        <div className="bg-slate-50 dark:bg-slate-900 p-2.5 rounded-lg border border-slate-100 dark:border-slate-700 mt-1">
-                          <p className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Catatan:</p>
-                          <div className="flex items-start justify-between gap-2">
-                            <p className="text-xs text-slate-600 dark:text-slate-300 italic line-clamp-2">{att.catatan || '-'}</p>
-                            {att.adminFeedback && (
-                              <button
-                                onClick={() => {
-                                  setFeedbackModal({ show: true, taskName: selectedReport.taskName, catatan: att.catatan || '-', adminFeedback: att.adminFeedback! });
-                                  markFeedbackAsRead(att.id, att.adminFeedback!);
-                                }}
-                                className="text-school-blue dark:text-white hover:text-blue-700 dark:hover:text-slate-300 hover:bg-blue-50 dark:bg-slate-800 dark:hover:bg-slate-700 p-1.5 rounded-lg transition-colors shrink-0 relative bg-white dark:bg-slate-800 border border-blue-100"
-                                title="Lihat Balasan Admin"
-                              >
-                                <MessageSquareMore size={14} />
-                                {readFeedbacks[att.id] !== att.adminFeedback && (
-                                  <span className="absolute -top-1 -right-1 flex h-2.5 w-2.5">
-                                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
-                                    <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-rose-500"></span>
-                                  </span>
-                                )}
-                              </button>
-                            )}
-                          </div>
-                        </div>
-                        
-                        <div className="flex items-center justify-between gap-2 mt-1 pt-2 border-t border-slate-100 dark:border-slate-700">
-                          <div className="flex items-center gap-2">
-                            <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase">Penilaian</span>
-                            <StarRating score={att?.score ?? 0} size={14} />
-                          </div>
-                          
-                          <div className="flex items-center gap-1.5 shrink-0">
-                            <a href={att.link} target="_blank" rel="noopener noreferrer" className="p-2 text-school-blue dark:text-white bg-blue-50 dark:bg-slate-800 hover:bg-blue-100 dark:bg-slate-700 dark:hover:bg-slate-600 rounded-full transition-colors" title="Lihat Lampiran">
-                              <Eye size={14} />
-                            </a>
-                            {att.status === 'rejected' ? (
-                              <button onClick={() => openRevisionModal(att.id, false, selectedReport.taskName, selectedReport.description)} className="p-2 text-amber-600 bg-amber-50 hover:bg-amber-100 dark:bg-amber-900/60 dark:hover:bg-amber-900/70 rounded-full transition-colors" title="Revisi Lampiran">
-                                <RefreshCw size={14} />
-                              </button>
-                            ) : (
-                              <button onClick={(e) => handleDownload(att.link, e)} disabled={downloadingUrl === att.link} className={`p-2 rounded-full transition-colors ${downloadingUrl === att.link ? 'text-slate-400 bg-slate-100 dark:bg-slate-800' : 'text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-600'}`} title="Unduh Lampiran">
-                                {downloadingUrl === att.link ? <Loader2 size={14} className="animate-spin" /> : <Download size={14} />}
-                              </button>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                    {!selectedReport.link && attachments.length === 0 && (
-                      <div className="p-8 text-center text-slate-500 dark:text-slate-400">
-                        <div className="flex justify-center mb-2 text-slate-300">
-                          <ClipboardList size={32} />
-                        </div>
-                        Belum ada lampiran.
-                      </div>
-                    )}
-                  </>
-                )}
-              </div>
-            </div>
-          </div>
-        </>
-      )}
-
-      {/* Ringkasan Status Keseluruhan */}
-      <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-3 sm:p-4 mb-6">
-        <h3 className="font-bold text-slate-800 dark:text-slate-50 text-sm mb-3">Ringkasan Status Lampiran</h3>
-        <div className="flex items-center justify-center gap-2 sm:gap-8 bg-slate-50 dark:bg-slate-900 p-2 sm:p-4 rounded-lg border border-slate-100 dark:border-slate-700 overflow-x-auto">
-          <div className="flex flex-col items-center justify-center text-center shrink-0">
-            <p className="text-xl sm:text-2xl font-black text-blue-600 leading-none">{taskReports.reduce((sum, r) => sum + (r.totalUpdates || 0), 0)}</p>
-            <p className="text-[9px] sm:text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mt-1 sm:mt-2">Total Lampiran</p>
-          </div>
-          <div className="w-px h-8 sm:h-10 bg-slate-200 shrink-0"></div>
-          <div className="flex flex-col items-center justify-center text-center shrink-0">
-            <p className="text-xl sm:text-2xl font-black text-orange-500 leading-none">{taskReports.reduce((sum, r) => sum + (r.totalMenunggu || 0), 0)}</p>
-            <p className="text-[9px] sm:text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mt-1 sm:mt-2">Menunggu</p>
-          </div>
-          <div className="w-px h-8 sm:h-10 bg-slate-200 shrink-0"></div>
-          <div className="flex flex-col items-center justify-center text-center shrink-0">
-            <p className="text-xl sm:text-2xl font-black text-emerald-500 leading-none">{taskReports.reduce((sum, r) => sum + (r.totalDisetujui || 0), 0)}</p>
-            <p className="text-[9px] sm:text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mt-1 sm:mt-2">Disetujui</p>
-          </div>
-          <div className="w-px h-8 sm:h-10 bg-slate-200 shrink-0"></div>
-          <div className="flex flex-col items-center justify-center text-center shrink-0">
-            <p className="text-xl sm:text-2xl font-black text-rose-500 leading-none">{taskReports.reduce((sum, r) => sum + (r.totalDitolak || 0), 0)}</p>
-            <p className="text-[9px] sm:text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mt-1 sm:mt-2">Ditolak</p>
-          </div>
-        </div>
-      </div>
-
-      <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700">
-        <div className="p-4 border-b border-slate-200 dark:border-slate-700 flex flex-row items-center justify-between gap-4 bg-white dark:bg-slate-800">
-          <div className="flex items-center space-x-2 truncate">
-            <ClipboardList size={20} className="text-slate-600 dark:text-slate-300 shrink-0" />
-            <h2 className="font-bold text-slate-800 dark:text-slate-50 text-lg">Riwayat Tugas Laporan</h2>
-          </div>
-
-          <div className="flex items-center gap-2 relative" ref={filterPopupRef}>
-            <button
-              onClick={() => setShowFilterPopup(!showFilterPopup)}
-              className={`flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-bold border transition-all ${showFilterPopup || filterStartDate || filterEndDate || filterStatus !== 'all'
-                ? 'bg-school-blue/10 border-school-blue text-school-blue dark:text-white shadow-sm'
-                : 'bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700 shadow-sm'
-                }`}
-            >
-              <SlidersHorizontal size={16} />
-              Filter
-            </button>
-
-            {/* Pop-up Filter */}
-            {showFilterPopup && (
-              <div className="absolute right-0 top-full mt-2 w-[calc(100vw-32px)] sm:w-72 bg-white dark:bg-slate-800 rounded-xl shadow-xl border border-slate-200 dark:border-slate-700 p-4 z-50 animate-in fade-in slide-in-from-top-2">
-                <div className="flex justify-between items-center mb-4">
-                  <h3 className="font-bold text-slate-800 dark:text-slate-50 text-sm">Filter Data</h3>
-                  <button onClick={() => setShowFilterPopup(false)} className="text-slate-400 hover:text-slate-600 dark:text-slate-300 bg-slate-50 dark:bg-slate-900 hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700 p-1 rounded-md transition-colors">
-                    <X size={16} />
-                  </button>
-                </div>
-
-                <div className="space-y-3">
-                  <div>
-                    <input
-                      type={filterStartDate ? "date" : "text"}
-                      placeholder="Tanggal Mulai"
-                      onFocus={(e) => {
-                        e.target.type = 'date';
-                        if ('showPicker' in e.target) {
-                          (e.target as HTMLInputElement).showPicker();
-                        }
-                      }}
-                      onBlur={(e) => {
-                        if (!e.target.value) e.target.type = 'text';
-                      }}
-                      value={filterStartDate}
-                      onChange={(e) => setFilterStartDate(e.target.value)}
-                      className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-school-blue/20 outline-none text-slate-700 dark:text-slate-200 font-bold text-center cursor-pointer transition-all hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700"
-                    />
-                  </div>
-                  <div>
-                    <input
-                      type={filterEndDate ? "date" : "text"}
-                      placeholder="Tanggal Akhir"
-                      onFocus={(e) => {
-                        e.target.type = 'date';
-                        if ('showPicker' in e.target) {
-                          (e.target as HTMLInputElement).showPicker();
-                        }
-                      }}
-                      onBlur={(e) => {
-                        if (!e.target.value) e.target.type = 'text';
-                      }}
-                      value={filterEndDate}
-                      onChange={(e) => setFilterEndDate(e.target.value)}
-                      className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-school-blue/20 outline-none text-slate-700 dark:text-slate-200 font-bold text-center cursor-pointer transition-all hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700"
-                    />
-                  </div>
-                  <div className="relative" ref={statusDropdownRef}>
-                    <button
-                      type="button"
-                      onClick={() => setIsStatusDropdownOpen(!isStatusDropdownOpen)}
-                      className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-4 py-2.5 text-sm outline-none text-slate-700 dark:text-slate-200 font-bold flex justify-center items-center transition-all hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700 hover:border-slate-300 focus:ring-2 focus:ring-school-blue/20"
-                    >
-                      <span className="flex items-center gap-2">
-                        {filterStatus === 'all' && 'Semua Status'}
-                        {filterStatus === 'unassigned' && <><Clock size={16} className="text-slate-400" /> Tertunda</>}
-                        {filterStatus === 'pending' && <><Clock size={16} className="text-amber-500" /> Menunggu</>}
-                        {filterStatus === 'reviewed' && <><CheckCircle2 size={16} className="text-emerald-500" /> Disetujui</>}
-                        {filterStatus === 'rejected' && <><XCircle size={16} className="text-rose-500" /> Ditolak</>}
-                      </span>
-                    </button>
-
-                    {isStatusDropdownOpen && (
-                      <div className="absolute z-50 w-full mt-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-lg overflow-hidden animate-in fade-in zoom-in-95 duration-100">
-                        <button
-                          type="button"
-                          onClick={() => { setFilterStatus('all'); setIsStatusDropdownOpen(false); }}
-                          className={`w-full text-left px-4 py-2.5 text-sm font-semibold flex items-center gap-2 transition-colors hover:bg-slate-50 dark:hover:bg-slate-700 ${filterStatus === 'all' ? 'text-school-blue dark:text-white bg-blue-50/50 dark:bg-blue-900/40' : 'text-slate-700 dark:text-slate-200'}`}
-                        >
-                          <Layers size={16} className={filterStatus === 'all' ? 'text-school-blue dark:text-white' : 'text-slate-500 dark:text-slate-400'} /> Semua Status
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => { setFilterStatus('unassigned'); setIsStatusDropdownOpen(false); }}
-                          className={`w-full text-left px-4 py-2.5 text-sm font-semibold flex items-center gap-2 transition-colors hover:bg-slate-50 dark:hover:bg-slate-700 ${filterStatus === 'unassigned' ? 'text-slate-700 dark:text-slate-200 bg-slate-100 dark:bg-slate-800' : 'text-slate-700 dark:text-slate-200'}`}
-                        >
-                          <Clock size={16} className={filterStatus === 'unassigned' ? 'text-slate-500 dark:text-slate-400' : 'text-slate-400'} /> Tertunda
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => { setFilterStatus('pending'); setIsStatusDropdownOpen(false); }}
-                          className={`w-full text-left px-4 py-2.5 text-sm font-semibold flex items-center gap-2 transition-colors hover:bg-slate-50 dark:hover:bg-slate-700 ${filterStatus === 'pending' ? 'text-amber-600 bg-amber-50/50' : 'text-slate-700 dark:text-slate-200'}`}
-                        >
-                          <Clock size={16} className={filterStatus === 'pending' ? 'text-amber-600' : 'text-amber-500'} /> Menunggu
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => { setFilterStatus('reviewed'); setIsStatusDropdownOpen(false); }}
-                          className={`w-full text-left px-4 py-2.5 text-sm font-semibold flex items-center gap-2 transition-colors hover:bg-slate-50 dark:hover:bg-slate-700 ${filterStatus === 'reviewed' ? 'text-emerald-600 bg-emerald-50/50 dark:bg-emerald-900/40' : 'text-slate-700 dark:text-slate-200'}`}
-                        >
-                          <CheckCircle2 size={16} className={filterStatus === 'reviewed' ? 'text-emerald-600' : 'text-emerald-500'} /> Disetujui
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => { setFilterStatus('rejected'); setIsStatusDropdownOpen(false); }}
-                          className={`w-full text-left px-4 py-2.5 text-sm font-semibold flex items-center gap-2 transition-colors hover:bg-slate-50 dark:hover:bg-slate-700 ${filterStatus === 'rejected' ? 'text-rose-600 bg-rose-50/50 dark:bg-rose-900/40' : 'text-slate-700 dark:text-slate-200'}`}
-                        >
-                          <XCircle size={16} className={filterStatus === 'rejected' ? 'text-rose-600' : 'text-rose-500'} /> Ditolak
-                        </button>
-                      </div>
-                    )}
-                  </div>
-
-                  {(filterStartDate || filterEndDate || filterStatus !== 'all') && (
-                    <button
-                      onClick={() => {
-                        setFilterStartDate('');
-                        setFilterEndDate('');
-                        setFilterStatus('all');
-                      }}
-                      className="w-full mt-2 text-xs font-bold text-rose-500 hover:text-rose-600 bg-rose-50 hover:bg-rose-100 dark:hover:bg-rose-900/70 py-2 rounded-lg transition-colors"
-                    >
-                      Reset Filter
-                    </button>
-                  )}
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-        <div className="overflow-x-auto">
-          {/* Desktop Table View */}
-          <table className="w-full text-left border-collapse min-w-[800px] hidden xl:table">
-            <thead>
-              <tr className="bg-slate-50 dark:bg-slate-900 text-slate-500 dark:text-slate-400 text-xs uppercase tracking-wider">
-                <th className="px-4 py-3 font-bold border border-slate-200 dark:border-slate-700 w-12 text-center">NO</th>
-                <th className="px-4 py-3 font-bold border border-slate-200 dark:border-slate-700 text-center w-36">TANGGAL</th>
-                <th className="px-4 py-3 font-bold border border-slate-200 dark:border-slate-700 w-1/3">NAMA TUGAS</th>
-                <th className="px-4 py-3 font-bold border border-slate-200 dark:border-slate-700 text-center w-28">NILAI</th>
-                <th className="px-4 py-3 font-bold border border-slate-200 dark:border-slate-700 text-center w-16">SKOR</th>
-                <th className="px-4 py-3 font-bold border border-slate-200 dark:border-slate-700 text-center w-20">PERIKSA</th>
-                <th className="px-4 py-3 font-bold border border-slate-200 dark:border-slate-700 text-center w-20">UPDATE</th>
-              </tr>
-            </thead>
-            <tbody>
-              {isLoading ? (
-                <tr>
-                  <td colSpan={10} className="p-12 text-center text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-700">
-                    <div className="flex justify-center mb-3 text-school-blue dark:text-white">
-                      <Loader2 size={32} className="animate-spin" />
-                    </div>
                     <p className="font-bold text-lg text-slate-600 dark:text-slate-300 mb-1">Memuat Data...</p>
-                  </td>
-                </tr>
-              ) : combinedTasks.length > 0 ? (
-                combinedTasks.map((item, index) => {
-                  const report = item.report;
+                  </div>
+                ) : combinedTasks.length > 0 ? (
+                  combinedTasks.map((item, index) => {
+                    const report = item.report;
+                    return (
+                      <div key={index} className="p-4 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors flex flex-col gap-3 bg-white dark:bg-slate-800">
+                        <div className="flex justify-between items-start gap-2">
+                          <div className="flex flex-col min-w-0 flex-1">
+                            <h3 className="font-extrabold text-slate-800 dark:text-slate-50 text-sm leading-snug truncate" title={item.taskName}>{item.taskName}</h3>
+                            <p className="text-[11px] font-bold text-slate-400 mt-0.5 truncate">
+                              {format(new Date(item.date), 'dd MMM yyyy', { locale: id })}
+                            </p>
+                          </div>
+                        </div>
 
-                  return (
-                    <tr key={index} className={`transition-colors ${!report ? 'bg-white dark:bg-slate-800' : 'bg-slate-50 dark:bg-slate-900/50'} hover:bg-slate-50 dark:hover:bg-slate-700`}>
-                      <td className="px-4 py-3 border border-slate-200 dark:border-slate-700 text-center text-sm font-medium text-slate-500 dark:text-slate-400">
-                        {index + 1}
-                      </td>
-                      <td className="px-4 py-3 border border-slate-200 dark:border-slate-700 text-center text-sm text-slate-700 dark:text-slate-200">
-                        {format(new Date(item.date), 'dd MMM yyyy', { locale: id })}
-                      </td>
-                      <td className="px-4 py-3 border border-slate-200 dark:border-slate-700 text-sm font-bold text-slate-800 dark:text-slate-50 max-w-sm truncate" title={item.taskName}>
-                        {item.taskName}
-                      </td>
-                      <td className="px-4 py-3 border border-slate-200 dark:border-slate-700 text-center">
-                        <div className="flex items-center justify-center gap-0.5 text-slate-300" title={(report?.averageScore ?? report?.score) ? `Nilai: ${Number(report?.averageScore ?? report?.score).toFixed(1)} Bintang` : 'Belum Dinilai'}>
-                          <StarRating score={report?.averageScore ?? report?.score} size={16} />
+                        <div className="flex items-center justify-between gap-2 mt-2 pt-2 border-t border-slate-100 dark:border-slate-700">
+                          <div className="flex items-center gap-2">
+                            <span className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase">Penilaian</span>
+                            <StarRating score={report?.averageScore ?? report?.score} size={16} />
+                          </div>
+
+                          <div className="flex items-center shrink-0">
+                            {report ? (
+                              <>
+                                <button
+                                  onClick={() => {
+                                    handleDetailClick(report);
+                                    setTimeout(scrollToTop, 50);
+                                  }}
+                                  className="p-2 text-slate-400 hover:text-school-blue dark:text-white transition-colors rounded-full bg-slate-50 dark:bg-slate-900"
+                                  title="Lihat Detail Laporan"
+                                >
+                                  <Eye size={16} />
+                                </button>
+                                <button
+                                  onClick={() => openAttachmentForm(report.id)}
+                                  className="p-2 text-slate-400 hover:text-amber-500 transition-colors rounded-full bg-slate-50 dark:bg-slate-900 ml-1"
+                                  title="Update Lampiran"
+                                >
+                                  <Plus size={16} />
+                                </button>
+                              </>
+                            ) : (
+                              <button
+                                onClick={() => {
+                                  setReportTaskName(item.taskName);
+                                  setReportDescription('');
+                                  setReportLink('');
+                                  setShowForm(true);
+                                  setTimeout(scrollToTop, 50);
+                                }}
+                                className="px-3 py-1.5 text-xs font-bold text-white bg-emerald-500 hover:bg-emerald-600 transition-colors rounded-lg shadow-sm flex items-center gap-1.5"
+                              >
+                                <Edit size={14} /> Kerjakan
+                              </button>
+                            )}
+                          </div>
                         </div>
-                      </td>
-                      <td className="px-4 py-3 border border-slate-200 dark:border-slate-700 text-center font-bold text-amber-500">
-                        {(report?.averageScore ?? report?.score) ? Number(report?.averageScore ?? report?.score).toFixed(1) : '-'}
-                      </td>
-                      <td className="px-4 py-3 border border-slate-200 dark:border-slate-700 text-center">
-                        <div className="flex items-center justify-center gap-1">
-                          {report ? (
-                            <button
-                              onClick={() => handleDetailClick(report)}
-                              title="Lihat Detail"
-                              className="p-2 rounded-full text-school-blue dark:text-white hover:bg-blue-50 dark:bg-slate-800 dark:hover:bg-slate-700 hover:text-blue-700 dark:hover:text-slate-300 transition-colors inline-flex"
-                            >
-                              <Eye size={18} />
-                            </button>
-                          ) : (
-                            <button
-                              onClick={() => {
-                                setReportTaskName(item.taskName);
-                                setReportDescription('');
-                                setReportLink('');
-                                setShowForm(true);
-                                setTimeout(scrollToTop, 50);
-                              }}
-                              title="Kerjakan Tugas"
-                              className="p-2 rounded-full text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/50 hover:text-emerald-700 transition-colors inline-flex"
-                            >
-                              <Edit size={18} />
-                            </button>
-                          )}
-                        </div>
-                      </td>
-                      <td className="px-4 py-3 border border-slate-200 dark:border-slate-700 text-center">
-                        <div className="flex items-center justify-center gap-1">
-                          {report && (
-                            <button
-                              onClick={() => openAttachmentForm(report.id)}
-                              title="Update Lampiran"
-                              className="p-2 rounded-full text-amber-500 hover:bg-amber-50 dark:hover:bg-amber-900/50 hover:text-amber-600 transition-colors inline-flex"
-                            >
-                              <Plus size={18} />
-                            </button>
-                          )}
-                        </div>
-                      </td>
-                    </tr>
-                  )
-                })
-              ) : (
-                <tr>
-                  <td colSpan={10} className="p-8 text-center text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-700">
+                      </div>
+                    )
+                  })
+                ) : (
+                  <div className="p-8 text-center text-slate-500 dark:text-slate-400">
                     <div className="flex justify-center mb-2 text-slate-300">
                       <ClipboardList size={32} />
                     </div>
                     Belum ada tugas yang tersedia.
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-
-          {/* Mobile Card View */}
-          <div className="xl:hidden flex flex-col divide-y divide-slate-100 dark:divide-slate-700 border-t border-slate-200 dark:border-slate-700">
-            {isLoading ? (
-              <div className="p-12 text-center text-slate-500 dark:text-slate-400">
-                <div className="flex justify-center mb-3 text-school-blue dark:text-white">
-                  <Loader2 size={32} className="animate-spin" />
-                </div>
-                <p className="font-bold text-lg text-slate-600 dark:text-slate-300 mb-1">Memuat Data...</p>
-              </div>
-            ) : combinedTasks.length > 0 ? (
-              combinedTasks.map((item, index) => {
-                const report = item.report;
-                return (
-                  <div key={index} className="p-4 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors flex flex-col gap-3 bg-white dark:bg-slate-800">
-                    <div className="flex justify-between items-start gap-2">
-                      <div className="flex flex-col min-w-0 flex-1">
-                        <h3 className="font-extrabold text-slate-800 dark:text-slate-50 text-sm leading-snug truncate" title={item.taskName}>{item.taskName}</h3>
-                        <p className="text-[11px] font-bold text-slate-400 mt-0.5 truncate">
-                          {format(new Date(item.date), 'dd MMM yyyy', { locale: id })}
-                        </p>
-                      </div>
-                    </div>
-                    
-                    <div className="flex items-center justify-between gap-2 mt-2 pt-2 border-t border-slate-100 dark:border-slate-700">
-                      <div className="flex items-center gap-2">
-                        <span className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase">Penilaian</span>
-                        <StarRating score={report?.averageScore ?? report?.score} size={16} />
-                      </div>
-                      
-                      <div className="flex items-center shrink-0">
-                        {report ? (
-                          <>
-                            <button
-                              onClick={() => {
-                                handleDetailClick(report);
-                                setTimeout(scrollToTop, 50);
-                              }}
-                              className="p-2 text-slate-400 hover:text-school-blue dark:text-white transition-colors rounded-full bg-slate-50 dark:bg-slate-900"
-                              title="Lihat Detail Laporan"
-                            >
-                              <Eye size={16} />
-                            </button>
-                            <button
-                              onClick={() => openAttachmentForm(report.id)}
-                              className="p-2 text-slate-400 hover:text-amber-500 transition-colors rounded-full bg-slate-50 dark:bg-slate-900 ml-1"
-                              title="Update Lampiran"
-                            >
-                              <Plus size={16} />
-                            </button>
-                          </>
-                        ) : (
-                          <button
-                            onClick={() => {
-                              setReportTaskName(item.taskName);
-                              setReportDescription('');
-                              setReportLink('');
-                              setShowForm(true);
-                              setTimeout(scrollToTop, 50);
-                            }}
-                            className="px-3 py-1.5 text-xs font-bold text-white bg-emerald-500 hover:bg-emerald-600 transition-colors rounded-lg shadow-sm flex items-center gap-1.5"
-                          >
-                            <Edit size={14} /> Kerjakan
-                          </button>
-                        )}
-                      </div>
-                    </div>
                   </div>
-                )
-              })
-            ) : (
-              <div className="p-8 text-center text-slate-500 dark:text-slate-400">
-                <div className="flex justify-center mb-2 text-slate-300">
-                  <ClipboardList size={32} />
-                </div>
-                Belum ada tugas yang tersedia.
+                )}
               </div>
-            )}
+
+
+            </div>
           </div>
-
-
-        </div>
-      </div>
+        </>
+      )}
     </div>
   );
 };

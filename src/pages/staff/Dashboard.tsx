@@ -53,10 +53,21 @@ export const StaffDashboard: React.FC<StaffDashboardProps> = ({ user }) => {
   const totalIzin = monthlyAttendance.filter(a => a.status === 'leave' || a.status === 'sick').length;
   const totalTercatat = totalMasuk + totalIzin;
 
-  // Calculate task star rating
-  const gradedTasks = taskReports.filter(r => (r.averageScore ?? r.score) != null && (r.averageScore ?? r.score)! > 0);
-  const overallScore = gradedTasks.reduce((sum, r) => sum + ((r.averageScore ?? r.score) || 0), 0);
-  const averageAllTasks = gradedTasks.length > 0 ? overallScore / gradedTasks.length : 0;
+  // Calculate task star rating (True Average)
+  let globalTotalScore = 0;
+  let globalScoredCount = 0;
+
+  taskReports.forEach(r => {
+    if (r.rawScoredCount && r.rawScoredCount > 0) {
+      globalTotalScore += (r.rawTotalScore || 0);
+      globalScoredCount += r.rawScoredCount;
+    } else if (r.score && r.score > 0) {
+      globalTotalScore += r.score;
+      globalScoredCount += 1;
+    }
+  });
+
+  const averageAllTasks = globalScoredCount > 0 ? globalTotalScore / globalScoredCount : 0;
   const starRating = averageAllTasks.toFixed(1);
 
   const StatCard = ({ title, value, icon, gradientClass, subtitle, to, className = '' }: any) => {

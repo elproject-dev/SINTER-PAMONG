@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { LayoutDashboard, Users, UserCheck, FileText, ClipboardList, Settings, GraduationCap, Calendar } from 'lucide-react';
+import { LayoutDashboard, Users, FileText, ClipboardList, Settings, GraduationCap, Calendar } from 'lucide-react';
 import { BiBookBookmark, BiCheckSquare } from "react-icons/bi";
 
 import { User } from '../lib/types';
@@ -21,9 +21,17 @@ export const Sidebar: React.FC<SidebarProps> = ({ user, onLogout }) => {
     handleProfilePicChange
   } = useProfilePic(user.id, user.name);
 
+  const CustomAbsensiIcon = ({ size = 24, className = "" }: { size?: number | string, className?: string }) => (
+    <svg stroke="currentColor" fill="currentColor" strokeWidth="0" viewBox="0 0 24 24" className={className} height={size} width={size} xmlns="http://www.w3.org/2000/svg">
+      <circle cx="12" cy="4" r="2"></circle>
+      <path d="M12 18h2v-5h2V9c0-1.103-.897-2-2-2h-4c-1.103 0-2 .897-2 2v4h2v5h2z"></path>
+      <path d="m18.446 11.386-.893 1.789C19.108 13.95 20 14.98 20 16c0 1.892-3.285 4-8 4s-8-2.108-8-4c0-1.02.892-2.05 2.446-2.825l-.893-1.789C3.295 12.512 2 14.193 2 16c0 3.364 4.393 6 10 6s10-2.636 10-6c0-1.807-1.295-3.488-3.554-4.614z"></path>
+    </svg>
+  );
+
   const adminLinks = [
     { to: '/admin', icon: LayoutDashboard, label: 'Dashboard' },
-    { to: '/admin/absensi', icon: UserCheck, label: 'Absensi' },
+    { to: '/admin/absensi', icon: CustomAbsensiIcon, label: 'Absensi' },
     { to: '/admin/tugas-staff', icon: FileText, label: 'Tugas Staff' },
     { to: '/admin/penilaian-tugas', icon: ClipboardList, label: 'Penilaian Tugas' },
     { to: '/admin/staff', icon: Users, label: 'Daftar Staf' },
@@ -35,7 +43,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ user, onLogout }) => {
 
   const staffLinks = [
     { to: '/staff', icon: LayoutDashboard, label: 'Dashboard' },
-    { to: '/staff/absensi', icon: UserCheck, label: 'Absensi' },
+    { to: '/staff/absensi', icon: CustomAbsensiIcon, label: 'Absensi' },
     { to: '/staff/daftar-tugas', icon: ClipboardList, label: 'Daftar Tugas' },
     { to: '/staff/nilai-kpi', icon: BiCheckSquare, label: 'Penilaian KPI' },
     { to: '/staff/jadwal-guru', icon: Calendar, label: 'Jadwal Guru' },

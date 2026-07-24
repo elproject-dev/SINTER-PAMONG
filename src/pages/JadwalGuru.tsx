@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { User, JadwalGuru as JadwalGuruType } from '../lib/types';
 import { getJadwalGuru, uploadJadwalFile, addJadwalGuru, deleteJadwalGuru, getStaffList, updateJadwalGuru, deleteStorageFile } from '../lib/db';
 import { useRealtimeSubscription } from '../lib/useRealtime';
-import { Search, Plus, Trash2, Loader2, Users, ChevronDown, Check, Paperclip, User as UserIcon, Edit, Download, Calendar } from 'lucide-react';
+import { Search, Plus, Trash2, Loader2, Users, ChevronDown, Check, Paperclip, User as UserIcon, Edit, Download, Calendar, SlidersHorizontal, ArrowDown, ArrowUp, X } from 'lucide-react';
 import { format } from 'date-fns';
 import { id } from 'date-fns/locale';
 
@@ -41,6 +41,15 @@ export const JadwalGuru: React.FC<JadwalGuruProps> = ({ user }) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [staffSearch, setStaffSearch] = useState('');
 
+  // Filter States
+  const [showFilterPopup, setShowFilterPopup] = useState(false);
+  const [filterStartDate, setFilterStartDate] = useState('');
+  const [filterEndDate, setFilterEndDate] = useState('');
+  const [sortOrder, setSortOrder] = useState<'newest' | 'oldest'>('newest');
+  const filterPopupRef = useRef<HTMLDivElement>(null);
+  const [isSortDropdownOpen, setIsSortDropdownOpen] = useState(false);
+  const sortDropdownRef = useRef<HTMLDivElement>(null);
+
   const fetchData = async () => {
     setIsLoading(true);
     try {
@@ -63,6 +72,12 @@ export const JadwalGuru: React.FC<JadwalGuruProps> = ({ user }) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
         setIsDropdownOpen(false);
         setStaffSearch('');
+      }
+      if (filterPopupRef.current && !filterPopupRef.current.contains(event.target as Node)) {
+        setShowFilterPopup(false);
+      }
+      if (sortDropdownRef.current && !sortDropdownRef.current.contains(event.target as Node)) {
+        setIsSortDropdownOpen(false);
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
@@ -202,10 +217,39 @@ export const JadwalGuru: React.FC<JadwalGuruProps> = ({ user }) => {
     }
   };
 
-  const filteredMedia = jadwalList.filter(media => 
-    media.judul.toLowerCase().includes(searchTerm.toLowerCase()) || 
-    (media.deskripsi && media.deskripsi.toLowerCase().includes(searchTerm.toLowerCase()))
-  );
+  const filteredMedia = jadwalList
+    .filter(media => {
+      const matchesSearch = media.judul.toLowerCase().includes(searchTerm.toLowerCase()) || 
+        (media.deskripsi && media.deskripsi.toLowerCase().includes(searchTerm.toLowerCase()));
+        
+      let matchesDate = true;
+      if (filterStartDate || filterEndDate) {
+        if (media.createdAt) {
+          const mediaDate = new Date(media.createdAt);
+          mediaDate.setHours(0, 0, 0, 0);
+
+          if (filterStartDate) {
+            const start = new Date(filterStartDate);
+            start.setHours(0, 0, 0, 0);
+            if (mediaDate < start) matchesDate = false;
+          }
+          if (filterEndDate) {
+            const end = new Date(filterEndDate);
+            end.setHours(23, 59, 59, 999);
+            if (mediaDate > end) matchesDate = false;
+          }
+        } else {
+          matchesDate = false;
+        }
+      }
+
+      return matchesSearch && matchesDate;
+    })
+    .sort((a, b) => {
+      const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+      const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+      return sortOrder === 'newest' ? dateB - dateA : dateA - dateB;
+    });
 
   return (
     <div className="w-full space-y-8 animate-in fade-in duration-300">
@@ -408,10 +452,116 @@ export const JadwalGuru: React.FC<JadwalGuruProps> = ({ user }) => {
       )}
 
       <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700">
-        <div className="p-4 border-b border-slate-200 dark:border-slate-700 flex flex-row items-center justify-between bg-white dark:bg-slate-800 gap-3 relative">
-          <div className="flex items-center space-x-2 truncate">
+        <div className="p-4 border-b border-slate-200 dark:border-slate-700 flex flex-col sm:flex-row items-center justify-between bg-white dark:bg-slate-800 gap-3 relative z-10 rounded-t-xl">
+          <div className="flex items-center space-x-2 truncate w-full sm:w-auto">
             <Calendar size={20} className="text-slate-600 dark:text-slate-300 shrink-0" />
-            <h2 className="font-bold text-slate-800 dark:text-slate-50 text-lg">Daftar Jadwal Guru ({filteredMedia.length})</h2>
+            <h2 className="font-bold text-slate-800 dark:text-slate-50 text-lg truncate">Daftar Jadwal ({filteredMedia.length})</h2>
+          </div>
+
+          <div className="flex items-center gap-2 relative w-full sm:w-auto justify-end" ref={filterPopupRef}>
+            <button
+              onClick={() => setShowFilterPopup(!showFilterPopup)}
+              className={`flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-bold transition-all border border-transparent w-full sm:w-auto justify-center ${showFilterPopup || filterStartDate || filterEndDate || sortOrder !== 'newest'
+                ? 'bg-school-blue text-white shadow-md'
+                : 'bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700 shadow-sm border'
+                }`}
+            >
+              <SlidersHorizontal size={16} />
+              Filter
+            </button>
+
+            {/* Pop-up Filter */}
+            {showFilterPopup && (
+              <div className="absolute right-0 top-full mt-2 w-[calc(100vw-32px)] sm:w-72 bg-white dark:bg-slate-800 rounded-xl shadow-xl border border-slate-200 dark:border-slate-700 p-4 z-50 animate-in fade-in slide-in-from-top-2 text-left">
+                <div className="flex justify-between items-center mb-4">
+                  <h3 className="font-bold text-slate-800 dark:text-slate-50 text-sm">Filter Data</h3>
+                  <button onClick={() => setShowFilterPopup(false)} className="text-slate-400 hover:text-slate-600 dark:text-slate-300 bg-slate-50 dark:bg-slate-900 hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700 p-1 rounded-md transition-colors">
+                    <X size={16} />
+                  </button>
+                </div>
+
+                <div className="space-y-3">
+                  <div>
+                    <input
+                      type={filterStartDate ? "date" : "text"}
+                      placeholder="Tanggal Mulai..."
+                      value={filterStartDate}
+                      onClick={(e) => {
+                        try { (e.target as HTMLInputElement).showPicker(); } catch (err) {}
+                      }}
+                      onFocus={(e) => {
+                        e.target.type = 'date';
+                        try { (e.target as HTMLInputElement).showPicker(); } catch (err) {}
+                      }}
+                      onBlur={(e) => { if (!e.target.value) e.target.type = 'text'; }}
+                      onChange={(e) => setFilterStartDate(e.target.value)}
+                      className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-school-blue/20 outline-none text-slate-700 dark:text-slate-200 font-bold text-center cursor-pointer transition-all hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700 dark:[color-scheme:dark]"
+                    />
+                  </div>
+                  <div>
+                    <input
+                      type={filterEndDate ? "date" : "text"}
+                      placeholder="Tanggal Akhir..."
+                      value={filterEndDate}
+                      onClick={(e) => {
+                        try { (e.target as HTMLInputElement).showPicker(); } catch (err) {}
+                      }}
+                      onFocus={(e) => {
+                        e.target.type = 'date';
+                        try { (e.target as HTMLInputElement).showPicker(); } catch (err) {}
+                      }}
+                      onBlur={(e) => { if (!e.target.value) e.target.type = 'text'; }}
+                      onChange={(e) => setFilterEndDate(e.target.value)}
+                      className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-school-blue/20 outline-none text-slate-700 dark:text-slate-200 font-bold text-center cursor-pointer transition-all hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700 dark:[color-scheme:dark]"
+                    />
+                  </div>
+                  <div className="relative" ref={sortDropdownRef}>
+                    <button
+                      type="button"
+                      onClick={() => setIsSortDropdownOpen(!isSortDropdownOpen)}
+                      className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-4 py-2.5 text-sm outline-none text-slate-700 dark:text-slate-200 font-bold flex justify-center items-center transition-all hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700 hover:border-slate-300 focus:ring-2 focus:ring-school-blue/20"
+                    >
+                      <span className="flex items-center gap-2">
+                        {sortOrder === 'newest' && <><ArrowDown size={16} className="text-school-blue dark:text-white" /> Terbaru</>}
+                        {sortOrder === 'oldest' && <><ArrowUp size={16} className="text-school-blue dark:text-white" /> Terlama</>}
+                      </span>
+                    </button>
+
+                    {isSortDropdownOpen && (
+                      <div className="absolute z-50 w-full mt-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-lg overflow-hidden animate-in fade-in zoom-in-95 duration-100">
+                        <button
+                          type="button"
+                          onClick={() => { setSortOrder('newest'); setIsSortDropdownOpen(false); }}
+                          className={`w-full text-left px-4 py-2.5 text-sm font-semibold flex items-center gap-2 transition-colors hover:bg-slate-50 dark:hover:bg-slate-700 ${sortOrder === 'newest' ? 'text-school-blue dark:text-white bg-blue-50/50 dark:bg-blue-900/40' : 'text-slate-700 dark:text-slate-200'}`}
+                        >
+                          <ArrowDown size={16} className={sortOrder === 'newest' ? 'text-school-blue dark:text-white' : 'text-slate-500 dark:text-slate-400'} /> Terbaru
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => { setSortOrder('oldest'); setIsSortDropdownOpen(false); }}
+                          className={`w-full text-left px-4 py-2.5 text-sm font-semibold flex items-center gap-2 transition-colors hover:bg-slate-50 dark:hover:bg-slate-700 ${sortOrder === 'oldest' ? 'text-school-blue dark:text-white bg-blue-50/50 dark:bg-blue-900/40' : 'text-slate-700 dark:text-slate-200'}`}
+                        >
+                          <ArrowUp size={16} className={sortOrder === 'oldest' ? 'text-school-blue dark:text-white' : 'text-slate-500 dark:text-slate-400'} /> Terlama
+                        </button>
+                      </div>
+                    )}
+                  </div>
+
+                  {(filterStartDate || filterEndDate || sortOrder !== 'newest') && (
+                    <button
+                      onClick={() => {
+                        setFilterStartDate('');
+                        setFilterEndDate('');
+                        setSortOrder('newest');
+                      }}
+                      className="w-full mt-2 pt-1 text-xs font-bold text-rose-500 hover:text-rose-600 dark:text-rose-400 dark:hover:text-rose-300 hover:underline transition-colors text-center"
+                    >
+                      Reset Filter
+                    </button>
+                  )}
+                </div>
+              </div>
+            )}
           </div>
         </div>
         

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { User, Role, MasterJabatan } from '../../lib/types';
 import { getUsers, updateStaffAssignment, getPositions, deleteUser, addPosition, deletePosition, updatePosition } from '../../lib/db';
-import { Users, Search, CheckCircle, Clock, ChevronDown, Check, Edit, Trash2, Settings, Plus, Briefcase, X, Loader2 } from 'lucide-react';
+import { Users, Search, CheckCircle, Clock, ChevronDown, Check, Edit, Trash2, Settings, Plus, Briefcase, X, Loader2, SlidersHorizontal } from 'lucide-react';
 import { useRealtimeSubscription } from '../../lib/useRealtime';
 
 export const AdminStaffList: React.FC = () => {
@@ -30,6 +30,21 @@ export const AdminStaffList: React.FC = () => {
   const [editJabatanName, setEditJabatanName] = useState('');
   const [isSavingEdit, setIsSavingEdit] = useState(false);
 
+  // Filter States
+  const [showFilterPopup, setShowFilterPopup] = useState(false);
+  const [filterStatus, setFilterStatus] = useState<'all' | 'active' | 'inactive'>('all');
+  const filterPopupRef = React.useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (filterPopupRef.current && !filterPopupRef.current.contains(event.target as Node)) {
+        setShowFilterPopup(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
   const fetchStaff = async () => {
     const data = await getUsers();
     setStaff(data);
@@ -53,10 +68,19 @@ export const AdminStaffList: React.FC = () => {
 
   useRealtimeSubscription(['profil_pengguna'], fetchStaff);
 
-  const filteredStaff = staff.filter(s =>
-    s.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    (s.position || '').toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredStaff = staff.filter(s => {
+    const matchesSearch = s.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (s.position || '').toLowerCase().includes(searchTerm.toLowerCase());
+    
+    let matchesStatus = true;
+    if (filterStatus === 'active') {
+      matchesStatus = s.isApproved === true;
+    } else if (filterStatus === 'inactive') {
+      matchesStatus = !s.isApproved;
+    }
+
+    return matchesSearch && matchesStatus;
+  });
 
   const openAssignModal = (user: User) => {
     setSelectedUser(user);
@@ -164,7 +188,7 @@ export const AdminStaffList: React.FC = () => {
           <p className="text-slate-500 dark:text-slate-400 text-sm sm:text-base lg:text-lg">Kelola dan lihat profil seluruh pegawai sekolah</p>
         </div>
 
-        <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto shrink-0 bg-white dark:bg-slate-800 md:bg-transparent p-4 md:p-0 rounded-2xl md:rounded-none shadow-sm md:shadow-none border border-slate-100 dark:border-slate-700 md:border-none">
+        <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto shrink-0 bg-white dark:bg-slate-800 md:bg-transparent p-4 md:p-0 rounded-2xl md:rounded-none shadow-sm md:shadow-none border border-slate-100 dark:border-slate-700 md:border-none relative z-10">
           <div className="relative w-full sm:w-64 shrink-0">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
               <Search size={20} />
@@ -234,7 +258,7 @@ export const AdminStaffList: React.FC = () => {
             {availablePositions.length > 0 ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                 {availablePositions.map(pos => (
-                  <div key={pos.id} className="flex items-center justify-between p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 hover:bg-white dark:bg-slate-800 hover:shadow-sm transition-all group">
+                  <div key={pos.id} className="flex items-center justify-between p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 hover:bg-white dark:hover:bg-slate-800 hover:shadow-sm transition-all group">
                     {editingJabatanId === pos.id ? (
                       <form onSubmit={handleUpdateJabatan} className="flex flex-1 items-center gap-2">
                         <input
@@ -450,10 +474,61 @@ export const AdminStaffList: React.FC = () => {
         </div>
       )}
 
-      <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
-        <div className="p-4 border-b border-slate-200 dark:border-slate-700 flex items-center space-x-2 bg-white dark:bg-slate-800">
-          <Users size={20} className="text-slate-600 dark:text-slate-300" />
-          <h2 className="font-bold text-slate-800 dark:text-slate-50 text-lg">Data Staf & Guru</h2>
+      <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 relative">
+        <div className="p-4 border-b border-slate-200 dark:border-slate-700 flex flex-row items-center justify-between gap-3 bg-white dark:bg-slate-800">
+          <div className="flex items-center space-x-2">
+            <Users size={20} className="text-slate-600 dark:text-slate-300" />
+            <h2 className="font-bold text-slate-800 dark:text-slate-50 text-lg">Data Staf & Guru</h2>
+          </div>
+          
+          <div className="flex items-center gap-2 relative" ref={filterPopupRef}>
+            <button
+              onClick={() => setShowFilterPopup(!showFilterPopup)}
+              className={`flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-bold transition-all border border-transparent ${showFilterPopup || filterStatus !== 'all'
+                ? 'bg-school-blue text-white shadow-md'
+                : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-700 shadow-sm'
+                }`}
+            >
+              <SlidersHorizontal size={16} />
+              Filter
+            </button>
+
+            {/* Pop-up Filter */}
+            {showFilterPopup && (
+              <div className="absolute right-0 top-full mt-2 w-full sm:w-64 bg-white dark:bg-slate-800 rounded-xl shadow-xl border border-slate-200 dark:border-slate-700 p-4 z-50 animate-in fade-in slide-in-from-top-2 text-left">
+                <div className="flex justify-between items-center mb-4">
+                  <h3 className="font-bold text-slate-800 dark:text-slate-50 text-sm">Filter Status</h3>
+                  <button onClick={() => setShowFilterPopup(false)} className="text-slate-400 hover:text-slate-600 dark:text-slate-300 bg-slate-50 dark:bg-slate-900 hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700 p-1 rounded-md transition-colors">
+                    <X size={16} />
+                  </button>
+                </div>
+
+                <div className="space-y-3">
+                  <div className="relative">
+                    <select
+                      value={filterStatus}
+                      onChange={(e) => setFilterStatus(e.target.value as any)}
+                      className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-school-blue/20 outline-none text-slate-700 dark:text-slate-200 font-bold appearance-none transition-all hover:bg-slate-100 dark:hover:bg-slate-800"
+                    >
+                      <option value="all">Semua Status</option>
+                      <option value="active">Aktif</option>
+                      <option value="inactive">Nonaktif</option>
+                    </select>
+                    <ChevronDown size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+                  </div>
+
+                  {filterStatus !== 'all' && (
+                    <button
+                      onClick={() => setFilterStatus('all')}
+                      className="w-full mt-2 pt-1 text-xs font-bold text-rose-500 hover:text-rose-600 dark:text-rose-400 dark:hover:text-rose-300 hover:underline transition-colors text-center"
+                    >
+                      Reset Filter
+                    </button>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
         </div>
         <div className="overflow-x-auto">
           {/* Desktop Table View */}

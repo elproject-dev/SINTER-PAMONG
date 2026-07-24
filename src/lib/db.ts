@@ -350,7 +350,9 @@ export const getUserTaskReports = async (userId: string): Promise<TaskReport[]> 
       totalUpdates: (d.link ? 1 : 0) + (d.lampiran_tugas?.length || 0),
       totalMenunggu,
       totalDisetujui,
-      totalDitolak
+      totalDitolak,
+      rawTotalScore: totalScore,
+      rawScoredCount: scoredCount
     };
   });
 };
@@ -413,7 +415,9 @@ export const getAllTaskReports = async (): Promise<TaskReport[]> => {
       totalUpdates: (d.link ? 1 : 0) + (d.lampiran_tugas?.length || 0),
       totalMenunggu,
       totalDisetujui,
-      totalDitolak
+      totalDitolak,
+      rawTotalScore: totalScore,
+      rawScoredCount: scoredCount
     };
   });
 };

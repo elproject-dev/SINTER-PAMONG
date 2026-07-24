@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { User, KPIEvaluation, StaffTask } from '../../lib/types';
 import { getUserKPIs, getUsers, getStaffTasks } from '../../lib/db';
-import { Award, Eye, Search, Loader2 } from 'lucide-react';
+import { Award, Eye, Search, Loader2, SlidersHorizontal, X, ArrowDown, ArrowUp, ChevronDown } from 'lucide-react';
 import { format } from 'date-fns';
 import { id } from 'date-fns/locale';
 import { useRealtimeSubscription } from '../../lib/useRealtime';
@@ -28,6 +28,13 @@ export const KPI: React.FC<KPIProps> = ({ user }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedKPI, setSelectedKPI] = useState<KPIEvaluation | null>(null);
   const [userTasks, setUserTasks] = useState<StaffTask[]>([]);
+  const [showFilterPopup, setShowFilterPopup] = useState(false);
+  const [filterStartYear, setFilterStartYear] = useState('');
+  const [filterEndYear, setFilterEndYear] = useState('');
+  const [sortOrder, setSortOrder] = useState<'newest' | 'oldest'>('newest');
+  const filterPopupRef = useRef<HTMLDivElement>(null);
+  const [isSortDropdownOpen, setIsSortDropdownOpen] = useState(false);
+  const sortDropdownRef = useRef<HTMLDivElement>(null);
 
   const [isLoading, setIsLoading] = useState(true);
 
@@ -52,6 +59,17 @@ export const KPI: React.FC<KPIProps> = ({ user }) => {
 
   useEffect(() => {
     fetchKpis();
+
+    const handleClickOutside = (event: MouseEvent) => {
+      if (filterPopupRef.current && !filterPopupRef.current.contains(event.target as Node)) {
+        setShowFilterPopup(false);
+      }
+      if (sortDropdownRef.current && !sortDropdownRef.current.contains(event.target as Node)) {
+        setIsSortDropdownOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [user.id]);
 
   useRealtimeSubscription(['penilaian_kpi', 'nilai_kpi', 'profil_pengguna', 'tugas_staff'], fetchKpis);
@@ -63,14 +81,27 @@ export const KPI: React.FC<KPIProps> = ({ user }) => {
     return (totalScore / totalTasks).toFixed(1);
   };
 
-  const filteredKpis = kpis.filter(k =>
-    formatMonth(k.month).toLowerCase().includes(searchTerm.toLowerCase()) ||
-    (evaluatorMap[k.evaluatorId] || 'Admin').toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredKpis = kpis.filter(k => {
+    const matchesSearch = formatMonth(k.month).toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (evaluatorMap[k.evaluatorId] || 'Admin').toLowerCase().includes(searchTerm.toLowerCase());
+    
+    let matchesDate = true;
+    const year = k.month.substring(0, 4);
+    if (filterStartYear && year < filterStartYear) matchesDate = false;
+    if (filterEndYear && year > filterEndYear) matchesDate = false;
+
+    return matchesSearch && matchesDate;
+  }).sort((a, b) => {
+    if (sortOrder === 'newest') return b.month.localeCompare(a.month);
+    return a.month.localeCompare(b.month);
+  });
 
   const openDetailModal = (kpi: KPIEvaluation) => {
     setSelectedKPI(kpi);
   };
+
+  const availableYears = Array.from(new Set(kpis.map(k => k.month.substring(0, 4)))).sort((a, b) => b.localeCompare(a));
+  if (availableYears.length === 0) availableYears.push(new Date().getFullYear().toString());
 
   return (
     <div className="w-full space-y-8 animate-in fade-in duration-300">
@@ -80,25 +111,133 @@ export const KPI: React.FC<KPIProps> = ({ user }) => {
           <p className="text-slate-500 dark:text-slate-400 text-sm sm:text-base lg:text-lg">Pantau evaluasi kinerja dan skor penilaian bulanan Anda</p>
         </div>
 
-        <div className="relative w-full md:w-72 shrink-0">
-          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
-            <Search size={20} />
+        <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto shrink-0">
+          <div className="relative w-full sm:w-64">
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+              <Search size={16} />
+            </div>
+            <input
+              type="text"
+              placeholder="Cari periode atau penilai..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl py-2 pr-4 pl-10 text-slate-700 dark:text-slate-200 text-sm focus:ring-4 focus:ring-school-blue/10 focus:border-school-blue outline-none transition-all shadow-sm font-medium"
+            />
           </div>
-          <input
-            type="text"
-            placeholder="Cari periode atau penilai..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl py-2 pr-4 pl-10 text-slate-700 dark:text-slate-200 text-sm focus:ring-4 focus:ring-school-blue/10 focus:border-school-blue outline-none transition-all shadow-sm font-medium"
-          />
+
+          {/* Filter moved to table header */}
         </div>
       </div>
 
       {!selectedKPI ? (
-        <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
-          <div className="p-4 border-b border-slate-200 dark:border-slate-700 flex items-center space-x-2 bg-white dark:bg-slate-800">
-            <Award size={20} className="text-slate-600 dark:text-slate-300" />
-            <h2 className="font-bold text-slate-800 dark:text-slate-50 text-lg">Daftar Penilaian Kinerja</h2>
+        <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700">
+          <div className="p-4 border-b border-slate-200 dark:border-slate-700 flex flex-row items-center justify-between gap-4 bg-white dark:bg-slate-800 relative z-10 rounded-t-xl">
+            <div className="flex items-center space-x-2 truncate">
+              <Award size={20} className="text-slate-600 dark:text-slate-300 shrink-0" />
+              <h2 className="font-bold text-slate-800 dark:text-slate-50 text-lg">Daftar Penilaian Kinerja</h2>
+            </div>
+            
+            <div className="flex items-center gap-2 relative" ref={filterPopupRef}>
+              <button
+                onClick={() => setShowFilterPopup(!showFilterPopup)}
+                className={`flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-bold transition-all border border-transparent ${showFilterPopup || filterStartYear || filterEndYear || sortOrder !== 'newest'
+                  ? 'bg-school-blue text-white shadow-md'
+                  : 'bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700 shadow-sm border'
+                  }`}
+              >
+                <SlidersHorizontal size={16} />
+                Filter
+              </button>
+
+              {/* Pop-up Filter */}
+              {showFilterPopup && (
+                <div className="absolute right-0 top-full mt-2 w-[calc(100vw-32px)] sm:w-72 bg-white dark:bg-slate-800 rounded-xl shadow-xl border border-slate-200 dark:border-slate-700 p-4 z-50 animate-in fade-in slide-in-from-top-2">
+                  <div className="flex justify-between items-center mb-4">
+                    <h3 className="font-bold text-slate-800 dark:text-slate-50 text-sm">Filter Data</h3>
+                    <button onClick={() => setShowFilterPopup(false)} className="text-slate-400 hover:text-slate-600 dark:text-slate-300 bg-slate-50 dark:bg-slate-900 hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700 p-1 rounded-md transition-colors">
+                      <X size={16} />
+                    </button>
+                  </div>
+
+                  <div className="space-y-3">
+                    <div className="relative">
+                      <select
+                        value={filterStartYear}
+                        onChange={(e) => setFilterStartYear(e.target.value)}
+                        className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-school-blue/20 outline-none text-slate-700 dark:text-slate-200 font-bold transition-all hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700 appearance-none cursor-pointer"
+                      >
+                        <option value="">Semua Tahun</option>
+                        {availableYears.map(year => (
+                          <option key={year} value={year}>{year}</option>
+                        ))}
+                      </select>
+                      <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-slate-500 dark:text-slate-400">
+                        <ChevronDown size={16} />
+                      </div>
+                    </div>
+                    <div className="relative">
+                      <select
+                        value={filterEndYear}
+                        onChange={(e) => setFilterEndYear(e.target.value)}
+                        className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-school-blue/20 outline-none text-slate-700 dark:text-slate-200 font-bold transition-all hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700 appearance-none cursor-pointer"
+                      >
+                        <option value="">Semua Tahun</option>
+                        {availableYears.map(year => (
+                          <option key={year} value={year}>{year}</option>
+                        ))}
+                      </select>
+                      <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-slate-500 dark:text-slate-400">
+                        <ChevronDown size={16} />
+                      </div>
+                    </div>
+                    <div className="relative" ref={sortDropdownRef}>
+                      <button
+                        type="button"
+                        onClick={() => setIsSortDropdownOpen(!isSortDropdownOpen)}
+                        className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-4 py-2.5 text-sm outline-none text-slate-700 dark:text-slate-200 font-bold flex justify-center items-center transition-all hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700 hover:border-slate-300 focus:ring-2 focus:ring-school-blue/20"
+                      >
+                        <span className="flex items-center gap-2">
+                          {sortOrder === 'newest' && <><ArrowDown size={16} className="text-school-blue dark:text-white" /> Terbaru</>}
+                          {sortOrder === 'oldest' && <><ArrowUp size={16} className="text-school-blue dark:text-white" /> Terlama</>}
+                        </span>
+                      </button>
+
+                      {isSortDropdownOpen && (
+                        <div className="absolute z-50 w-full mt-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-lg overflow-hidden animate-in fade-in zoom-in-95 duration-100">
+                          <button
+                            type="button"
+                            onClick={() => { setSortOrder('newest'); setIsSortDropdownOpen(false); }}
+                            className={`w-full text-left px-4 py-2.5 text-sm font-semibold flex items-center gap-2 transition-colors hover:bg-slate-50 dark:hover:bg-slate-700 ${sortOrder === 'newest' ? 'text-school-blue dark:text-white bg-blue-50/50 dark:bg-blue-900/40' : 'text-slate-700 dark:text-slate-200'}`}
+                          >
+                            <ArrowDown size={16} className={sortOrder === 'newest' ? 'text-school-blue dark:text-white' : 'text-slate-500 dark:text-slate-400'} /> Terbaru
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => { setSortOrder('oldest'); setIsSortDropdownOpen(false); }}
+                            className={`w-full text-left px-4 py-2.5 text-sm font-semibold flex items-center gap-2 transition-colors hover:bg-slate-50 dark:hover:bg-slate-700 ${sortOrder === 'oldest' ? 'text-school-blue dark:text-white bg-blue-50/50 dark:bg-blue-900/40' : 'text-slate-700 dark:text-slate-200'}`}
+                          >
+                            <ArrowUp size={16} className={sortOrder === 'oldest' ? 'text-school-blue dark:text-white' : 'text-slate-500 dark:text-slate-400'} /> Terlama
+                          </button>
+                        </div>
+                      )}
+                    </div>
+
+                    {(filterStartYear || filterEndYear || sortOrder !== 'newest') && (
+                      <button
+                        onClick={() => {
+                          setFilterStartYear('');
+                          setFilterEndYear('');
+                          setSortOrder('newest');
+                        }}
+                        className="w-full mt-2 pt-1 text-xs font-bold text-rose-500 hover:text-rose-600 dark:text-rose-400 dark:hover:text-rose-300 hover:underline transition-colors text-center"
+                      >
+                        Reset Filter
+                      </button>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
           <div className="overflow-x-auto">
             {/* Desktop Table View */}
@@ -267,7 +406,7 @@ export const KPI: React.FC<KPIProps> = ({ user }) => {
                     <StarRating score={Number(getKPIAverage(selectedKPI)) || 0} size={22} />
                   </div>
                 </div>
-                <div className="flex items-center justify-center w-16 h-16 rounded-full border-[5px] border-amber-500 bg-amber-50/30 text-amber-500 font-black text-xl shadow-sm">
+                <div className="flex items-center justify-center w-16 h-16 rounded-full border-[5px] border-amber-500 bg-amber-50/30 dark:bg-slate-900 text-amber-500 font-black text-xl shadow-sm">
                   {getKPIAverage(selectedKPI)}
                 </div>
               </div>

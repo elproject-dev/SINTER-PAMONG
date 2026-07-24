@@ -66,6 +66,8 @@ export interface TaskReport {
   totalMenunggu?: number;
   totalDisetujui?: number;
   totalDitolak?: number;
+  rawTotalScore?: number;
+  rawScoredCount?: number;
 }
 
 export interface SchoolSettings {

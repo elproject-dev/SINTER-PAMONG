@@ -119,7 +119,7 @@ export const ListAbsensi: React.FC = () => {
       const staffRecords = displayRecords.filter(r => r.userId === s.id);
       const totalHadir = staffRecords.filter(r => r.status === 'present').length;
       const totalIzinSakit = staffRecords.filter(r => r.status === 'sick' || r.status === 'leave').length;
-      
+
       // Calculate score, max 5.0
       let score = (totalHadir / totalWorkingDays) * 5.0;
       if (score > 5.0) score = 5.0;
@@ -209,7 +209,7 @@ export const ListAbsensi: React.FC = () => {
                       }}
                       value={filterStartDate}
                       onChange={(e) => setFilterStartDate(e.target.value)}
-                      className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-school-blue/20 outline-none text-slate-700 dark:text-slate-200 font-bold text-center cursor-pointer transition-all hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700"
+                      className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-school-blue/20 outline-none text-slate-700 dark:text-slate-200 font-bold text-center cursor-pointer transition-all hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700 dark:[color-scheme:dark]"
                     />
                   </div>
                   <div>
@@ -226,7 +226,7 @@ export const ListAbsensi: React.FC = () => {
                       }}
                       value={filterEndDate}
                       onChange={(e) => setFilterEndDate(e.target.value)}
-                      className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-school-blue/20 outline-none text-slate-700 dark:text-slate-200 font-bold text-center cursor-pointer transition-all hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700"
+                      className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-school-blue/20 outline-none text-slate-700 dark:text-slate-200 font-bold text-center cursor-pointer transition-all hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700 dark:[color-scheme:dark]"
                     />
                   </div>
                   <div className="relative" ref={statusDropdownRef}>
@@ -362,178 +362,178 @@ export const ListAbsensi: React.FC = () => {
             <>
               {/* Desktop Table View */}
               <table className="w-full text-left border-collapse min-w-[900px] hidden lg:table">
-            <thead>
-              <tr className="bg-slate-50 dark:bg-slate-900 text-slate-500 dark:text-slate-400 text-xs uppercase tracking-wider">
-                <th className="px-4 py-3 font-bold border border-slate-200 dark:border-slate-700 w-12 text-center">NO</th>
-                <th className="px-4 py-3 font-bold border border-slate-200 dark:border-slate-700 w-36 text-center">TANGGAL</th>
-                <th className="px-4 py-3 font-bold border border-slate-200 dark:border-slate-700">NAMA LENGKAP</th>
-                <th className="px-4 py-3 font-bold border border-slate-200 dark:border-slate-700">PROFESI / JABATAN</th>
-                <th className="px-4 py-3 font-bold border border-slate-200 dark:border-slate-700 text-center">STATUS</th>
-                <th className="px-4 py-3 font-bold border border-slate-200 dark:border-slate-700 text-center w-28">JAM MASUK</th>
-                <th className="px-4 py-3 font-bold border border-slate-200 dark:border-slate-700 text-center w-28">JAM KELUAR</th>
-                <th className="px-4 py-3 font-bold border border-slate-200 dark:border-slate-700 w-64">CATATAN</th>
-                <th className="px-4 py-3 font-bold border border-slate-200 dark:border-slate-700 text-center w-20">FOTO</th>
-                <th className="px-4 py-3 font-bold border border-slate-200 dark:border-slate-700 text-center">LOKASI (GPS)</th>
-              </tr>
-            </thead>
-            <tbody>
-              {isLoading ? (
-                <tr>
-                  <td colSpan={10} className="p-12 text-center text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-700">
+                <thead>
+                  <tr className="bg-slate-50 dark:bg-slate-900 text-slate-500 dark:text-slate-400 text-xs uppercase tracking-wider">
+                    <th className="px-4 py-3 font-bold border border-slate-200 dark:border-slate-700 w-12 text-center">NO</th>
+                    <th className="px-4 py-3 font-bold border border-slate-200 dark:border-slate-700 w-36 text-center">TANGGAL</th>
+                    <th className="px-4 py-3 font-bold border border-slate-200 dark:border-slate-700">NAMA LENGKAP</th>
+                    <th className="px-4 py-3 font-bold border border-slate-200 dark:border-slate-700">PROFESI / JABATAN</th>
+                    <th className="px-4 py-3 font-bold border border-slate-200 dark:border-slate-700 text-center">STATUS</th>
+                    <th className="px-4 py-3 font-bold border border-slate-200 dark:border-slate-700 text-center w-28">JAM MASUK</th>
+                    <th className="px-4 py-3 font-bold border border-slate-200 dark:border-slate-700 text-center w-28">JAM KELUAR</th>
+                    <th className="px-4 py-3 font-bold border border-slate-200 dark:border-slate-700 w-64">CATATAN</th>
+                    <th className="px-4 py-3 font-bold border border-slate-200 dark:border-slate-700 text-center w-20">FOTO</th>
+                    <th className="px-4 py-3 font-bold border border-slate-200 dark:border-slate-700 text-center">LOKASI (GPS)</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {isLoading ? (
+                    <tr>
+                      <td colSpan={10} className="p-12 text-center text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-700">
+                        <div className="flex justify-center mb-3 text-school-blue dark:text-white">
+                          <Loader2 size={32} className="animate-spin" />
+                        </div>
+                        <p className="font-bold text-lg text-slate-600 dark:text-slate-300 mb-1">Memuat Data...</p>
+                      </td>
+                    </tr>
+                  ) : displayRecords.length > 0 ? (
+                    displayRecords.map((record, index) => (
+                      <tr key={record.id} className="hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
+                        <td className="px-4 py-3 border border-slate-200 dark:border-slate-700 text-center text-sm font-medium text-slate-500 dark:text-slate-400">
+                          {index + 1}
+                        </td>
+                        <td className="px-4 py-3 border border-slate-200 dark:border-slate-700 text-sm text-slate-700 dark:text-slate-200 text-center">
+                          {format(new Date(record.date), 'dd MMM yyyy', { locale: id })}
+                        </td>
+                        <td className="px-4 py-3 border border-slate-200 dark:border-slate-700 text-sm">
+                          <div className="font-bold text-school-blue dark:text-white">{getStaffName(record.userId)}</div>
+                        </td>
+                        <td className="px-4 py-3 border border-slate-200 dark:border-slate-700 text-sm text-slate-600 dark:text-slate-300">
+                          {getStaffPosition(record.userId) || <span className="text-slate-300">-</span>}
+                        </td>
+                        <td className="px-4 py-3 border border-slate-200 dark:border-slate-700 text-center">
+                          {getStatusBadge(record.status)}
+                        </td>
+                        <td className="px-4 py-3 border border-slate-200 dark:border-slate-700 text-center text-sm text-slate-600 dark:text-slate-300">
+                          {record.checkIn ? format(new Date(record.checkIn), 'HH:mm') : '-'}
+                        </td>
+                        <td className="px-4 py-3 border border-slate-200 dark:border-slate-700 text-center text-sm text-slate-600 dark:text-slate-300">
+                          {record.checkOut ? format(new Date(record.checkOut), 'HH:mm') : '-'}
+                        </td>
+                        <td className="px-4 py-3 border border-slate-200 dark:border-slate-700 text-sm text-slate-500 dark:text-slate-400 max-w-[200px] truncate" title={record.note}>
+                          {record.note || '-'}
+                        </td>
+                        <td className="px-4 py-3 border border-slate-200 dark:border-slate-700 text-center">
+                          {record.selfieUrl ? (
+                            <a
+                              href={record.selfieUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-school-blue dark:text-white hover:text-blue-700 dark:hover:text-slate-300 hover:underline font-bold text-sm"
+                              title="Lihat Foto Selfie di Tab Baru"
+                            >
+                              Lihat
+                            </a>
+                          ) : (
+                            <span className="text-slate-400 text-xs">-</span>
+                          )}
+                        </td>
+                        <td className="px-4 py-3 border border-slate-200 dark:border-slate-700 text-center">
+                          {record.latitude && record.longitude ? (
+                            <a
+                              href={`https://www.google.com/maps/search/?api=1&query=${record.latitude},${record.longitude}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              title="Lihat Lokasi GPS"
+                              className="p-2 rounded-lg text-school-blue dark:text-white hover:bg-blue-50 dark:bg-slate-800 dark:hover:bg-slate-700 transition-colors inline-flex items-center justify-center mx-auto"
+                            >
+                              <Eye size={18} />
+                            </a>
+                          ) : (
+                            <span className="text-slate-400 text-xs">-</span>
+                          )}
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan={10} className="p-8 text-center text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-700">
+                        Belum ada data absensi.
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+
+              {/* Mobile Card View */}
+              <div className="lg:hidden flex flex-col divide-y divide-slate-100 dark:divide-slate-700">
+                {isLoading ? (
+                  <div className="p-8 text-center text-slate-500 dark:text-slate-400">
                     <div className="flex justify-center mb-3 text-school-blue dark:text-white">
                       <Loader2 size={32} className="animate-spin" />
                     </div>
                     <p className="font-bold text-lg text-slate-600 dark:text-slate-300 mb-1">Memuat Data...</p>
-                  </td>
-                </tr>
-              ) : displayRecords.length > 0 ? (
-                displayRecords.map((record, index) => (
-                  <tr key={record.id} className="hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
-                    <td className="px-4 py-3 border border-slate-200 dark:border-slate-700 text-center text-sm font-medium text-slate-500 dark:text-slate-400">
-                      {index + 1}
-                    </td>
-                    <td className="px-4 py-3 border border-slate-200 dark:border-slate-700 text-sm text-slate-700 dark:text-slate-200 text-center">
-                      {format(new Date(record.date), 'dd MMM yyyy', { locale: id })}
-                    </td>
-                    <td className="px-4 py-3 border border-slate-200 dark:border-slate-700 text-sm">
-                      <div className="font-bold text-school-blue dark:text-white">{getStaffName(record.userId)}</div>
-                    </td>
-                    <td className="px-4 py-3 border border-slate-200 dark:border-slate-700 text-sm text-slate-600 dark:text-slate-300">
-                      {getStaffPosition(record.userId) || <span className="text-slate-300">-</span>}
-                    </td>
-                    <td className="px-4 py-3 border border-slate-200 dark:border-slate-700 text-center">
-                      {getStatusBadge(record.status)}
-                    </td>
-                    <td className="px-4 py-3 border border-slate-200 dark:border-slate-700 text-center text-sm text-slate-600 dark:text-slate-300">
-                      {record.checkIn ? format(new Date(record.checkIn), 'HH:mm') : '-'}
-                    </td>
-                    <td className="px-4 py-3 border border-slate-200 dark:border-slate-700 text-center text-sm text-slate-600 dark:text-slate-300">
-                      {record.checkOut ? format(new Date(record.checkOut), 'HH:mm') : '-'}
-                    </td>
-                    <td className="px-4 py-3 border border-slate-200 dark:border-slate-700 text-sm text-slate-500 dark:text-slate-400 max-w-[200px] truncate" title={record.note}>
-                      {record.note || '-'}
-                    </td>
-                    <td className="px-4 py-3 border border-slate-200 dark:border-slate-700 text-center">
-                      {record.selfieUrl ? (
-                        <a
-                          href={record.selfieUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-school-blue dark:text-white hover:text-blue-700 dark:hover:text-slate-300 hover:underline font-bold text-sm"
-                          title="Lihat Foto Selfie di Tab Baru"
-                        >
-                          Lihat
-                        </a>
-                      ) : (
-                        <span className="text-slate-400 text-xs">-</span>
-                      )}
-                    </td>
-                    <td className="px-4 py-3 border border-slate-200 dark:border-slate-700 text-center">
-                      {record.latitude && record.longitude ? (
-                        <a
-                          href={`https://www.google.com/maps/search/?api=1&query=${record.latitude},${record.longitude}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          title="Lihat Lokasi GPS"
-                          className="p-2 rounded-lg text-school-blue dark:text-white hover:bg-blue-50 dark:bg-slate-800 dark:hover:bg-slate-700 transition-colors inline-flex items-center justify-center mx-auto"
-                        >
-                          <Eye size={18} />
-                        </a>
-                      ) : (
-                        <span className="text-slate-400 text-xs">-</span>
-                      )}
-                    </td>
-                  </tr>
-                ))
-              ) : (
-                <tr>
-                  <td colSpan={10} className="p-8 text-center text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-700">
-                    Belum ada data absensi.
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
+                  </div>
+                ) : displayRecords.length > 0 ? (
+                  displayRecords.map(record => (
+                    <div key={record.id} className="p-4 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors flex flex-col gap-3">
+                      <div className="flex justify-between items-start">
+                        <div className="flex items-center gap-3">
+                          {/* Removed image thumbnail from here */}
+                          <div className="flex flex-col">
+                            <span className="text-xs font-bold text-slate-400 mb-0.5">{format(new Date(record.date), 'dd MMM yyyy', { locale: id })}</span>
+                            <h3 className="font-extrabold text-school-blue dark:text-white text-base">{getStaffName(record.userId)}</h3>
+                            {getStaffPosition(record.userId) && (
+                              <span className="text-xs text-slate-500 dark:text-slate-400 font-medium">{getStaffPosition(record.userId)}</span>
+                            )}
+                          </div>
+                        </div>
+                        <div>
+                          {getStatusBadge(record.status)}
+                        </div>
+                      </div>
 
-          {/* Mobile Card View */}
-          <div className="lg:hidden flex flex-col divide-y divide-slate-100 dark:divide-slate-700">
-            {isLoading ? (
-              <div className="p-8 text-center text-slate-500 dark:text-slate-400">
-                <div className="flex justify-center mb-3 text-school-blue dark:text-white">
-                  <Loader2 size={32} className="animate-spin" />
-                </div>
-                <p className="font-bold text-lg text-slate-600 dark:text-slate-300 mb-1">Memuat Data...</p>
-              </div>
-            ) : displayRecords.length > 0 ? (
-              displayRecords.map(record => (
-                <div key={record.id} className="p-4 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors flex flex-col gap-3">
-                  <div className="flex justify-between items-start">
-                    <div className="flex items-center gap-3">
-                      {/* Removed image thumbnail from here */}
-                      <div className="flex flex-col">
-                        <span className="text-xs font-bold text-slate-400 mb-0.5">{format(new Date(record.date), 'dd MMM yyyy', { locale: id })}</span>
-                        <h3 className="font-extrabold text-school-blue dark:text-white text-base">{getStaffName(record.userId)}</h3>
-                        {getStaffPosition(record.userId) && (
-                          <span className="text-xs text-slate-500 dark:text-slate-400 font-medium">{getStaffPosition(record.userId)}</span>
-                        )}
+                      <div className="text-sm flex flex-col gap-1.5 bg-slate-50 dark:bg-slate-900/50 p-3 rounded-lg border border-slate-100 dark:border-slate-700">
+                        <div className="flex items-center justify-between">
+                          <span className="text-slate-400 text-xs font-bold uppercase tracking-wider">Jam Masuk</span>
+                          <span className="font-semibold text-slate-700 dark:text-slate-200">{record.checkIn ? format(new Date(record.checkIn), 'HH:mm') : '-'}</span>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <span className="text-slate-400 text-xs font-bold uppercase tracking-wider">Jam Keluar</span>
+                          <span className="font-semibold text-slate-700 dark:text-slate-200">{record.checkOut ? format(new Date(record.checkOut), 'HH:mm') : '-'}</span>
+                        </div>
+                      </div>
+
+                      <div className="pt-2 flex justify-between items-center mt-1">
+                        <div className="text-xs text-slate-500 dark:text-slate-400 italic max-w-[50%] truncate">
+                          {record.note ? `Catatan: ${record.note}` : 'Tidak ada catatan'}
+                        </div>
+                        <div className="flex items-center gap-3">
+                          {record.selfieUrl && (
+                            <a
+                              href={record.selfieUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-school-blue dark:text-white hover:text-blue-700 dark:hover:text-slate-300 hover:underline text-xs font-bold"
+                            >
+                              Lihat Foto
+                            </a>
+                          )}
+                          {record.latitude && record.longitude ? (
+                            <a
+                              href={`https://www.google.com/maps/search/?api=1&query=${record.latitude},${record.longitude}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center text-xs font-bold text-white bg-[#00bcd4] hover:bg-cyan-500 px-3 py-1.5 rounded-md transition-colors shadow-sm"
+                            >
+                              <MapPin size={14} className="mr-1.5" /> Lokasi
+                            </a>
+                          ) : (
+                            <span className="text-slate-400 text-xs">Tanpa GPS</span>
+                          )}
+                        </div>
                       </div>
                     </div>
-                    <div>
-                      {getStatusBadge(record.status)}
+                  ))
+                ) : (
+                  <div className="p-8 text-center text-slate-500 dark:text-slate-400">
+                    <div className="flex justify-center mb-2 text-slate-300">
+                      <List size={32} />
                     </div>
+                    Belum ada data absensi.
                   </div>
-
-                  <div className="text-sm flex flex-col gap-1.5 bg-slate-50 dark:bg-slate-900/50 p-3 rounded-lg border border-slate-100 dark:border-slate-700">
-                    <div className="flex items-center justify-between">
-                      <span className="text-slate-400 text-xs font-bold uppercase tracking-wider">Jam Masuk</span>
-                      <span className="font-semibold text-slate-700 dark:text-slate-200">{record.checkIn ? format(new Date(record.checkIn), 'HH:mm') : '-'}</span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-slate-400 text-xs font-bold uppercase tracking-wider">Jam Keluar</span>
-                      <span className="font-semibold text-slate-700 dark:text-slate-200">{record.checkOut ? format(new Date(record.checkOut), 'HH:mm') : '-'}</span>
-                    </div>
-                  </div>
-
-                  <div className="pt-2 flex justify-between items-center mt-1">
-                    <div className="text-xs text-slate-500 dark:text-slate-400 italic max-w-[50%] truncate">
-                      {record.note ? `Catatan: ${record.note}` : 'Tidak ada catatan'}
-                    </div>
-                    <div className="flex items-center gap-3">
-                      {record.selfieUrl && (
-                        <a
-                          href={record.selfieUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-school-blue dark:text-white hover:text-blue-700 dark:hover:text-slate-300 hover:underline text-xs font-bold"
-                        >
-                          Lihat Foto
-                        </a>
-                      )}
-                      {record.latitude && record.longitude ? (
-                        <a
-                          href={`https://www.google.com/maps/search/?api=1&query=${record.latitude},${record.longitude}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="inline-flex items-center text-xs font-bold text-white bg-[#00bcd4] hover:bg-cyan-500 px-3 py-1.5 rounded-md transition-colors shadow-sm"
-                        >
-                          <MapPin size={14} className="mr-1.5" /> Lokasi
-                        </a>
-                      ) : (
-                        <span className="text-slate-400 text-xs">Tanpa GPS</span>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              ))
-            ) : (
-              <div className="p-8 text-center text-slate-500 dark:text-slate-400">
-                <div className="flex justify-center mb-2 text-slate-300">
-                  <List size={32} />
-                </div>
-                Belum ada data absensi.
+                )}
               </div>
-            )}
-          </div>
             </>
           )}
         </div>
